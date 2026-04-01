@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IFT 211 — Digital Logic Design CBT</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --card: #1a2236;
+    --border: #1e3a5f;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --green: #00ff88;
+    --red: #ff4466;
+    --yellow: #ffd700;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --glow: 0 0 20px rgba(0,212,255,0.3);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(0,212,255,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(124,58,237,0.06) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== GRID OVERLAY ===== */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== SCREENS ===== */
+  .screen { display: none; position: relative; z-index: 1; }
+  .screen.active { display: flex; }
+
+  /* ===== INTRO SCREEN ===== */
+  #intro {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid var(--accent);
+    border-radius: 100px;
+    padding: 8px 20px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 2rem;
+    animation: fadeDown 0.6s ease;
+  }
+
+  .logo-badge::before {
+    content: '◈';
+    animation: spin 3s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .intro-title {
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+    animation: fadeDown 0.7s ease;
+  }
+
+  .intro-title span {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .intro-sub {
+    font-size: 1rem;
+    color: var(--muted);
+    margin-bottom: 3rem;
+    animation: fadeDown 0.8s ease;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    max-width: 500px;
+    margin-bottom: 3rem;
+    animation: fadeUp 0.9s ease;
+  }
+
+  .info-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem 1rem;
+    text-align: center;
+  }
+
+  .info-card .val {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    font-family: 'Share Tech Mono', monospace;
+    display: block;
+  }
+
+  .info-card .lbl {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .rules {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    max-width: 500px;
+    text-align: left;
+    margin-bottom: 2.5rem;
+    animation: fadeUp 1s ease;
+  }
+
+  .rules h3 {
+    color: var(--accent);
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .rules li {
+    list-style: none;
+    padding: 0.4rem 0;
+    font-size: 0.9rem;
+    color: var(--muted);
+    padding-left: 1.2rem;
+    position: relative;
+  }
+
+  .rules li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+
+  .btn-start {
+    background: linear-gradient(135deg, var(--accent), #0099cc);
+    color: #000;
+    border: none;
+    padding: 1rem 3rem;
+    border-radius: 100px;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: var(--glow);
+    animation: fadeUp 1.1s ease;
+  }
+
+  .btn-start:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 0 40px rgba(0,212,255,0.5);
+  }
+
+  /* ===== QUIZ SCREEN ===== */
+  #quiz {
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .quiz-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,14,26,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.85rem;
+  }
+
+  .q-counter {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .q-total { color: var(--muted); }
+
+  .progress-bar-wrap {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    max-width: 300px;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    transition: width 0.4s ease;
+  }
+
+  .timer-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 0.4rem 1rem;
+  }
+
+  .timer-icon { font-size: 1rem; }
+
+  #timer-display {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 52px;
+    text-align: center;
+    transition: color 0.3s;
+  }
+
+  #timer-display.warning { color: var(--yellow); }
+  #timer-display.danger { color: var(--red); animation: pulse 0.5s infinite alternate; }
+
+  @keyframes pulse { from { opacity: 1; } to { opacity: 0.4; } }
+
+  /* ===== QUESTION BODY ===== */
+  .quiz-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 1.5rem;
+    max-width: 780px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .question-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .q-number-badge {
+    display: inline-block;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.3);
+    color: var(--accent);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+  }
+
+  .question-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .option-btn {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    width: 100%;
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 400;
+  }
+
+  .option-btn:hover {
+    border-color: var(--accent);
+    background: rgba(0,212,255,0.06);
+    transform: translateX(4px);
+  }
+
+  .option-btn.selected {
+    border-color: var(--accent);
+    background: rgba(0,212,255,0.12);
+    color: var(--accent);
+  }
+
+  .option-btn.correct {
+    border-color: var(--green);
+    background: rgba(0,255,136,0.1);
+    color: var(--green);
+  }
+
+  .option-btn.wrong {
+    border-color: var(--red);
+    background: rgba(255,68,102,0.1);
+    color: var(--red);
+  }
+
+  .option-letter {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+
+  .option-btn.selected .option-letter { background: var(--accent); color: #000; }
+  .option-btn.correct .option-letter { background: var(--green); color: #000; }
+  .option-btn.wrong .option-letter { background: var(--red); color: #fff; }
+
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-nav {
+    padding: 0.75rem 1.75rem;
+    border-radius: 100px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-nav:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn-nav:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .btn-nav.primary {
+    background: linear-gradient(135deg, var(--accent), #0099cc);
+    border-color: transparent;
+    color: #000;
+    font-weight: 700;
+  }
+
+  .btn-nav.primary:hover { box-shadow: var(--glow); transform: scale(1.02); }
+
+  .btn-nav.danger-btn {
+    background: rgba(255,68,102,0.1);
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  /* ===== QUESTION MAP ===== */
+  .q-map-wrap {
+    padding: 0 1.5rem 2rem;
+    max-width: 780px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .q-map-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 0.75rem;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .q-map {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .q-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-family: 'Share Tech Mono', monospace;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--muted);
+  }
+
+  .q-dot:hover { border-color: var(--accent); color: var(--accent); }
+  .q-dot.answered { background: rgba(0,212,255,0.15); border-color: var(--accent); color: var(--accent); }
+  .q-dot.current { background: var(--accent); color: #000; font-weight: 700; }
+
+  /* ===== RESULT SCREEN ===== */
+  #result {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .result-badge {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: bounceIn 0.6s ease;
+  }
+
+  @keyframes bounceIn {
+    0% { transform: scale(0); }
+    60% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+
+  .result-score {
+    font-size: clamp(3rem, 10vw, 5.5rem);
+    font-weight: 900;
+    font-family: 'Share Tech Mono', monospace;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .result-score.pass { color: var(--green); text-shadow: 0 0 30px rgba(0,255,136,0.4); }
+  .result-score.fail { color: var(--red); text-shadow: 0 0 30px rgba(255,68,102,0.4); }
+
+  .result-label {
+    font-size: 1rem;
+    color: var(--muted);
+    margin-bottom: 2.5rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .result-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    max-width: 480px;
+    margin-bottom: 2.5rem;
+  }
+
+  .stat-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.2rem;
+  }
+
+  .stat-box .sv {
+    font-size: 1.8rem;
+    font-weight: 700;
+    font-family: 'Share Tech Mono', monospace;
+    display: block;
+  }
+
+  .stat-box .sl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+  .stat-box.correct-stat .sv { color: var(--green); }
+  .stat-box.wrong-stat .sv { color: var(--red); }
+  .stat-box.skip-stat .sv { color: var(--yellow); }
+
+  .review-section {
+    width: 100%;
+    max-width: 680px;
+    text-align: left;
+    margin-bottom: 2rem;
+  }
+
+  .review-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .review-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    border-left: 3px solid var(--border);
+  }
+
+  .review-item.correct-item { border-left-color: var(--green); }
+  .review-item.wrong-item { border-left-color: var(--red); }
+
+  .review-q { font-size: 0.88rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text); }
+
+  .review-answers { display: flex; gap: 1.5rem; font-size: 0.8rem; flex-wrap: wrap; }
+  .review-answers .your { color: var(--red); }
+  .review-answers .correct-ans { color: var(--green); }
+
+  /* Full review option rows */
+  .review-opts { margin-top: 0.6rem; display: flex; flex-direction: column; gap: 5px; }
+  .review-opt {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.82rem; padding: 5px 10px; border-radius: 8px;
+    background: var(--surface); border: 1px solid var(--border);
+  }
+  .review-opt.opt-correct { background: rgba(0,255,136,0.08); border-color: var(--green); color: var(--green); }
+  .review-opt.opt-wrong   { background: rgba(255,68,102,0.08); border-color: var(--red);   color: var(--red);   }
+  .review-opt.opt-normal  { color: var(--muted); }
+  .review-opt .opt-ltr {
+    width: 22px; height: 22px; border-radius: 5px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; font-weight: 700;
+    background: var(--border);
+  }
+  .review-opt.opt-correct .opt-ltr { background: var(--green); color: #000; }
+  .review-opt.opt-wrong   .opt-ltr { background: var(--red);   color: #fff; }
+  .review-tag {
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;
+    padding: 2px 7px; border-radius: 100px; margin-left: auto; flex-shrink: 0;
+  }
+  .tag-correct { background: rgba(0,255,136,0.15); color: var(--green); }
+  .tag-wrong   { background: rgba(255,68,102,0.15); color: var(--red); }
+  .tag-skipped { background: rgba(255,215,0,0.15);  color: var(--yellow); }
+  .review-item-correct { border-left-color: var(--green) !important; }
+  .review-item-wrong   { border-left-color: var(--red)   !important; }
+  .review-item-skip    { border-left-color: var(--yellow) !important; }
+
+  .btn-retry {
+    background: linear-gradient(135deg, var(--accent2), #6d28d9);
+    color: #fff;
+    border: none;
+    padding: 1rem 2.5rem;
+    border-radius: 100px;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin: 0.5rem;
+  }
+
+  .btn-retry:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(124,58,237,0.4); }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .slide-in {
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @media (max-width: 500px) {
+    .info-grid { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+    .result-stats { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+    .quiz-header { padding: 0.6rem 1rem; }
+    .quiz-body { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== INTRO ===== -->
+<div id="intro" class="screen active">
+  <div class="logo-badge">IFT 211 — UNIPORT</div>
+  <h1 class="intro-title">Digital Logic<br><span>Design CBT</span></h1>
+  <p class="intro-sub">Test your knowledge. Beat the clock.</p>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <span class="val">50</span>
+      <span class="lbl">Questions</span>
+    </div>
+    <div class="info-card">
+      <span class="val">30</span>
+      <span class="lbl">Minutes</span>
+    </div>
+    <div class="info-card">
+      <span class="val">1.4</span>
+      <span class="lbl">Marks/Q</span>
+    </div>
+    <div class="info-card">
+      <span class="val">70</span>
+      <span class="lbl">Total</span>
+    </div>
+  </div>
+
+  <div class="rules">
+    <h3>// Instructions</h3>
+    <ul>
+      <li>50 multiple choice questions</li>
+      <li>30-minute countdown timer</li>
+      <li>Each correct answer = 1.4 marks (70 total)</li>
+      <li>Navigate freely between questions</li>
+      <li>Quiz auto-submits when time runs out</li>
+      <li>All 50 questions reviewed at the end</li>
+    </ul>
+  </div>
+
+  <button class="btn-start" onclick="startQuiz()">START EXAM →</button>
+</div>
+
+<!-- ===== QUIZ ===== -->
+<div id="quiz" class="screen">
+  <div class="quiz-header">
+    <div class="q-meta">
+      <span class="q-counter" id="q-counter">Q1</span>
+      <span class="q-total">/ 50</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill" style="width:2%"></div>
+    </div>
+    <div class="timer-wrap">
+      <span class="timer-icon">⏱</span>
+      <span id="timer-display">30:00</span>
+    </div>
+  </div>
+
+  <div class="quiz-body">
+    <div class="question-card slide-in" id="question-card">
+      <div class="q-number-badge" id="q-badge">QUESTION 01</div>
+      <p class="question-text" id="question-text"></p>
+    </div>
+
+    <div class="options-list" id="options-list"></div>
+
+    <div class="nav-row">
+      <button class="btn-nav" id="btn-prev" onclick="navigate(-1)">← Prev</button>
+      <button class="btn-nav danger-btn" onclick="confirmSubmit()">Submit Exam</button>
+      <button class="btn-nav primary" id="btn-next" onclick="navigate(1)">Next →</button>
+    </div>
+  </div>
+
+  <div class="q-map-wrap">
+    <div class="q-map-label">// Question Map</div>
+    <div class="q-map" id="q-map"></div>
+  </div>
+</div>
+
+<!-- ===== RESULT ===== -->
+<div id="result" class="screen">
+  <div class="result-badge" id="result-emoji">🎓</div>
+  <div class="result-score" id="result-score">49/70</div>
+  <div class="result-label" id="result-label">Score</div>
+
+  <div class="result-stats">
+    <div class="stat-box correct-stat">
+      <span class="sv" id="r-correct">0</span>
+      <span class="sl">Correct</span>
+    </div>
+    <div class="stat-box wrong-stat">
+      <span class="sv" id="r-wrong">0</span>
+      <span class="sl">Wrong</span>
+    </div>
+    <div class="stat-box skip-stat">
+      <span class="sv" id="r-skip">0</span>
+      <span class="sl">Skipped</span>
+    </div>
+  </div>
+
+  <div class="review-section">
+    <div class="review-title">// Full Question Review</div>
+    <div id="review-list"></div>
+  </div>
+
+  <button class="btn-retry" onclick="retryQuiz()">↺ Retry Quiz</button>
+  <button class="btn-retry" onclick="goHome()" style="background: linear-gradient(135deg,#1a2236,#0a0e1a); border: 1px solid var(--border);">⌂ Home</button>
+</div>
+
+<script>
+// =====================================================
+// QUESTION BANK — opts[0] is ALWAYS the correct answer.
+// Each session: 50 questions are randomly picked from
+// the bank, their options are shuffled, and the new
+// correct index is tracked automatically.
+// =====================================================
+const questionBank = [
+  // ELECTRICITY & BINARY LOGIC
+  { q: "What two voltage states form the foundation of binary logic in digital electronics?", opts: ["High voltage (1) and Low voltage (0)", "0V and 5V", "Positive and Negative", "AC and DC"] },
+  { q: "Why does digital electronics use only two voltage levels?", opts: ["Makes circuits robust, reliable, and less susceptible to noise", "To save power", "Because more levels are impossible", "To reduce circuit size"] },
+  { q: "What does a binary '1' typically represent in digital circuits?", opts: ["High voltage", "Low voltage", "Zero current", "Ground potential"] },
+  { q: "Binary logic enables digital systems to:", opts: ["Encode, store, and process information", "Only perform addition", "Only handle integers", "Perform analog calculations"] },
+  { q: "Which discovery fundamentally transformed computation by enabling binary states?", opts: ["Electricity", "Magnetism", "Radio waves", "Light"] },
+
+  // NUMBER SYSTEMS
+  { q: "What is the base of the hexadecimal number system?", opts: ["16", "2", "8", "10"] },
+  { q: "Which digits are used in the octal number system?", opts: ["0–7", "0–9", "0–F", "0–1"] },
+  { q: "Convert 274₁₀ to binary:", opts: ["100010010₂", "110110010₂", "100001010₂", "101010010₂"] },
+  { q: "Convert 274₁₀ to octal:", opts: ["422₈", "322₈", "412₈", "432₈"] },
+  { q: "Convert 274₁₀ to hexadecimal:", opts: ["112₁₆", "11A₁₆", "1A2₁₆", "102₁₆"] },
+  { q: "What is the decimal equivalent of 1010₂?", opts: ["10", "8", "9", "12"] },
+  { q: "Convert 0xFF hexadecimal to decimal:", opts: ["255", "200", "240", "256"] },
+  { q: "How many bits are grouped together when converting binary to octal?", opts: ["3", "2", "4", "8"] },
+  { q: "How many bits are grouped when converting binary to hexadecimal?", opts: ["4", "2", "3", "8"] },
+  { q: "What is 0.1875₁₀ expressed as a binary fraction?", opts: ["0.0011₂", "0.1010₂", "0.1100₂", "0.0101₂"] },
+  { q: "To convert a decimal fraction to binary, you repeatedly:", opts: ["Multiply by 2 and record the integer part", "Divide by 2 and record quotient", "Add 2 and record remainder", "Divide by 2 and record remainder"] },
+  { q: "What is the decimal value of 11111111₂?", opts: ["255", "128", "127", "256"] },
+  { q: "What is 1A₁₆ in decimal?", opts: ["26", "16", "21", "31"] },
+  { q: "Which number system uses digits 0–9 and letters A–F?", opts: ["Hexadecimal", "Octal", "Binary", "Decimal"] },
+  { q: "What is the binary equivalent of the decimal number 10?", opts: ["1010₂", "1100₂", "1001₂", "0110₂"] },
+  { q: "What is 7₈ in decimal?", opts: ["7", "8", "14", "56"] },
+  { q: "Converting binary 100₂ to decimal gives:", opts: ["4", "2", "8", "100"] },
+  { q: "What is 422₈ in decimal?", opts: ["274", "256", "312", "422"] },
+
+  // ISA & DATA REPRESENTATION
+  { q: "What does ISA stand for in computer architecture?", opts: ["Instruction Set Architecture", "Integrated Software Architecture", "Internal Signal Alignment", "Integer System Array"] },
+  { q: "ISA refers to the interface between a computer's:", opts: ["Hardware and Software", "CPU and GPU", "RAM and ROM", "Input and Output devices"] },
+  { q: "In Signed Magnitude Representation, what does MSB = 0 indicate?", opts: ["Positive number", "Negative number", "Zero", "Overflow"] },
+  { q: "In a 4-bit signed magnitude representation, what does 1111 represent?", opts: ["-7", "+15", "-15", "+7"] },
+  { q: "What does the opcode part of an instruction specify?", opts: ["The operation to be performed", "The memory address", "The data value", "The register number"] },
+  { q: "Common word length sizes in ISA include:", opts: ["8, 16, 32, 64 bits", "4, 6, 10, 12 bits", "3, 7, 15, 31 bits", "5, 10, 20, 40 bits"] },
+  { q: "In signed magnitude, MSB = 1 means the number is:", opts: ["Negative", "Positive", "Zero", "Undefined"] },
+  { q: "What is the role of operands in an instruction?", opts: ["Provide the data or address the instruction acts on", "Specify the operation type", "Control the clock", "Define word length"] },
+  { q: "Data capture in a computer system depends on:", opts: ["The ISA", "The monitor size", "The keyboard layout", "The file system"] },
+
+  // LOGIC GATES
+  { q: "The AND gate output is 1 only when:", opts: ["All inputs are 1", "Any input is 1", "Inputs are different", "No input is 1"] },
+  { q: "What is the Boolean expression for an OR gate with inputs A and B?", opts: ["C = A + B", "C = A · B", "C = A ⊕ B", "C = A' + B'"] },
+  { q: "The NOT gate has how many inputs?", opts: ["1", "0", "2", "3"] },
+  { q: "What is the output of a NAND gate when both inputs are 1?", opts: ["0", "1", "Undefined", "2"] },
+  { q: "The NOR gate outputs 1 only when:", opts: ["All inputs are 0", "Any input is 1", "All inputs are 1", "Inputs differ"] },
+  { q: "Which gate outputs 1 only when inputs are DIFFERENT?", opts: ["XOR", "AND", "XNOR", "OR"] },
+  { q: "XNOR gate outputs 1 when:", opts: ["Inputs are the same", "Both inputs are 0 only", "Inputs are different", "One input is 0"] },
+  { q: "Which two gates are considered 'universal gates'?", opts: ["NAND and NOR", "AND and OR", "XOR and XNOR", "NOT and OR"] },
+  { q: "The Boolean expression A · B = C represents which gate?", opts: ["AND gate", "OR gate", "NOT gate", "XOR gate"] },
+  { q: "What is the output of an OR gate when A=1 and B=0?", opts: ["1", "0", "Undefined", "Both 0 and 1"] },
+  { q: "What is the output of an AND gate when A=1 and B=0?", opts: ["0", "1", "Undefined", "2"] },
+  { q: "The NOT gate output when input is 0 is:", opts: ["1", "0", "Unchanged", "2"] },
+  { q: "A NAND gate is essentially which combination?", opts: ["AND followed by NOT", "OR followed by NOT", "NOT followed by AND", "XOR followed by NOT"] },
+  { q: "What is the output of NOR gate when A=0 and B=0?", opts: ["1", "0", "Undefined", "Both"] },
+  { q: "XOR outputs 0 when:", opts: ["Both inputs are the same", "Inputs are different", "A=1 and B=0", "A=0 and B=1"] },
+
+  // BOOLEAN ALGEBRA & DE MORGAN
+  { q: "De Morgan's First Theorem states that (A·B)' equals:", opts: ["A' + B'", "A' · B'", "A + B", "(A + B)'"] },
+  { q: "De Morgan's Second Theorem states that (A+B)' equals:", opts: ["A' · B'", "A' + B'", "A · B", "(A · B)'"] },
+  { q: "Simplify NOT(A + B·C) using De Morgan's theorem:", opts: ["A' · (B' + C')", "A' · B' · C'", "A + B + C", "A' + B' + C'"] },
+  { q: "In Boolean algebra, what does the dot operator (·) represent?", opts: ["AND operation", "OR operation", "NOT operation", "XOR operation"] },
+  { q: "What is 1 + 1 in Boolean algebra (OR)?", opts: ["1", "2", "10", "0"] },
+  { q: "For n input variables, a truth table has how many rows?", opts: ["2ⁿ rows", "n rows", "2n rows", "n² rows"] },
+  { q: "What is the complement of A if A = 0?", opts: ["1", "0", "2", "Undefined"] },
+  { q: "Boolean algebra simplifies digital circuits by:", opts: ["Reducing gate count and power consumption", "Increasing gate count", "Adding more variables", "Converting to analog"] },
+  { q: "What is 0 · 1 in Boolean algebra (AND)?", opts: ["0", "1", "Undefined", "2"] },
+  { q: "What is 0 + 0 in Boolean algebra (OR)?", opts: ["0", "1", "2", "Undefined"] },
+  { q: "What is 1 · 1 in Boolean algebra (AND)?", opts: ["1", "0", "2", "Undefined"] },
+  { q: "De Morgan's theorems are used to:", opts: ["Simplify and transform Boolean expressions", "Add more gates", "Convert binary to hex", "Design flip-flops"] },
+
+  // BINARY ARITHMETIC
+  { q: "What is 1 + 1 in binary?", opts: ["10₂", "2", "11₂", "1₂"] },
+  { q: "Perform binary addition: 0101 + 0100 =", opts: ["1001₂", "1010₂", "0111₂", "1100₂"] },
+  { q: "What is 13 × 17 in decimal?", opts: ["221", "231", "241", "251"] },
+  { q: "In binary multiplication, partial products are formed by:", opts: ["Multiplying A by each bit of B and shifting appropriately", "Adding all bits together", "Dividing A by B", "XOR-ing all inputs"] },
+  { q: "Binary subtraction: 0 - 1 requires:", opts: ["Borrowing from the next higher bit", "Setting result to 1 with no borrow", "Setting result to 0", "Ignoring the operation"] },
+  { q: "In binary division, if the divisor does NOT fit, the quotient bit is:", opts: ["0", "1", "2", "Undefined"] },
+  { q: "What is the carry when adding 1 + 1 in binary?", opts: ["1", "0", "2", "None"] },
+  { q: "Binary addition: 1111 + 0001 =", opts: ["10000₂", "11110₂", "10001₂", "01111₂"] },
+  { q: "What is 5 + 4 in binary (4-bit)?", opts: ["1001₂", "0111₂", "1010₂", "1100₂"] },
+  { q: "Binary subtraction 1010 - 0011 =", opts: ["0111₂", "0110₂", "1001₂", "1011₂"] },
+
+  // FLIP-FLOPS
+  { q: "Which flip-flop has a 'forbidden state' when both inputs are 1?", opts: ["SR flip-flop", "D flip-flop", "T flip-flop", "JK flip-flop"] },
+  { q: "In a D flip-flop, on the active clock edge, Q becomes:", opts: ["Equal to D", "The complement of D", "Always 0", "Always 1"] },
+  { q: "In a JK flip-flop, when J=1 and K=1, the output:", opts: ["Toggles", "Sets to 1", "Resets to 0", "Remains unchanged"] },
+  { q: "Flip-flops are used in which type of circuits?", opts: ["Sequential circuits", "Combinational circuits only", "Analog circuits", "Power circuits"] },
+  { q: "How many bits does a single flip-flop store?", opts: ["1 bit", "4 bits", "8 bits", "2 bits"] },
+  { q: "The T flip-flop toggles its output when T =", opts: ["1", "0", "Always", "Never"] },
+  { q: "Which flip-flop eliminates the forbidden state of the SR flip-flop?", opts: ["D flip-flop", "T flip-flop", "JK flip-flop", "NOR flip-flop"] },
+  { q: "In an SR flip-flop, S=1 and R=0 causes the output to:", opts: ["Set to 1", "Reset to 0", "Toggle", "Remain unchanged"] },
+  { q: "Flip-flops are triggered by:", opts: ["Clock signals", "Power supply", "Input data only", "Temperature"] },
+
+  // COMPUTER ARCHITECTURE & INSTRUCTION CYCLE
+  { q: "Which CPU component performs arithmetic and logical operations?", opts: ["Arithmetic Logic Unit (ALU)", "Control Unit (CU)", "Cache", "Data Bus"] },
+  { q: "The instruction cycle follows which sequence?", opts: ["Fetch → Decode → Execute", "Execute → Fetch → Decode", "Decode → Fetch → Execute", "Fetch → Execute → Decode"] },
+  { q: "Which CPU component directs and coordinates all operations?", opts: ["Control Unit (CU)", "ALU", "Cache", "Register"] },
+  { q: "What does the Address Bus carry?", opts: ["Memory addresses", "Actual data", "Control signals", "Power signals"] },
+  { q: "During the Fetch stage of the instruction cycle:", opts: ["CPU reads the next instruction from memory", "CU interprets the opcode", "ALU executes the operation", "Result is written to memory"] },
+  { q: "Registers in a CPU are used for:", opts: ["Temporary storage of data during processing", "Long-term data storage", "Connecting to peripherals", "Controlling voltage levels"] },
+  { q: "During the Decode stage, the Control Unit:", opts: ["Interprets the opcode and identifies operands", "Fetches the instruction from memory", "Writes results back to memory", "Increments the program counter"] },
+  { q: "The Data Bus carries:", opts: ["Actual data between CPU, memory, and I/O", "Memory addresses", "Clock signals", "Power to components"] },
+  { q: "What is the role of the Program Counter (PC)?", opts: ["Holds the address of the next instruction to fetch", "Stores computation results", "Controls input/output", "Manages cache memory"] },
+];
+
+// ===== SHUFFLE UTILITY (Fisher-Yates) =====
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ===== SESSION STATE =====
+let sessionQuestions = [];
+let currentQ = 0;
+let answers = [];
+let timerInterval = null;
+let timeLeft = 30 * 60;
+
+// ===== BUILD SESSION: pick 50 random Qs, shuffle each Q's options =====
+function buildSession() {
+  const picked = shuffle(questionBank).slice(0, 50);
+  sessionQuestions = picked.map(q => {
+    const correctText = q.opts[0]; // opts[0] is always correct
+    const shuffledOpts = shuffle(q.opts);
+    return {
+      q: q.q,
+      opts: shuffledOpts,
+      ans: shuffledOpts.indexOf(correctText) // new correct index after shuffle
+    };
+  });
+  answers = new Array(50).fill(-1);
+  currentQ = 0;
+  timeLeft = 30 * 60;
+}
+
+function startQuiz() {
+  buildSession();
+  document.getElementById('intro').classList.remove('active');
+  document.getElementById('quiz').classList.add('active');
+  updateTimerDisplay();
+  renderQuestion();
+  renderMap();
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      submitQuiz(true);
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+  const display = document.getElementById('timer-display');
+  display.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+  display.className = '';
+  if (timeLeft <= 300) display.classList.add('danger');
+  else if (timeLeft <= 600) display.classList.add('warning');
+}
+
+function renderQuestion() {
+  const q = sessionQuestions[currentQ];
+  const card = document.getElementById('question-card');
+  card.classList.remove('slide-in');
+  void card.offsetWidth;
+  card.classList.add('slide-in');
+
+  document.getElementById('q-counter').textContent = `Q${currentQ + 1}`;
+  document.getElementById('q-badge').textContent = `QUESTION ${String(currentQ + 1).padStart(2,'0')}`;
+  document.getElementById('question-text').textContent = q.q;
+  document.getElementById('progress-fill').style.width = `${((currentQ + 1) / 50) * 100}%`;
+
+  const optList = document.getElementById('options-list');
+  optList.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    if (answers[currentQ] === i) btn.classList.add('selected');
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    optList.appendChild(btn);
+  });
+
+  document.getElementById('btn-prev').disabled = currentQ === 0;
+  document.getElementById('btn-next').textContent = currentQ === 49 ? 'Finish' : 'Next →';
+}
+
+function selectAnswer(i) {
+  answers[currentQ] = i;
+  renderQuestion();
+  renderMap();
+}
+
+function navigate(dir) {
+  const next = currentQ + dir;
+  if (next >= 0 && next <= 49) {
+    currentQ = next;
+    renderQuestion();
+    updateMapCurrent();
+  } else if (dir === 1 && currentQ === 49) {
+    confirmSubmit();
+  }
+}
+
+function renderMap() {
+  const map = document.getElementById('q-map');
+  map.innerHTML = '';
+  for (let i = 0; i < 50; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'q-dot';
+    if (answers[i] !== -1) dot.classList.add('answered');
+    if (i === currentQ) dot.classList.add('current');
+    dot.textContent = i + 1;
+    dot.onclick = () => { currentQ = i; renderQuestion(); updateMapCurrent(); };
+    map.appendChild(dot);
+  }
+}
+
+function updateMapCurrent() {
+  const dots = document.querySelectorAll('.q-dot');
+  dots.forEach((d, i) => {
+    d.classList.toggle('current', i === currentQ);
+    d.classList.toggle('answered', answers[i] !== -1 && i !== currentQ);
+  });
+}
+
+function confirmSubmit() {
+  const unanswered = answers.filter(a => a === -1).length;
+  if (unanswered > 0) {
+    if (!confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) return;
+  }
+  submitQuiz(false);
+}
+
+function submitQuiz(timeout) {
+  clearInterval(timerInterval);
+  let correct = 0, wrong = 0, skip = 0;
+  sessionQuestions.forEach((q, i) => {
+    if (answers[i] === -1) skip++;
+    else if (answers[i] === q.ans) correct++;
+    else wrong++;
+  });
+
+  // Score out of 70: each correct = 70/50 = 1.4 marks
+  const score = parseFloat((correct * 1.4).toFixed(1));
+  const pct = (score / 70) * 100;
+  const passThreshold = 49; // 70% of 70
+
+  document.getElementById('quiz').classList.remove('active');
+  document.getElementById('result').classList.add('active');
+
+  const emoji = pct >= 70 ? '🏆' : pct >= 50 ? '📚' : '😓';
+  const label = pct >= 70 ? 'PASS' : 'FAIL — STUDY MORE';
+  document.getElementById('result-emoji').textContent = emoji;
+  document.getElementById('result-score').textContent = `${score}/70`;
+  document.getElementById('result-score').className = 'result-score ' + (pct >= 50 ? 'pass' : 'fail');
+  document.getElementById('result-label').textContent = label + (timeout ? '  ·  TIME UP' : '');
+  document.getElementById('r-correct').textContent = correct;
+  document.getElementById('r-wrong').textContent = wrong;
+  document.getElementById('r-skip').textContent = skip;
+
+  // ===== FULL REVIEW: show ALL 50 questions =====
+  const reviewList = document.getElementById('review-list');
+  reviewList.innerHTML = '';
+  const letters = ['A','B','C','D'];
+
+  sessionQuestions.forEach((q, i) => {
+    const userAns = answers[i];
+    const isCorrect = userAns !== -1 && userAns === q.ans;
+    const isWrong   = userAns !== -1 && userAns !== q.ans;
+    const isSkip    = userAns === -1;
+
+    const item = document.createElement('div');
+    item.className = 'review-item';
+    if (isCorrect) item.classList.add('review-item-correct');
+    else if (isWrong) item.classList.add('review-item-wrong');
+    else item.classList.add('review-item-skip');
+
+    // Status tag
+    const tagClass = isCorrect ? 'tag-correct' : isWrong ? 'tag-wrong' : 'tag-skipped';
+    const tagText  = isCorrect ? '✓ CORRECT'  : isWrong  ? '✗ WRONG'  : '— SKIPPED';
+
+    // Build options HTML
+    let optsHTML = '<div class="review-opts">';
+    q.opts.forEach((opt, oi) => {
+      const isThisCorrect = oi === q.ans;
+      const isThisChosen  = oi === userAns;
+      let cls = 'opt-normal';
+      let tag = '';
+      if (isThisCorrect && isThisChosen) { cls = 'opt-correct'; tag = '<span class="review-tag tag-correct">Your Answer ✓</span>'; }
+      else if (isThisCorrect)            { cls = 'opt-correct'; tag = '<span class="review-tag tag-correct">Correct Answer</span>'; }
+      else if (isThisChosen)             { cls = 'opt-wrong';   tag = '<span class="review-tag tag-wrong">Your Answer ✗</span>'; }
+      optsHTML += `<div class="review-opt ${cls}">
+        <span class="opt-ltr">${letters[oi]}</span>
+        <span>${opt}</span>
+        ${tag}
+      </div>`;
+    });
+    optsHTML += '</div>';
+
+    item.innerHTML = `
+      <div class="review-q" style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;">
+        <span>Q${i+1}. ${q.q}</span>
+        <span class="review-tag ${tagClass}" style="flex-shrink:0">${tagText}</span>
+      </div>
+      ${optsHTML}`;
+
+    reviewList.appendChild(item);
+  });
+}
+
+function retryQuiz() {
+  document.getElementById('result').classList.remove('active');
+  buildSession();
+  document.getElementById('quiz').classList.add('active');
+  updateTimerDisplay();
+  renderQuestion();
+  renderMap();
+  startTimer();
+}
+
+function goHome() {
+  document.getElementById('result').classList.remove('active');
+  document.getElementById('intro').classList.add('active');
+}
+</script>
+</body>
+</html>
