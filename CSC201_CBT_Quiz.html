@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSC 201.1 — Computer Programming CBT</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0e1a;--surface:#111827;--card:#1a2236;--border:#1e3a5f;--accent:#00ff88;--accent2:#f97316;--green:#00ff88;--red:#ff4466;--yellow:#ffd700;--text:#e2e8f0;--muted:#64748b;--glow:0 0 20px rgba(0,255,136,0.3)}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(0,255,136,.04),transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(249,115,22,.05),transparent 60%);pointer-events:none;z-index:0}
+  body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,136,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  .screen{display:none;position:relative;z-index:1}.screen.active{display:flex}
+  #intro{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center}
+  .logo-badge{display:inline-flex;align-items:center;gap:10px;background:rgba(0,255,136,.08);border:1px solid var(--accent);border-radius:100px;padding:8px 20px;font-family:'Share Tech Mono',monospace;font-size:.8rem;color:var(--accent);letter-spacing:2px;margin-bottom:2rem;animation:fadeDown .6s ease}
+  .logo-badge::before{content:'☕';animation:spin 4s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .intro-title{font-size:clamp(2rem,6vw,3.5rem);font-weight:900;line-height:1.1;margin-bottom:.5rem;animation:fadeDown .7s ease}
+  .intro-title span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .intro-sub{font-size:1rem;color:var(--muted);margin-bottom:3rem;animation:fadeDown .8s ease}
+  .info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;max-width:580px;margin-bottom:3rem;animation:fadeUp .9s ease}
+  .info-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center}
+  .info-card .val{font-size:1.6rem;font-weight:700;color:var(--accent);font-family:'Share Tech Mono',monospace;display:block}
+  .info-card .lbl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+  .rules{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem 2rem;max-width:520px;text-align:left;margin-bottom:2.5rem;animation:fadeUp 1s ease}
+  .rules h3{color:var(--accent);font-size:.85rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;font-family:'Share Tech Mono',monospace}
+  .rules li{list-style:none;padding:.4rem 0;font-size:.9rem;color:var(--muted);padding-left:1.2rem;position:relative}
+  .rules li::before{content:'›';position:absolute;left:0;color:var(--accent)}
+  .btn-start{background:linear-gradient(135deg,var(--accent),#00bb66);color:#000;border:none;padding:1rem 3rem;border-radius:100px;font-family:'Exo 2',sans-serif;font-size:1rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .3s;box-shadow:var(--glow);animation:fadeUp 1.1s ease}
+  .btn-start:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 0 40px rgba(0,255,136,.5)}
+  #quiz{flex-direction:column;min-height:100vh}
+  .quiz-header{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+  .q-meta{display:flex;align-items:center;gap:.5rem;font-family:'Share Tech Mono',monospace;font-size:.85rem}
+  .q-counter{color:var(--accent);font-weight:700}.q-total{color:var(--muted)}
+  .progress-bar-wrap{flex:1;height:4px;background:var(--border);border-radius:10px;overflow:hidden;max-width:300px}
+  .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:10px;transition:width .4s ease}
+  .timer-wrap{display:flex;align-items:center;gap:.5rem;background:var(--card);border:1px solid var(--border);border-radius:100px;padding:.4rem 1rem}
+  #timer-display{font-family:'Share Tech Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--accent);min-width:52px;text-align:center;transition:color .3s}
+  #timer-display.warning{color:var(--yellow)}#timer-display.danger{color:var(--red);animation:pulse .5s infinite alternate}
+  @keyframes pulse{from{opacity:1}to{opacity:.4}}
+  .quiz-body{flex:1;display:flex;flex-direction:column;padding:2rem 1.5rem;max-width:780px;width:100%;margin:0 auto}
+  .question-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+  .question-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .q-number-badge{display:inline-block;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:.75rem;padding:3px 10px;border-radius:100px;margin-bottom:1rem;letter-spacing:1px}
+  .question-text{font-size:1.05rem;font-weight:600;line-height:1.6;color:var(--text)}
+  .options-list{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.5rem}
+  .option-btn{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;cursor:pointer;transition:all .2s;text-align:left;width:100%;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.95rem}
+  .option-btn:hover{border-color:var(--accent);background:rgba(0,255,136,.06);transform:translateX(4px)}
+  .option-btn.selected{border-color:var(--accent);background:rgba(0,255,136,.12);color:var(--accent)}
+  .option-letter{width:32px;height:32px;border-radius:8px;background:var(--border);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:.8rem;font-weight:700;flex-shrink:0;transition:background .2s}
+  .option-btn.selected .option-letter{background:var(--accent);color:#000}
+  .nav-row{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+  .btn-nav{padding:.75rem 1.75rem;border-radius:100px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-family:'Exo 2',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s}
+  .btn-nav:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+  .btn-nav:disabled{opacity:.3;cursor:not-allowed}
+  .btn-nav.primary{background:linear-gradient(135deg,var(--accent),#00bb66);border-color:transparent;color:#000;font-weight:700}
+  .btn-nav.primary:hover{box-shadow:var(--glow);transform:scale(1.02)}
+  .btn-nav.danger-btn{background:rgba(255,68,102,.1);border-color:var(--red);color:var(--red)}
+  .q-map-wrap{padding:0 1.5rem 2rem;max-width:780px;width:100%;margin:0 auto}
+  .q-map-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:.75rem;font-family:'Share Tech Mono',monospace}
+  .q-map{display:flex;flex-wrap:wrap;gap:6px}
+  .q-dot{width:28px;height:28px;border-radius:6px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-family:'Share Tech Mono',monospace;cursor:pointer;transition:all .15s;color:var(--muted)}
+  .q-dot:hover{border-color:var(--accent);color:var(--accent)}
+  .q-dot.answered{background:rgba(0,255,136,.15);border-color:var(--accent);color:var(--accent)}
+  .q-dot.current{background:var(--accent);color:#000;font-weight:700}
+  #result{flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;padding:2rem;text-align:center;overflow-y:auto}
+  .result-badge{font-size:4rem;margin-bottom:1rem;animation:bounceIn .6s ease}
+  @keyframes bounceIn{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+  .result-score{font-size:clamp(2.5rem,8vw,4.5rem);font-weight:900;font-family:'Share Tech Mono',monospace;line-height:1;margin-bottom:.5rem}
+  .result-score.pass{color:var(--green);text-shadow:0 0 30px rgba(0,255,136,.4)}
+  .result-score.fail{color:var(--red);text-shadow:0 0 30px rgba(255,68,102,.4)}
+  .result-label{font-size:1rem;color:var(--muted);margin-bottom:2rem;letter-spacing:1px;text-transform:uppercase}
+  .result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;max-width:480px;margin-bottom:2rem;width:100%}
+  .stat-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.2rem}
+  .stat-box .sv{font-size:1.8rem;font-weight:700;font-family:'Share Tech Mono',monospace;display:block}
+  .stat-box .sl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+  .stat-box.correct-stat .sv{color:var(--green)}.stat-box.wrong-stat .sv{color:var(--red)}.stat-box.skip-stat .sv{color:var(--yellow)}
+  .review-section{width:100%;max-width:700px;text-align:left;margin-bottom:2rem}
+  .review-title{font-family:'Share Tech Mono',monospace;font-size:.8rem;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem}
+  .review-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:.75rem;border-left:3px solid var(--border)}
+  .review-item-correct{border-left-color:var(--green)!important}.review-item-wrong{border-left-color:var(--red)!important}.review-item-skip{border-left-color:var(--yellow)!important}
+  .review-q{font-size:.88rem;font-weight:600;margin-bottom:.6rem;color:var(--text);display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+  .review-opts{margin-top:.6rem;display:flex;flex-direction:column;gap:5px}
+  .review-opt{display:flex;align-items:center;gap:8px;font-size:.82rem;padding:5px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--border)}
+  .review-opt.opt-correct{background:rgba(0,255,136,.08);border-color:var(--green);color:var(--green)}
+  .review-opt.opt-wrong{background:rgba(255,68,102,.08);border-color:var(--red);color:var(--red)}
+  .review-opt.opt-normal{color:var(--muted)}
+  .opt-ltr{width:22px;height:22px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:.7rem;font-weight:700;background:var(--border)}
+  .review-opt.opt-correct .opt-ltr{background:var(--green);color:#000}.review-opt.opt-wrong .opt-ltr{background:var(--red);color:#fff}
+  .review-tag{font-size:.7rem;font-weight:700;letter-spacing:1px;padding:2px 7px;border-radius:100px;margin-left:auto;flex-shrink:0}
+  .tag-correct{background:rgba(0,255,136,.15);color:var(--green)}.tag-wrong{background:rgba(255,68,102,.15);color:var(--red)}.tag-skipped{background:rgba(255,215,0,.15);color:var(--yellow)}
+  .btn-retry{background:linear-gradient(135deg,var(--accent2),#c2410c);color:#fff;border:none;padding:1rem 2.5rem;border-radius:100px;font-family:'Exo 2',sans-serif;font-size:1rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .3s;margin:.5rem}
+  .btn-retry:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(249,115,22,.4)}
+  .slide-in{animation:slideIn .3s ease}
+  @keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  @media(max-width:500px){.info-grid{grid-template-columns:repeat(2,1fr)}.result-stats{gap:.5rem}.quiz-header{padding:.6rem 1rem}.quiz-body{padding:1rem}}
+</style>
+</head>
+<body>
+
+<div id="intro" class="screen active">
+  <div class="logo-badge">CSC 201.1 — UNIPORT</div>
+  <h1 class="intro-title">Computer<br><span>Programming CBT</span></h1>
+  <p class="intro-sub">Java · OOP · Algorithms · Debugging · Control Structures</p>
+  <div class="info-grid">
+    <div class="info-card"><span class="val">50</span><span class="lbl">Questions</span></div>
+    <div class="info-card"><span class="val">30</span><span class="lbl">Minutes</span></div>
+    <div class="info-card"><span class="val">1.4</span><span class="lbl">Marks/Q</span></div>
+    <div class="info-card"><span class="val">70</span><span class="lbl">Total</span></div>
+  </div>
+  <div class="rules">
+    <h3>// Instructions</h3>
+    <ul>
+      <li>50 randomized multiple choice questions</li>
+      <li>Questions and options shuffle every attempt</li>
+      <li>30-minute countdown — auto-submits at 0</li>
+      <li>Each correct answer = 1.4 marks (70 total)</li>
+      <li>Full review of all 50 questions at the end</li>
+    </ul>
+  </div>
+  <button class="btn-start" onclick="startQuiz()">START EXAM →</button>
+</div>
+
+<div id="quiz" class="screen">
+  <div class="quiz-header">
+    <div class="q-meta"><span class="q-counter" id="q-counter">Q1</span><span class="q-total">/ 50</span></div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:2%"></div></div>
+    <div class="timer-wrap"><span>⏱</span><span id="timer-display">30:00</span></div>
+  </div>
+  <div class="quiz-body">
+    <div class="question-card slide-in" id="question-card">
+      <div class="q-number-badge" id="q-badge">QUESTION 01</div>
+      <p class="question-text" id="question-text"></p>
+    </div>
+    <div class="options-list" id="options-list"></div>
+    <div class="nav-row">
+      <button class="btn-nav" id="btn-prev" onclick="navigate(-1)">← Prev</button>
+      <button class="btn-nav danger-btn" onclick="confirmSubmit()">Submit Exam</button>
+      <button class="btn-nav primary" id="btn-next" onclick="navigate(1)">Next →</button>
+    </div>
+  </div>
+  <div class="q-map-wrap">
+    <div class="q-map-label">// Question Map</div>
+    <div class="q-map" id="q-map"></div>
+  </div>
+</div>
+
+<div id="result" class="screen">
+  <div class="result-badge" id="result-emoji">🎓</div>
+  <div class="result-score" id="result-score">49/70</div>
+  <div class="result-label" id="result-label">Score</div>
+  <div class="result-stats">
+    <div class="stat-box correct-stat"><span class="sv" id="r-correct">0</span><span class="sl">Correct</span></div>
+    <div class="stat-box wrong-stat"><span class="sv" id="r-wrong">0</span><span class="sl">Wrong</span></div>
+    <div class="stat-box skip-stat"><span class="sv" id="r-skip">0</span><span class="sl">Skipped</span></div>
+  </div>
+  <div class="review-section">
+    <div class="review-title">// Full Question Review</div>
+    <div id="review-list"></div>
+  </div>
+  <button class="btn-retry" onclick="retryQuiz()">↺ Retry Quiz</button>
+  <button class="btn-retry" onclick="goHome()" style="background:linear-gradient(135deg,#1a2236,#0a0e1a);border:1px solid var(--border)">⌂ Home</button>
+</div>
+
+<script>
+// opts[0] is ALWAYS the correct answer — shuffled each session
+const questionBank = [
+
+  // ── INTRO TO PROGRAMMING ──────────────────────────────────────────────────
+  {q:"What is computer programming?",opts:["The process of writing instructions that a computer can execute","Designing computer hardware","Installing software on a computer","Drawing circuit diagrams"]},
+  {q:"Which level of programming language uses binary (0s and 1s) directly?",opts:["Machine level","Assembly level","High level","Object level"]},
+  {q:"Which programming language level uses mnemonics like LOAD, ADD, and MOV?",opts:["Assembly level","Machine level","High level","Procedural level"]},
+  {q:"Java, Python, and C++ are examples of which level of programming language?",opts:["High level language","Machine level language","Assembly level language","Binary level language"]},
+  {q:"What is a translator in programming?",opts:["Software that converts high-level code into machine code","Hardware that connects computers","A person who interprets code","A type of programming language"]},
+  {q:"Which translator converts the entire program into machine code at once before execution?",opts:["Compiler","Interpreter","Assembler","Linker"]},
+  {q:"Which translator converts and executes code line by line at runtime?",opts:["Interpreter","Compiler","Assembler","Debugger"]},
+  {q:"Which translator is used specifically for assembly language?",opts:["Assembler","Compiler","Interpreter","Linker"]},
+  {q:"Which is an advantage of high-level languages over machine language?",opts:["Easier to read, write and understand","Faster execution always","No need for translation","Directly understood by hardware"]},
+  {q:"The Java compiler converts .java source files into which format?",opts:["Bytecode (.class files)","Machine code (.exe)","Assembly code","Binary code"]},
+
+  // ── PROGRAMMING PARADIGMS ─────────────────────────────────────────────────
+  {q:"What is a programming paradigm?",opts:["A fundamental style or approach to programming","A type of programming error","A Java keyword","A computer hardware design"]},
+  {q:"Which paradigm organizes programs around objects combining data and behaviour?",opts:["Object-Oriented Paradigm","Procedural Paradigm","Functional Paradigm","Declarative Paradigm"]},
+  {q:"Which paradigm executes programs as a sequence of step-by-step instructions?",opts:["Procedural/Imperative Paradigm","OOP Paradigm","Functional Paradigm","Logic Paradigm"]},
+  {q:"Which paradigm specifies WHAT the result should be rather than HOW to achieve it?",opts:["Declarative Paradigm","Procedural Paradigm","OOP Paradigm","Event-Driven Paradigm"]},
+  {q:"SQL and HTML are examples of which programming paradigm?",opts:["Declarative Paradigm","OOP Paradigm","Functional Paradigm","Procedural Paradigm"]},
+  {q:"Which paradigm is best suited for GUI applications that respond to user actions?",opts:["Event-Driven Paradigm","Functional Paradigm","Logic Paradigm","Procedural Paradigm"]},
+  {q:"Haskell and Lisp are examples of which paradigm?",opts:["Functional Paradigm","OOP Paradigm","Procedural Paradigm","Declarative Paradigm"]},
+  {q:"What is a key advantage of OOP over Procedural programming?",opts:["Better code reuse through inheritance and encapsulation","Always runs faster","Uses less memory","Simpler to write for beginners"]},
+
+  // ── INTRODUCTION TO JAVA ──────────────────────────────────────────────────
+  {q:"Who created the Java programming language?",opts:["James Gosling","Dennis Ritchie","Bjarne Stroustrup","Guido van Rossum"]},
+  {q:"What does WORA stand for in Java?",opts:["Write Once Run Anywhere","Write Once Read Anywhere","Write Output Run Automatically","Wide Object Runtime Architecture"]},
+  {q:"Which component executes Java bytecode on any platform?",opts:["JVM (Java Virtual Machine)","JDK (Java Development Kit)","JRE (Java Runtime Environment)","javac compiler"]},
+  {q:"What does JDK stand for?",opts:["Java Development Kit","Java Deployment Kit","Java Design Kit","Java Distribution Kit"]},
+  {q:"Which Java feature means it runs inside a sandbox with no explicit pointers?",opts:["Security","Portability","Multithreading","Distribution"]},
+  {q:"Java supports running multiple threads of execution simultaneously. This feature is called:",opts:["Multithreading","Portability","Abstraction","Distribution"]},
+  {q:"Java is described as 'robust' because it has:",opts:["Strong memory management, exception handling, and type checking","Faster execution than C","More keywords than other languages","No object-oriented features"]},
+  {q:"Which feature of Java allows it to adapt to evolving environments and load classes at runtime?",opts:["Dynamic","Static","Compiled","Interpreted"]},
+  {q:"What is the entry point (starting method) of every Java program?",opts:["public static void main(String[] args)","public void start()","static void begin()","void run()"]},
+  {q:"Which statement correctly prints text in Java?",opts:["System.out.println(\"Hello\");","print(\"Hello\");","Console.log(\"Hello\");","echo \"Hello\";"]},
+  {q:"Android mobile apps are primarily built using which language?",opts:["Java (and Kotlin)","Python","Swift","C++"]},
+
+  // ── OOP PRINCIPLES ────────────────────────────────────────────────────────
+  {q:"What are the four main pillars of Object-Oriented Programming?",opts:["Encapsulation, Inheritance, Polymorphism, Abstraction","Compilation, Interpretation, Execution, Debugging","Variables, Methods, Classes, Objects","Input, Processing, Output, Storage"]},
+  {q:"Encapsulation in OOP refers to:",opts:["Bundling data and methods together and restricting direct access","Making one class inherit from another","The ability to take multiple forms","Hiding unnecessary complexity"]},
+  {q:"In Java, encapsulation is achieved by declaring variables as ____ and providing public getters/setters:",opts:["private","public","static","final"]},
+  {q:"Inheritance in Java uses which keyword?",opts:["extends","implements","inherits","super"]},
+  {q:"Which type of inheritance does Java NOT support with classes (only with interfaces)?",opts:["Multiple inheritance","Single inheritance","Multilevel inheritance","Hierarchical inheritance"]},
+  {q:"What is method overloading?",opts:["Same method name, different parameters in the same class","Same method name, same parameters in a child class","Calling a method recursively","Hiding a parent class method"]},
+  {q:"What is method overriding?",opts:["Child class provides specific implementation of parent class method","Same method name with different parameters","Calling super() in a method","Declaring a method as final"]},
+  {q:"Which OOP pillar hides complex implementation and shows only essential features?",opts:["Abstraction","Encapsulation","Inheritance","Polymorphism"]},
+  {q:"Abstract classes and interfaces are used to achieve which OOP concept?",opts:["Abstraction","Encapsulation","Inheritance","Polymorphism"]},
+  {q:"Why is Java not considered 100% pure OOP?",opts:["It still has primitive data types (int, char, etc.) which are not objects","It uses a compiler instead of an interpreter","It does not support inheritance","It cannot create objects"]},
+  {q:"The 'this' keyword in Java refers to:",opts:["The current object instance","The parent class","A static variable","The main method"]},
+  {q:"Which access modifier makes a class member visible only within its own class?",opts:["private","public","protected","default"]},
+
+  // ── DATA TYPES, VARIABLES, CONSTANTS ─────────────────────────────────────
+  {q:"How many primitive data types does Java have?",opts:["8","4","6","10"]},
+  {q:"Which Java data type stores a single character?",opts:["char","String","byte","boolean"]},
+  {q:"Which data type in Java stores true or false values only?",opts:["boolean","bit","int","char"]},
+  {q:"What is the size of an int in Java?",opts:["4 bytes","2 bytes","8 bytes","1 byte"]},
+  {q:"Which data type would you use for very precise decimal calculations in Java?",opts:["double","float","int","long"]},
+  {q:"In Java, a float literal must end with which suffix?",opts:["f","d","l","i"]},
+  {q:"Which keyword is used to declare a constant in Java?",opts:["final","const","static","fixed"]},
+  {q:"What is the naming convention for constants in Java?",opts:["UPPER_CASE (e.g., MAX_SIZE)","camelCase (e.g., maxSize)","PascalCase (e.g., MaxSize)","lowercase (e.g., maxsize)"]},
+  {q:"A variable declared inside a method is called a:",opts:["Local variable","Instance variable","Class variable","Global variable"]},
+  {q:"Which of the following is a valid Java variable name?",opts:["_studentAge","2ndValue","class","my-variable"]},
+  {q:"What is a literal in Java?",opts:["A fixed value written directly in code","A variable that changes","A method name","A class definition"]},
+
+  // ── OPERATORS ─────────────────────────────────────────────────────────────
+  {q:"What does the % operator do in Java?",opts:["Returns the remainder of a division","Divides two numbers","Multiplies two numbers","Calculates a percentage"]},
+  {q:"What is the result of 10 / 3 in Java (integer division)?",opts:["3","3.33","3.0","4"]},
+  {q:"Which operator checks if two values are equal in Java?",opts:["==","=","equals","==="]},
+  {q:"What does the && operator do?",opts:["Returns true only if BOTH conditions are true","Returns true if at least one condition is true","Reverses a boolean value","Assigns a value"]},
+  {q:"What does the || operator do?",opts:["Returns true if AT LEAST ONE condition is true","Returns true only if both are true","Reverses boolean","Adds two numbers"]},
+  {q:"What does x += 5 mean in Java?",opts:["x = x + 5","x equals 5","x plus equals 5 separately","Add 5 to a new variable"]},
+  {q:"The ! operator in Java is used for:",opts:["Negation — reverses a boolean value","Addition","Comparison","Assignment"]},
+
+  // ── CONTROL STRUCTURES ────────────────────────────────────────────────────
+  {q:"Which control structure chooses which block to execute based on a condition?",opts:["Selection (if/else/switch)","Iteration (loops)","Sequential","Recursion"]},
+  {q:"Which loop is best when the number of iterations is known in advance?",opts:["for loop","while loop","do-while loop","switch loop"]},
+  {q:"What is unique about the do-while loop compared to for and while?",opts:["It executes the body at least once before checking the condition","It checks the condition before executing","It is the fastest loop","It cannot use break"]},
+  {q:"What happens if you forget the break statement in a switch case?",opts:["Fall-through occurs — execution continues into the next case","The program crashes","The switch exits automatically","Nothing happens"]},
+  {q:"Which keyword immediately exits a loop in Java?",opts:["break","continue","exit","return"]},
+  {q:"Which keyword skips the current iteration and continues with the next?",opts:["continue","break","skip","next"]},
+  {q:"What is the structure of a for loop in Java?",opts:["for(initialization; condition; update)","for(condition; update; initialization)","for(update; initialization; condition)","for(initialization; update; condition)"]},
+  {q:"A while loop that never ends because the condition is always true is called:",opts:["An infinite loop","A recursive loop","A dead loop","A static loop"]},
+
+  // ── METHODS ───────────────────────────────────────────────────────────────
+  {q:"What is a method in Java?",opts:["A reusable block of code that performs a specific task","A variable that stores multiple values","A type of loop","A class definition"]},
+  {q:"What return type should a method have if it returns no value?",opts:["void","null","empty","none"]},
+  {q:"Which method can be called without creating an object of the class?",opts:["Static method","Instance method","Abstract method","Private method"]},
+  {q:"What is the purpose of the return statement in a method?",opts:["Sends a value back to the caller and exits the method","Prints a value to the console","Declares a variable","Ends the program"]},
+  {q:"Code reusability is a key advantage of using methods. What does this mean?",opts:["Write the code once and call it multiple times anywhere","The method is faster to execute","The method uses less memory","The method is private"]},
+
+  // ── ALGORITHMS & FLOWCHARTS ───────────────────────────────────────────────
+  {q:"What is an algorithm?",opts:["A finite step-by-step set of instructions to solve a problem","A programming language","A type of variable","A debugging technique"]},
+  {q:"Which flowchart symbol represents a decision (yes/no question)?",opts:["Diamond/Rhombus","Rectangle","Oval","Parallelogram"]},
+  {q:"Which flowchart symbol represents Start and End?",opts:["Oval/Terminal","Rectangle","Diamond","Parallelogram"]},
+  {q:"Which flowchart symbol represents Input or Output?",opts:["Parallelogram","Rectangle","Diamond","Oval"]},
+  {q:"Which flowchart symbol represents a computation or process step?",opts:["Rectangle","Diamond","Oval","Parallelogram"]},
+  {q:"What is pseudocode?",opts:["An informal plain English description of an algorithm","Incorrect code that has bugs","Code written in multiple languages","Machine language instructions"]},
+  {q:"An algorithm must be finite. This means:",opts:["It must terminate after a finite number of steps","It must have at least 100 steps","It cannot have loops","It must use only numbers"]},
+
+  // ── DEBUGGING ─────────────────────────────────────────────────────────────
+  {q:"What is debugging?",opts:["The process of finding and fixing errors in a program","Writing new code","Compiling a program","Running a program for the first time"]},
+  {q:"Which type of error is detected by the Java compiler before the program runs?",opts:["Syntax error (compile-time error)","Runtime error","Logic error","Semantic error"]},
+  {q:"A NullPointerException in Java is an example of which type of error?",opts:["Runtime error","Syntax error","Logic error","Compile-time error"]},
+  {q:"Which type of error is hardest to find because the program runs but gives wrong results?",opts:["Logic error","Syntax error","Runtime error","Compile-time error"]},
+  {q:"What is a syntax error?",opts:["Violation of the grammar rules of the programming language","An error that occurs while the program runs","An error in the program's logic","An error in memory allocation"]},
+  {q:"Which Java keyword is used to handle runtime errors gracefully?",opts:["try-catch","if-else","for-loop","switch"]},
+  {q:"What does ArithmeticException indicate in Java?",opts:["An illegal math operation like dividing by zero","A memory error","A syntax mistake","An import error"]},
+  {q:"Using System.out.println() to track variable values during debugging is called:",opts:["Print debugging","Breakpoint debugging","Unit testing","Code review"]},
+  {q:"Which type of error causes the program to crash during execution?",opts:["Runtime error","Syntax error","Logic error","Semantic error"]},
+  {q:"An ArrayIndexOutOfBoundsException occurs when:",opts:["You try to access an array element at an invalid index","You declare an array incorrectly","You forget a semicolon","You use a wrong variable name"]},
+];
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+let sessionQuestions=[],currentQ=0,answers=[],timerInterval=null,timeLeft=30*60;
+
+function buildSession(){
+  const picked=shuffle(questionBank).slice(0,50);
+  sessionQuestions=picked.map(q=>{
+    const correct=q.opts[0];
+    const shuffled=shuffle(q.opts);
+    return{q:q.q,opts:shuffled,ans:shuffled.indexOf(correct)};
+  });
+  answers=new Array(50).fill(-1);currentQ=0;timeLeft=30*60;
+}
+
+function startQuiz(){
+  buildSession();
+  document.getElementById('intro').classList.remove('active');
+  document.getElementById('quiz').classList.add('active');
+  updateTimerDisplay();renderQuestion();renderMap();startTimer();
+}
+
+function startTimer(){
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{timeLeft--;updateTimerDisplay();if(timeLeft<=0){clearInterval(timerInterval);submitQuiz(true);}},1000);
+}
+
+function updateTimerDisplay(){
+  const m=Math.floor(timeLeft/60),s=timeLeft%60;
+  const d=document.getElementById('timer-display');
+  d.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  d.className='';
+  if(timeLeft<=300)d.classList.add('danger');else if(timeLeft<=600)d.classList.add('warning');
+}
+
+function renderQuestion(){
+  const q=sessionQuestions[currentQ];
+  const card=document.getElementById('question-card');
+  card.classList.remove('slide-in');void card.offsetWidth;card.classList.add('slide-in');
+  document.getElementById('q-counter').textContent=`Q${currentQ+1}`;
+  document.getElementById('q-badge').textContent=`QUESTION ${String(currentQ+1).padStart(2,'0')}`;
+  document.getElementById('question-text').textContent=q.q;
+  document.getElementById('progress-fill').style.width=`${((currentQ+1)/50)*100}%`;
+  const ol=document.getElementById('options-list');ol.innerHTML='';
+  const L=['A','B','C','D'];
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');btn.className='option-btn';
+    if(answers[currentQ]===i)btn.classList.add('selected');
+    btn.innerHTML=`<span class="option-letter">${L[i]}</span><span>${opt}</span>`;
+    btn.onclick=()=>selectAnswer(i);ol.appendChild(btn);
+  });
+  document.getElementById('btn-prev').disabled=currentQ===0;
+  document.getElementById('btn-next').textContent=currentQ===49?'Finish':'Next →';
+}
+
+function selectAnswer(i){answers[currentQ]=i;renderQuestion();renderMap();}
+
+function navigate(dir){
+  const next=currentQ+dir;
+  if(next>=0&&next<=49){currentQ=next;renderQuestion();updateMapCurrent();}
+  else if(dir===1&&currentQ===49)confirmSubmit();
+}
+
+function renderMap(){
+  const map=document.getElementById('q-map');map.innerHTML='';
+  for(let i=0;i<50;i++){
+    const d=document.createElement('div');d.className='q-dot';
+    if(answers[i]!==-1)d.classList.add('answered');if(i===currentQ)d.classList.add('current');
+    d.textContent=i+1;d.onclick=()=>{currentQ=i;renderQuestion();updateMapCurrent();};
+    map.appendChild(d);
+  }
+}
+
+function updateMapCurrent(){
+  document.querySelectorAll('.q-dot').forEach((d,i)=>{
+    d.classList.toggle('current',i===currentQ);
+    d.classList.toggle('answered',answers[i]!==-1&&i!==currentQ);
+  });
+}
+
+function confirmSubmit(){
+  const u=answers.filter(a=>a===-1).length;
+  if(u>0&&!confirm(`You have ${u} unanswered question(s). Submit anyway?`))return;
+  submitQuiz(false);
+}
+
+function submitQuiz(timeout){
+  clearInterval(timerInterval);
+  let correct=0,wrong=0,skip=0;
+  sessionQuestions.forEach((q,i)=>{
+    if(answers[i]===-1)skip++;else if(answers[i]===q.ans)correct++;else wrong++;
+  });
+  const score=parseFloat((correct*1.4).toFixed(1));
+  const pct=(score/70)*100;
+  document.getElementById('quiz').classList.remove('active');
+  document.getElementById('result').classList.add('active');
+  const emoji=pct>=70?'🏆':pct>=50?'📚':'😓';
+  const label=pct>=70?'PASS':'FAIL — STUDY MORE';
+  document.getElementById('result-emoji').textContent=emoji;
+  document.getElementById('result-score').textContent=`${score}/70`;
+  document.getElementById('result-score').className='result-score '+(pct>=50?'pass':'fail');
+  document.getElementById('result-label').textContent=label+(timeout?' · TIME UP':'');
+  document.getElementById('r-correct').textContent=correct;
+  document.getElementById('r-wrong').textContent=wrong;
+  document.getElementById('r-skip').textContent=skip;
+  const rl=document.getElementById('review-list');rl.innerHTML='';
+  const L=['A','B','C','D'];
+  sessionQuestions.forEach((q,i)=>{
+    const ua=answers[i];
+    const isC=ua!==-1&&ua===q.ans,isW=ua!==-1&&ua!==q.ans,isS=ua===-1;
+    const item=document.createElement('div');item.className='review-item';
+    if(isC)item.classList.add('review-item-correct');
+    else if(isW)item.classList.add('review-item-wrong');
+    else item.classList.add('review-item-skip');
+    const tc=isC?'tag-correct':isW?'tag-wrong':'tag-skipped';
+    const tt=isC?'✓ CORRECT':isW?'✗ WRONG':'— SKIPPED';
+    let opts='<div class="review-opts">';
+    q.opts.forEach((opt,oi)=>{
+      const isCor=oi===q.ans,isCho=oi===ua;
+      let cls='opt-normal',tag='';
+      if(isCor&&isCho){cls='opt-correct';tag='<span class="review-tag tag-correct">Your Answer ✓</span>';}
+      else if(isCor){cls='opt-correct';tag='<span class="review-tag tag-correct">Correct Answer</span>';}
+      else if(isCho){cls='opt-wrong';tag='<span class="review-tag tag-wrong">Your Answer ✗</span>';}
+      opts+=`<div class="review-opt ${cls}"><span class="opt-ltr">${L[oi]}</span><span>${opt}</span>${tag}</div>`;
+    });
+    opts+='</div>';
+    item.innerHTML=`<div class="review-q"><span>Q${i+1}. ${q.q}</span><span class="review-tag ${tc}" style="flex-shrink:0">${tt}</span></div>${opts}`;
+    rl.appendChild(item);
+  });
+}
+
+function retryQuiz(){
+  document.getElementById('result').classList.remove('active');
+  buildSession();
+  document.getElementById('quiz').classList.add('active');
+  updateTimerDisplay();renderQuestion();renderMap();startTimer();
+}
+
+function goHome(){
+  document.getElementById('result').classList.remove('active');
+  document.getElementById('intro').classList.add('active');
+}
+</script>
+</body>
+</html>
