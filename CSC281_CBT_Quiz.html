@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSC 281.1 — Intro to Cyber Technologies CBT</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0e1a;--surface:#111827;--card:#1a2236;--border:#1e3a5f;--accent:#00ff88;--accent2:#f97316;--green:#00ff88;--red:#ff4466;--yellow:#ffd700;--text:#e2e8f0;--muted:#64748b;--glow:0 0 20px rgba(0,255,136,0.3)}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(0,255,136,.04),transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(249,115,22,.05),transparent 60%);pointer-events:none;z-index:0}
+  body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,136,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  .screen{display:none;position:relative;z-index:1}.screen.active{display:flex}
+  #intro{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center}
+  .logo-badge{display:inline-flex;align-items:center;gap:10px;background:rgba(0,255,136,.08);border:1px solid var(--accent);border-radius:100px;padding:8px 20px;font-family:'Share Tech Mono',monospace;font-size:.8rem;color:var(--accent);letter-spacing:2px;margin-bottom:2rem;animation:fadeDown .6s ease}
+  .logo-badge::before{content:'🔐';animation:spin 4s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .intro-title{font-size:clamp(2rem,6vw,3.5rem);font-weight:900;line-height:1.1;margin-bottom:.5rem;animation:fadeDown .7s ease}
+  .intro-title span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .intro-sub{font-size:1rem;color:var(--muted);margin-bottom:3rem;animation:fadeDown .8s ease}
+  .info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;max-width:580px;margin-bottom:3rem;animation:fadeUp .9s ease}
+  .info-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center}
+  .info-card .val{font-size:1.6rem;font-weight:700;color:var(--accent);font-family:'Share Tech Mono',monospace;display:block}
+  .info-card .lbl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+  .rules{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem 2rem;max-width:520px;text-align:left;margin-bottom:2.5rem;animation:fadeUp 1s ease}
+  .rules h3{color:var(--accent);font-size:.85rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;font-family:'Share Tech Mono',monospace}
+  .rules li{list-style:none;padding:.4rem 0;font-size:.9rem;color:var(--muted);padding-left:1.2rem;position:relative}
+  .rules li::before{content:'›';position:absolute;left:0;color:var(--accent)}
+  .btn-start{background:linear-gradient(135deg,var(--accent),#00bb66);color:#000;border:none;padding:1rem 3rem;border-radius:100px;font-family:'Exo 2',sans-serif;font-size:1rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .3s;box-shadow:var(--glow);animation:fadeUp 1.1s ease}
+  .btn-start:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 0 40px rgba(0,255,136,.5)}
+  #quiz{flex-direction:column;min-height:100vh}
+  .quiz-header{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+  .q-meta{display:flex;align-items:center;gap:.5rem;font-family:'Share Tech Mono',monospace;font-size:.85rem}
+  .q-counter{color:var(--accent);font-weight:700}.q-total{color:var(--muted)}
+  .progress-bar-wrap{flex:1;height:4px;background:var(--border);border-radius:10px;overflow:hidden;max-width:300px}
+  .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:10px;transition:width .4s ease}
+  .timer-wrap{display:flex;align-items:center;gap:.5rem;background:var(--card);border:1px solid var(--border);border-radius:100px;padding:.4rem 1rem}
+  #timer-display{font-family:'Share Tech Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--accent);min-width:52px;text-align:center;transition:color .3s}
+  #timer-display.warning{color:var(--yellow)}#timer-display.danger{color:var(--red);animation:pulse .5s infinite alternate}
+  @keyframes pulse{from{opacity:1}to{opacity:.4}}
+  .quiz-body{flex:1;display:flex;flex-direction:column;padding:2rem 1.5rem;max-width:780px;width:100%;margin:0 auto}
+  .question-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+  .question-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .q-number-badge{display:inline-block;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:.75rem;padding:3px 10px;border-radius:100px;margin-bottom:1rem;letter-spacing:1px}
+  .question-text{font-size:1.05rem;font-weight:600;line-height:1.6;color:var(--text)}
+  .options-list{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.5rem}
+  .option-btn{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;cursor:pointer;transition:all .2s;text-align:left;width:100%;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.95rem}
+  .option-btn:hover{border-color:var(--accent);background:rgba(0,255,136,.06);transform:translateX(4px)}
+  .option-btn.selected{border-color:var(--accent);background:rgba(0,255,136,.12);color:var(--accent)}
+  .option-letter{width:32px;height:32px;border-radius:8px;background:var(--border);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:.8rem;font-weight:700;flex-shrink:0;transition:background .2s}
+  .option-btn.selected .option-letter{background:var(--accent);color:#000}
+  .nav-row{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+  .btn-nav{padding:.75rem 1.75rem;border-radius:100px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-family:'Exo 2',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s}
+  .btn-nav:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+  .btn-nav:disabled{opacity:.3;cursor:not-allowed}
+  .btn-nav.primary{background:linear-gradient(135deg,var(--accent),#00bb66);border-color:transparent;color:#000;font-weight:700}
+  .btn-nav.primary:hover{box-shadow:var(--glow);transform:scale(1.02)}
+  .btn-nav.danger-btn{background:rgba(255,68,102,.1);border-color:var(--red);color:var(--red)}
+  .q-map-wrap{padding:0 1.5rem 2rem;max-width:780px;width:100%;margin:0 auto}
+  .q-map-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:.75rem;font-family:'Share Tech Mono',monospace}
+  .q-map{display:flex;flex-wrap:wrap;gap:6px}
+  .q-dot{width:28px;height:28px;border-radius:6px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-family:'Share Tech Mono',monospace;cursor:pointer;transition:all .15s;color:var(--muted)}
+  .q-dot:hover{border-color:var(--accent);color:var(--accent)}
+  .q-dot.answered{background:rgba(0,255,136,.15);border-color:var(--accent);color:var(--accent)}
+  .q-dot.current{background:var(--accent);color:#000;font-weight:700}
+  #result{flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;padding:2rem;text-align:center;overflow-y:auto}
+  .result-badge{font-size:4rem;margin-bottom:1rem;animation:bounceIn .6s ease}
+  @keyframes bounceIn{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+  .result-score{font-size:clamp(2.5rem,8vw,4.5rem);font-weight:900;font-family:'Share Tech Mono',monospace;line-height:1;margin-bottom:.5rem}
+  .result-score.pass{color:var(--green);text-shadow:0 0 30px rgba(0,255,136,.4)}
+  .result-score.fail{color:var(--red);text-shadow:0 0 30px rgba(255,68,102,.4)}
+  .result-label{font-size:1rem;color:var(--muted);margin-bottom:2rem;letter-spacing:1px;text-transform:uppercase}
+  .result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;max-width:480px;margin-bottom:2rem;width:100%}
+  .stat-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.2rem}
+  .stat-box .sv{font-size:1.8rem;font-weight:700;font-family:'Share Tech Mono',monospace;display:block}
+  .stat-box .sl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+  .stat-box.correct-stat .sv{color:var(--green)}.stat-box.wrong-stat .sv{color:var(--red)}.stat-box.skip-stat .sv{color:var(--yellow)}
+  .review-section{width:100%;max-width:700px;text-align:left;margin-bottom:2rem}
+  .review-title{font-family:'Share Tech Mono',monospace;font-size:.8rem;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem}
+  .review-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:.75rem;border-left:3px solid var(--border)}
+  .review-item-correct{border-left-color:var(--green)!important}.review-item-wrong{border-left-color:var(--red)!important}.review-item-skip{border-left-color:var(--yellow)!important}
+  .review-q{font-size:.88rem;font-weight:600;margin-bottom:.6rem;color:var(--text);display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+  .review-opts{margin-top:.6rem;display:flex;flex-direction:column;gap:5px}
+  .review-opt{display:flex;align-items:center;gap:8px;font-size:.82rem;padding:5px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--border)}
+  .review-opt.opt-correct{background:rgba(0,255,136,.08);border-color:var(--green);color:var(--green)}
+  .review-opt.opt-wrong{background:rgba(255,68,102,.08);border-color:var(--red);color:var(--red)}
+  .review-opt.opt-normal{color:var(--muted)}
+  .opt-ltr{width:22px;height:22px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:.7rem;font-weight:700;background:var(--border)}
+  .review-opt.opt-correct .opt-ltr{background:var(--green);color:#000}.review-opt.opt-wrong .opt-ltr{background:var(--red);color:#fff}
+  .review-tag{font-size:.7rem;font-weight:700;letter-spacing:1px;padding:2px 7px;border-radius:100px;margin-left:auto;flex-shrink:0}
+  .tag-correct{background:rgba(0,255,136,.15);color:var(--green)}.tag-wrong{background:rgba(255,68,102,.15);color:var(--red)}.tag-skipped{background:rgba(255,215,0,.15);color:var(--yellow)}
+  .btn-retry{background:linear-gradient(135deg,var(--accent2),#c2410c);color:#fff;border:none;padding:1rem 2.5rem;border-radius:100px;font-family:'Exo 2',sans-serif;font-size:1rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .3s;margin:.5rem}
+  .btn-retry:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(249,115,22,.4)}
+  .slide-in{animation:slideIn .3s ease}
+  @keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  @media(max-width:500px){.info-grid{grid-template-columns:repeat(2,1fr)}.result-stats{gap:.5rem}.quiz-header{padding:.6rem 1rem}.quiz-body{padding:1rem}}
+</style>
+</head>
+<body>
+
+<div id="intro" class="screen active">
+  <div class="logo-badge">CSC 281.1 — UNIPORT</div>
+  <h1 class="intro-title">Intro to Cyber<br><span>Technologies CBT</span></h1>
+  <p class="intro-sub">Cyber Space · Web Security · Hacking · Cryptography · Ethics</p>
+  <div class="info-grid">
+    <div class="info-card"><span class="val">50</span><span class="lbl">Questions</span></div>
+    <div class="info-card"><span class="val">30</span><span class="lbl">Minutes</span></div>
+    <div class="info-card"><span class="val">1.4</span><span class="lbl">Marks/Q</span></div>
+    <div class="info-card"><span class="val">70</span><span class="lbl">Total</span></div>
+  </div>
+  <div class="rules">
+    <h3>// Instructions</h3>
+    <ul>
+      <li>50 randomized multiple choice questions</li>
+      <li>Questions and options shuffle every attempt</li>
+      <li>30-minute countdown — auto-submits at 0</li>
+      <li>Each correct answer = 1.4 marks (70 total)</li>
+      <li>Full review of all 50 questions at the end</li>
+    </ul>
+  </div>
+  <button class="btn-start" onclick="startQuiz()">START EXAM →</button>
+</div>
+
+<div id="quiz" class="screen">
+  <div class="quiz-header">
+    <div class="q-meta"><span class="q-counter" id="q-counter">Q1</span><span class="q-total">/ 50</span></div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:2%"></div></div>
+    <div class="timer-wrap"><span>⏱</span><span id="timer-display">30:00</span></div>
+  </div>
+  <div class="quiz-body">
+    <div class="question-card slide-in" id="question-card">
+      <div class="q-number-badge" id="q-badge">QUESTION 01</div>
+      <p class="question-text" id="question-text"></p>
+    </div>
+    <div class="options-list" id="options-list"></div>
+    <div class="nav-row">
+      <button class="btn-nav" id="btn-prev" onclick="navigate(-1)">← Prev</button>
+      <button class="btn-nav danger-btn" onclick="confirmSubmit()">Submit Exam</button>
+      <button class="btn-nav primary" id="btn-next" onclick="navigate(1)">Next →</button>
+    </div>
+  </div>
+  <div class="q-map-wrap">
+    <div class="q-map-label">// Question Map</div>
+    <div class="q-map" id="q-map"></div>
+  </div>
+</div>
+
+<div id="result" class="screen">
+  <div class="result-badge" id="result-emoji">🎓</div>
+  <div class="result-score" id="result-score">49/70</div>
+  <div class="result-label" id="result-label">Score</div>
+  <div class="result-stats">
+    <div class="stat-box correct-stat"><span class="sv" id="r-correct">0</span><span class="sl">Correct</span></div>
+    <div class="stat-box wrong-stat"><span class="sv" id="r-wrong">0</span><span class="sl">Wrong</span></div>
+    <div class="stat-box skip-stat"><span class="sv" id="r-skip">0</span><span class="sl">Skipped</span></div>
+  </div>
+  <div class="review-section">
+    <div class="review-title">// Full Question Review</div>
+    <div id="review-list"></div>
+  </div>
+  <button class="btn-retry" onclick="retryQuiz()">↺ Retry Quiz</button>
+  <button class="btn-retry" onclick="goHome()" style="background:linear-gradient(135deg,#1a2236,#0a0e1a);border:1px solid var(--border)">⌂ Home</button>
+</div>
+
+<script>
+// opts[0] is ALWAYS the correct answer — shuffled each session
+const questionBank = [
+
+  // ── CYBER SPACE & OVERVIEW ────────────────────────────────────────────────
+  {q:"What does 'cyber space' refer to?",opts:["The virtual environment created by interconnected computer systems and networks","A physical server room","A type of web browser","A database management system"]},
+  {q:"Which of the following is NOT a technology operating in cyber space?",opts:["Fax machines","Web applications","Email systems","Social media platforms"]},
+  {q:"What is cybersecurity?",opts:["The practice of protecting systems, networks and programs from digital attacks","Designing computer hardware","Writing code for websites","Setting up a local area network"]},
+  {q:"Before students can provide security for a system, they must first have good knowledge of:",opts:["The cyber space itself","The history of computers","Database administration","Circuit design"]},
+  {q:"According to the course objectives, students should be able to illustrate how to deploy a website using:",opts:["A web host and a domain name","Only a text editor","An offline server","A mobile hotspot"]},
+
+  // ── GDPR & DATA PROTECTION ───────────────────────────────────────────────
+  {q:"GDPR stands for:",opts:["General Data Protection Regulation","Global Digital Privacy Rights","Government Data Processing Rules","General Digital Protocol Registry"]},
+  {q:"GDPR is a law enforced since 2018 by:",opts:["The European Union","The United Nations","The African Union","The United States Congress"]},
+  {q:"What right does GDPR grant users regarding their personal data?",opts:["Right to be forgotten — have data permanently deleted","Right to access any website for free","Right to bypass authentication","Right to free hosting"]},
+  {q:"GDPR requires data breach notifications to authorities within:",opts:["72 hours","24 hours","48 hours","1 week"]},
+  {q:"The Nigerian equivalent of GDPR is:",opts:["Nigeria Data Protection Act (NDPA) 2023","NITDA Act","Cybercrime Prohibition Act","NESREA Act"]},
+  {q:"A Data Protection Officer (DPO) is required by:",opts:["GDPR where organizations process large amounts of personal data","Only Nigerian government agencies","All banks worldwide","Only hospitals"]},
+
+  // ── WEB APPLICATIONS ─────────────────────────────────────────────────────
+  {q:"The front-end of a web application refers to:",opts:["What users see and interact with in the browser","The server-side logic and database","The payment processing gateway","The hosting infrastructure"]},
+  {q:"Which of the following is a back-end web framework?",opts:["Django","React","Bootstrap","Tailwind CSS"]},
+  {q:"HTTPS differs from HTTP because it:",opts:["Uses SSL/TLS to encrypt data in transit","Loads pages faster","Requires no domain name","Only works on mobile devices"]},
+  {q:"FTP (File Transfer Protocol) is primarily used for:",opts:["Transferring files between a client and server","Sending emails","Encrypting databases","Scanning networks for vulnerabilities"]},
+  {q:"Authentication in web security means:",opts:["Verifying the identity of a user trying to access a system","Deciding what a verified user is allowed to access","Encrypting the database","Blocking foreign IP addresses"]},
+  {q:"Authorization in web security means:",opts:["Determining what an authenticated user is allowed to access or do","Verifying who the user is","Encrypting data at rest","Monitoring login activity"]},
+  {q:"Which security feature converts data into an unreadable format to protect it?",opts:["Data Encryption","Authorization","Authentication","Activity Monitoring"]},
+  {q:"Which protocol is used for sending emails?",opts:["SMTP","HTTP","FTP","DNS"]},
+  {q:"Cross-Site Scripting (XSS) attacks involve:",opts:["Injecting malicious scripts into web pages viewed by other users","Scanning networks for open ports","Cracking password hashes","Intercepting file transfers"]},
+  {q:"SQL injection attacks target:",opts:["Web application databases via malicious SQL code inserted into input fields","Operating system kernels","Email servers","Wi-Fi routers"]},
+
+  // ── DOMAIN NAMES & HOSTING ───────────────────────────────────────────────
+  {q:"What is a domain name?",opts:["The human-readable address of a website that maps to an IP address","A server's physical address","A type of database","A hosting subscription"]},
+  {q:"DNS stands for:",opts:["Domain Name System","Data Network System","Digital Node Service","Distributed Name Server"]},
+  {q:"Which type of web hosting gives a single website exclusive use of an entire server?",opts:["Dedicated hosting","Shared hosting","Cloud hosting","VPS"]},
+  {q:"VPS stands for:",opts:["Virtual Private Server","Very Public Server","Versatile Processing System","Virtual Port Scanner"]},
+  {q:"In the URL 'https://www.uniport.edu.ng', what does '.ng' represent?",opts:["Nigeria's country-code Top-Level Domain","The subdomain","The second-level domain","The protocol"]},
+  {q:"WordPress is best described as a:",opts:["Content Management System (CMS)","Programming language","Database management system","Operating system"]},
+  {q:"Web hosting using existing frameworks like WordPress, Laravel, and Django falls under which hosting approach?",opts:["Web hosting using existing web frameworks","Dedicated server hosting","Cloud-only hosting","Manual file hosting"]},
+
+  // ── HACKING TOOLS & CRYPTOGRAPHY ─────────────────────────────────────────
+  {q:"Which tool is widely used for network port scanning?",opts:["Nmap","Hashcat","Wireshark","Burp Suite"]},
+  {q:"Wireshark is classified as a:",opts:["Packet sniffer / network analyser","Password cracker","Exploitation framework","Vulnerability scanner"]},
+  {q:"Metasploit is used for:",opts:["Testing and exploiting system vulnerabilities","Domain registration","Email management","Web page design"]},
+  {q:"Hashing in cryptography is best described as:",opts:["A one-way transformation that produces a fixed-size digest to verify integrity","Encrypting data with a reversible key","Transferring files securely","Scanning for open ports"]},
+  {q:"AES is an example of:",opts:["Symmetric encryption","Asymmetric encryption","A hashing algorithm","A digital signature"]},
+  {q:"RSA is an example of:",opts:["Asymmetric (public-key) encryption","Symmetric encryption","A hashing algorithm","A packet sniffer"]},
+  {q:"Adding a random value to a password before hashing (salting) defends against:",opts:["Rainbow table attacks","Phishing attacks","DDoS attacks","SQL injection"]},
+  {q:"SSL/TLS in HTTPS connections provides:",opts:["Encrypted and authenticated communication between browser and server","Faster page loading","Domain registration","File transfer capability"]},
+  {q:"Which built-in cryptographic module is commonly used in Python for security?",opts:["hashlib / ssl","React","Django","NumPy"]},
+
+  // ── SYSTEM HACKING & HACKER TYPES ────────────────────────────────────────
+  {q:"System hacking is defined as:",opts:["Attempting to manipulate a computer system's normal behaviour to gain unauthorized access","Designing new operating systems","Building web applications","Testing network speed"]},
+  {q:"White hat hackers are:",opts:["Ethical security professionals who test systems with authorization to improve security","Malicious hackers who steal data","Script kiddies using pre-written tools","Government-sponsored spies"]},
+  {q:"Black hat hackers:",opts:["Exploit systems illegally for personal gain or to cause harm","Work within the law","Report vulnerabilities to system owners","Are employed by organizations to improve security"]},
+  {q:"Grey hat hackers differ from black hats because:",opts:["They hack without authorization but typically without malicious intent","They only use legal tools","They work for antivirus companies","They specialize in DDoS attacks"]},
+  {q:"The FIRST stage of the system hacking lifecycle is:",opts:["Reconnaissance (Footprinting)","Scanning","Gaining Access","Clearing Traces"]},
+  {q:"During the 'Scanning' stage of hacking, an attacker:",opts:["Scans for open ports, running services, and vulnerabilities using tools like Nmap","Deletes log files","Installs a backdoor","Sends phishing emails"]},
+  {q:"'Maintaining Access' in the hacking lifecycle involves:",opts:["Installing backdoors or rootkits to ensure future re-entry","Gathering open-source intelligence","Reporting vulnerabilities to the owner","Deleting evidence of the attack"]},
+  {q:"'Clearing Traces' in system hacking means:",opts:["Removing logs and evidence to avoid forensic detection","Creating new admin accounts","Scanning additional targets","Running a fresh vulnerability scan"]},
+
+  // ── HACKING TECHNIQUES ───────────────────────────────────────────────────
+  {q:"A brute force attack works by:",opts:["Trying every possible password combination until finding the correct one","Using a list of common passwords","Using precomputed hash tables","Intercepting network packets"]},
+  {q:"A dictionary attack uses:",opts:["A wordlist of common passwords and phrases","Precomputed hash tables","Random character sequences","Packet sniffing to capture credentials"]},
+  {q:"Phishing is best described as:",opts:["A social engineering attack impersonating a trusted entity to steal sensitive information","A port-scanning technique","Malware that records keystrokes","A method of cracking password hashes"]},
+  {q:"Spear phishing differs from regular phishing because:",opts:["It targets a specific person or organization with personalized researched content","It is sent via SMS only","It uses brute force alongside social engineering","It targets random mass audiences"]},
+  {q:"Clone phishing involves:",opts:["Copying a legitimate email and replacing its links or attachments with malicious ones","Creating a completely new fake email","Making phone calls impersonating banks","Targeting high-profile executives only"]},
+  {q:"A Trojan horse in cybersecurity is:",opts:["Malware disguised as legitimate software that creates a backdoor once installed","A legitimate antivirus tool","A network port scanner","A type of firewall"]},
+  {q:"A rootkit is designed to:",opts:["Hide its presence and provide persistent privileged access to a compromised system","Speed up the operating system","Send phishing emails automatically","Crack database passwords"]},
+  {q:"A keylogger records:",opts:["Every keystroke typed on the keyboard including passwords and messages","Screenshots of the desktop at intervals","Network packets on the local network","System error and crash logs"]},
+  {q:"A Man-in-the-Middle (MITM) attack:",opts:["Intercepts and potentially alters communication between two parties","Floods a server with traffic to take it offline","Records all keystrokes on the target machine","Installs ransomware on the victim's system"]},
+  {q:"A DDoS attack differs from a DoS attack because:",opts:["DDoS uses multiple compromised systems to flood the target simultaneously","DDoS targets databases while DoS targets websites","DoS is illegal while DDoS is legal","DDoS only targets mobile devices"]},
+
+  // ── ETHICAL HACKING & CYBER LAWS ─────────────────────────────────────────
+  {q:"Penetration testing (pen testing) is:",opts:["Authorized ethical hacking to discover vulnerabilities before malicious actors do","Unauthorized hacking for financial gain","A type of DDoS attack","Sending phishing emails to employees"]},
+  {q:"Black box penetration testing means:",opts:["The tester has no prior knowledge of the system — simulating a real external attacker","The tester has full knowledge of the system","The tester has partial knowledge","The test only targets databases"]},
+  {q:"The principle of least privilege means:",opts:["Users are granted only the minimum access rights required for their specific role","All users get full admin rights","Passwords must be at least 8 characters","Firewalls must block all incoming traffic"]},
+  {q:"MFA (Multi-Factor Authentication) requires:",opts:["Verifying identity using two or more independent factors such as password and OTP","Two passwords entered in sequence","Only a fingerprint scan","An admin to approve every login"]},
+  {q:"Which of the following is NOT a good cybersecurity practice?",opts:["Reusing the same password across all accounts","Conducting regular vulnerability assessments","Implementing MFA","Encrypting sensitive data at rest"]},
+  {q:"Social engineering in cybersecurity targets:",opts:["Human psychology — manipulating people into revealing information or taking unsafe actions","Database vulnerabilities","Unpatched software","Wi-Fi signal weaknesses"]},
+  {q:"A zero-day exploit targets:",opts:["A vulnerability unknown to the vendor with no patch yet available","Old systems running outdated antivirus only","Websites using HTTP instead of HTTPS","Systems without firewalls"]},
+  {q:"What makes ethical hacking fundamentally different from criminal hacking?",opts:["Ethical hacking is performed with explicit written authorization and the goal of improving security","Ethical hackers use completely different technical tools","Ethical hackers only target web applications","Criminal hackers are always more technically skilled"]},
+  {q:"Cybercrime is best defined as:",opts:["Any criminal activity carried out using a computer or the internet","Only hacking of government systems","Creating websites without a license","Using public Wi-Fi networks"]},
+  {q:"Which of the following is a real example of cybercrime?",opts:["Sending phishing emails to steal banking credentials","Registering a domain name","Installing antivirus software","Building a secure web application"]},
+];
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+let sessionQuestions=[],currentQ=0,answers=[],timerInterval=null,timeLeft=30*60;
+
+function buildSession(){
+  const picked=shuffle(questionBank).slice(0,50);
+  sessionQuestions=picked.map(q=>{
+    const correct=q.opts[0];
+    const shuffled=shuffle(q.opts);
+    return{q:q.q,opts:shuffled,ans:shuffled.indexOf(correct)};
+  });
+  answers=new Array(50).fill(-1);currentQ=0;timeLeft=30*60;
+}
+
+function startQuiz(){
+  buildSession();
+  document.getElementById('intro').classList.remove('active');
+  document.getElementById('quiz').classList.add('active');
+  updateTimerDisplay();renderQuestion();renderMap();startTimer();
+}
+
+function startTimer(){
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{timeLeft--;updateTimerDisplay();if(timeLeft<=0){clearInterval(timerInterval);submitQuiz(true);}},1000);
+}
+
+function updateTimerDisplay(){
+  const m=Math.floor(timeLeft/60),s=timeLeft%60;
+  const d=document.getElementById('timer-display');
+  d.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  d.className='';
+  if(timeLeft<=300)d.classList.add('danger');else if(timeLeft<=600)d.classList.add('warning');
+}
+
+function renderQuestion(){
+  const q=sessionQuestions[currentQ];
+  const card=document.getElementById('question-card');
+  card.classList.remove('slide-in');void card.offsetWidth;card.classList.add('slide-in');
+  document.getElementById('q-counter').textContent=`Q${currentQ+1}`;
+  document.getElementById('q-badge').textContent=`QUESTION ${String(currentQ+1).padStart(2,'0')}`;
+  document.getElementById('question-text').textContent=q.q;
+  document.getElementById('progress-fill').style.width=`${((currentQ+1)/50)*100}%`;
+  const ol=document.getElementById('options-list');ol.innerHTML='';
+  const L=['A','B','C','D'];
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');btn.className='option-btn';
+    if(answers[currentQ]===i)btn.classList.add('selected');
+    btn.innerHTML=`<span class="option-letter">${L[i]}</span><span>${opt}</span>`;
+    btn.onclick=()=>selectAnswer(i);ol.appendChild(btn);
+  });
+  document.getElementById('btn-prev').disabled=currentQ===0;
+  document.getElementById('btn-next').textContent=currentQ===49?'Finish':'Next →';
+}
+
+function selectAnswer(i){answers[currentQ]=i;renderQuestion();renderMap();}
+
+function navigate(dir){
+  const next=currentQ+dir;
+  if(next>=0&&next<=49){currentQ=next;renderQuestion();updateMapCurrent();}
+  else if(dir===1&&currentQ===49)confirmSubmit();
+}
+
+function renderMap(){
+  const map=document.getElementById('q-map');map.innerHTML='';
+  for(let i=0;i<50;i++){
+    const d=document.createElement('div');d.className='q-dot';
+    if(answers[i]!==-1)d.classList.add('answered');if(i===currentQ)d.classList.add('current');
+    d.textContent=i+1;d.onclick=()=>{currentQ=i;renderQuestion();updateMapCurrent();};
+    map.appendChild(d);
+  }
+}
+
+function updateMapCurrent(){
+  document.querySelectorAll('.q-dot').forEach((d,i)=>{
+    d.classList.toggle('current',i===currentQ);
+    d.classList.toggle('answered',answers[i]!==-1&&i!==currentQ);
+  });
+}
+
+function confirmSubmit(){
+  const u=answers.filter(a=>a===-1).length;
+  if(u>0&&!confirm(`You have ${u} unanswered question(s). Submit anyway?`))return;
+  submitQuiz(false);
+}
+
+function submitQuiz(timeout){
+  clearInterval(timerInterval);
+  let correct=0,wrong=0,skip=0;
+  sessionQuestions.forEach((q,i)=>{
+    if(answers[i]===-1)skip++;else if(answers[i]===q.ans)correct++;else wrong++;
+  });
+  const score=parseFloat((correct*1.4).toFixed(1));
+  const pct=(score/70)*100;
+  document.getElementById('quiz').classList.remove('active');
+  document.getElementById('result').classList.add('active');
+  const emoji=pct>=70?'🏆':pct>=50?'📚':'😓';
+  const label=pct>=70?'PASS':'FAIL — STUDY MORE';
+  document.getElementById('result-emoji').textContent=emoji;
+  document.getElementById('result-score').textContent=`${score}/70`;
+  document.getElementById('result-score').className='result-score '+(pct>=50?'pass':'fail');
+  document.getElementById('result-label').textContent=label+(timeout?' · TIME UP':'');
+  document.getElementById('r-correct').textContent=correct;
+  document.getElementById('r-wrong').textContent=wrong;
+  document.getElementById('r-skip').textContent=skip;
+  const rl=document.getElementById('review-list');rl.innerHTML='';
+  const L=['A','B','C','D'];
+  sessionQuestions.forEach((q,i)=>{
+    const ua=answers[i];
+    const isC=ua!==-1&&ua===q.ans,isW=ua!==-1&&ua!==q.ans,isS=ua===-1;
+    const item=document.createElement('div');item.className='review-item';
+    if(isC)item.classList.add('review-item-correct');
+    else if(isW)item.classList.add('review-item-wrong');
+    else item.classList.add('review-item-skip');
+    const tc=isC?'tag-correct':isW?'tag-wrong':'tag-skipped';
+    const tt=isC?'✓ CORRECT':isW?'✗ WRONG':'— SKIPPED';
+    let opts='<div class="review-opts">';
+    q.opts.forEach((opt,oi)=>{
+      const isCor=oi===q.ans,isCho=oi===ua;
+      let cls='opt-normal',tag='';
+      if(isCor&&isCho){cls='opt-correct';tag='<span class="review-tag tag-correct">Your Answer ✓</span>';}
+      else if(isCor){cls='opt-correct';tag='<span class="review-tag tag-correct">Correct Answer</span>';}
+      else if(isCho){cls='opt-wrong';tag='<span class="review-tag tag-wrong">Your Answer ✗</span>';}
+      opts+=`<div class="review-opt ${cls}"><span class="opt-ltr">${L[oi]}</span><span>${opt}</span>${tag}</div>`;
+    });
+    opts+='</div>';
+    item.innerHTML=`<div class="review-q"><span>Q${i+1}. ${q.q}</span><span class="review-tag ${tc}" style="flex-shrink:0">${tt}</span></div>${opts}`;
+    rl.appendChild(item);
+  });
+}
+
+function retryQuiz(){
+  document.getElementById('result').classList.remove('active');
+  buildSession();
+  document.getElementById('quiz').classList.add('active');
+  updateTimerDisplay();renderQuestion();renderMap();startTimer();
+}
+
+function goHome(){
+  document.getElementById('result').classList.remove('active');
+  document.getElementById('intro').classList.add('active');
+}
+</script>
+</body>
+</html>
