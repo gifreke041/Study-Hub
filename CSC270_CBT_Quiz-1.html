@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSC 270.1 — UI/UX Design CBT</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0e1a;--surface:#111827;--card:#1a2236;--border:#1e3a5f;--accent:#00ff88;--accent2:#f97316;--green:#00ff88;--red:#ff4466;--yellow:#ffd700;--text:#e2e8f0;--muted:#64748b;--glow:0 0 20px rgba(0,255,136,0.3)}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(0,255,136,.04),transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(249,115,22,.05),transparent 60%);pointer-events:none;z-index:0}
+  body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,136,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  .screen{display:none;position:relative;z-index:1}.screen.active{display:flex}
+  #intro{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center}
+  .logo-badge{display:inline-flex;align-items:center;gap:10px;background:rgba(0,255,136,.08);border:1px solid var(--accent);border-radius:100px;padding:8px 20px;font-family:'Share Tech Mono',monospace;font-size:.8rem;color:var(--accent);letter-spacing:2px;margin-bottom:2rem;animation:fadeDown .6s ease}
+  .logo-badge::before{content:'🎨';animation:spin 4s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .intro-title{font-size:clamp(2rem,6vw,3.5rem);font-weight:900;line-height:1.1;margin-bottom:.5rem;animation:fadeDown .7s ease}
+  .intro-title span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .intro-sub{font-size:1rem;color:var(--muted);margin-bottom:3rem;animation:fadeDown .8s ease}
+  .info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;max-width:580px;margin-bottom:3rem;animation:fadeUp .9s ease}
+  .info-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center}
+  .info-card .val{font-size:1.6rem;font-weight:700;color:var(--accent);font-family:'Share Tech Mono',monospace;display:block}
+  .info-card .lbl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+  .rules{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem 2rem;max-width:520px;text-align:left;margin-bottom:2.5rem;animation:fadeUp 1s ease}
+  .rules h3{color:var(--accent);font-size:.85rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;font-family:'Share Tech Mono',monospace}
+  .rules li{list-style:none;padding:.4rem 0;font-size:.9rem;color:var(--muted);padding-left:1.2rem;position:relative}
+  .rules li::before{content:'›';position:absolute;left:0;color:var(--accent)}
+  .btn-start{background:linear-gradient(135deg,var(--accent),#00bb66);color:#000;border:none;padding:1rem 3rem;border-radius:100px;font-family:'Exo 2',sans-serif;font-size:1rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .3s;box-shadow:var(--glow);animation:fadeUp 1.1s ease}
+  .btn-start:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 0 40px rgba(0,255,136,.5)}
+  #quiz{flex-direction:column;min-height:100vh}
+  .quiz-header{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+  .q-meta{display:flex;align-items:center;gap:.5rem;font-family:'Share Tech Mono',monospace;font-size:.85rem}
+  .q-counter{color:var(--accent);font-weight:700}.q-total{color:var(--muted)}
+  .progress-bar-wrap{flex:1;height:4px;background:var(--border);border-radius:10px;overflow:hidden;max-width:300px}
+  .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:10px;transition:width .4s ease}
+  .timer-wrap{display:flex;align-items:center;gap:.5rem;background:var(--card);border:1px solid var(--border);border-radius:100px;padding:.4rem 1rem}
+  #timer-display{font-family:'Share Tech Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--accent);min-width:52px;text-align:center;transition:color .3s}
+  #timer-display.warning{color:var(--yellow)}#timer-display.danger{color:var(--red);animation:pulse .5s infinite alternate}
+  @keyframes pulse{from{opacity:1}to{opacity:.4}}
+  .quiz-body{flex:1;display:flex;flex-direction:column;padding:2rem 1.5rem;max-width:780px;width:100%;margin:0 auto}
+  .question-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+  .question-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .q-number-badge{display:inline-block;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:.75rem;padding:3px 10px;border-radius:100px;margin-bottom:1rem;letter-spacing:1px}
+  .question-text{font-size:1.05rem;font-weight:600;line-height:1.6;color:var(--text)}
+  .options-list{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.5rem}
+  .option-btn{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;cursor:pointer;transition:all .2s;text-align:left;width:100%;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.95rem}
+  .option-btn:hover{border-color:var(--accent);background:rgba(0,255,136,.06);transform:translateX(4px)}
+  .option-btn.selected{border-color:var(--accent);background:rgba(0,255,136,.12);color:var(--accent)}
+  .option-letter{width:32px;height:32px;border-radius:8px;background:var(--border);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:.8rem;font-weight:700;flex-shrink:0;transition:background .2s}
+  .option-btn.selected .option-letter{background:var(--accent);color:#000}
+  .nav-row{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+  .btn-nav{padding:.75rem 1.75rem;border-radius:100px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-family:'Exo 2',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s}
+  .btn-nav:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+  .btn-nav:disabled{opacity:.3;cursor:not-allowed}
+  .btn-nav.primary{background:linear-gradient(135deg,var(--accent),#00bb66);border-color:transparent;color:#000;font-weight:700}
+  .btn-nav.primary:hover{box-shadow:var(--glow);transform:scale(1.02)}
+  .btn-nav.danger-btn{background:rgba(255,68,102,.1);border-color:var(--red);color:var(--red)}
+  .q-map-wrap{padding:0 1.5rem 2rem;max-width:780px;width:100%;margin:0 auto}
+  .q-map-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:.75rem;font-family:'Share Tech Mono',monospace}
+  .q-map{display:flex;flex-wrap:wrap;gap:6px}
+  .q-dot{width:28px;height:28px;border-radius:6px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-family:'Share Tech Mono',monospace;cursor:pointer;transition:all .15s;color:var(--muted)}
+  .q-dot:hover{border-color:var(--accent);color:var(--accent)}
+  .q-dot.answered{background:rgba(0,255,136,.15);border-color:var(--accent);color:var(--accent)}
+  .q-dot.current{background:var(--accent);color:#000;font-weight:700}
+  #result{flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;padding:2rem;text-align:center;overflow-y:auto}
+  .result-badge{font-size:4rem;margin-bottom:1rem;animation:bounceIn .6s ease}
+  @keyframes bounceIn{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+  .result-score{font-size:clamp(2.5rem,8vw,4.5rem);font-weight:900;font-family:'Share Tech Mono',monospace;line-height:1;margin-bottom:.5rem}
+  .result-score.pass{color:var(--green);text-shadow:0 0 30px rgba(0,255,136,.4)}
+  .result-score.fail{color:var(--red);text-shadow:0 0 30px rgba(255,68,102,.4)}
+  .result-label{font-size:1rem;color:var(--muted);margin-bottom:2rem;letter-spacing:1px;text-transform:uppercase}
+  .result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;max-width:480px;margin-bottom:2rem;width:100%}
+  .stat-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.2rem}
+  .stat-box .sv{font-size:1.8rem;font-weight:700;font-family:'Share Tech Mono',monospace;display:block}
+  .stat-box .sl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+  .stat-box.correct-stat .sv{color:var(--green)}.stat-box.wrong-stat .sv{color:var(--red)}.stat-box.skip-stat .sv{color:var(--yellow)}
+  .review-section{width:100%;max-width:700px;text-align:left;margin-bottom:2rem}
+  .review-title{font-family:'Share Tech Mono',monospace;font-size:.8rem;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem}
+  .review-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:.75rem;border-left:3px solid var(--border)}
+  .review-item-correct{border-left-color:var(--green)!important}.review-item-wrong{border-left-color:var(--red)!important}.review-item-skip{border-left-color:var(--yellow)!important}
+  .review-q{font-size:.88rem;font-weight:600;margin-bottom:.6rem;color:var(--text);display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+  .review-opts{margin-top:.6rem;display:flex;flex-direction:column;gap:5px}
+  .review-opt{display:flex;align-items:center;gap:8px;font-size:.82rem;padding:5px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--border)}
+  .review-opt.opt-correct{background:rgba(0,255,136,.08);border-color:var(--green);color:var(--green)}
+  .review-opt.opt-wrong{background:rgba(255,68,102,.08);border-color:var(--red);color:var(--red)}
+  .review-opt.opt-normal{color:var(--muted)}
+  .opt-ltr{width:22px;height:22px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:.7rem;font-weight:700;background:var(--border)}
+  .review-opt.opt-correct .opt-ltr{background:var(--green);color:#000}.review-opt.opt-wrong .opt-ltr{background:var(--red);color:#fff}
+  .review-tag{font-size:.7rem;font-weight:700;letter-spacing:1px;padding:2px 7px;border-radius:100px;margin-left:auto;flex-shrink:0}
+  .tag-correct{background:rgba(0,255,136,.15);color:var(--green)}.tag-wrong{background:rgba(255,68,102,.15);color:var(--red)}.tag-skipped{background:rgba(255,215,0,.15);color:var(--yellow)}
+  .btn-retry{background:linear-gradient(135deg,var(--accent2),#c2410c);color:#fff;border:none;padding:1rem 2.5rem;border-radius:100px;font-family:'Exo 2',sans-serif;font-size:1rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .3s;margin:.5rem}
+  .btn-retry:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(249,115,22,.4)}
+  .slide-in{animation:slideIn .3s ease}
+  @keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  @media(max-width:500px){.info-grid{grid-template-columns:repeat(2,1fr)}.result-stats{gap:.5rem}.quiz-header{padding:.6rem 1rem}.quiz-body{padding:1rem}}
+</style>
+</head>
+<body>
+
+<div id="intro" class="screen active">
+  <div class="logo-badge">CSC 270.1 — UNIPORT</div>
+  <h1 class="intro-title">UI/UX<br><span>Design CBT</span></h1>
+  <p class="intro-sub">HCI · UI Standards · UX · Interaction Design · Prototyping · Usability</p>
+  <div class="info-grid">
+    <div class="info-card"><span class="val">50</span><span class="lbl">Questions</span></div>
+    <div class="info-card"><span class="val">30</span><span class="lbl">Minutes</span></div>
+    <div class="info-card"><span class="val">1.4</span><span class="lbl">Marks/Q</span></div>
+    <div class="info-card"><span class="val">70</span><span class="lbl">Total</span></div>
+  </div>
+  <div class="rules">
+    <h3>// Instructions</h3>
+    <ul>
+      <li>50 randomized multiple choice questions</li>
+      <li>Questions and options shuffle every attempt</li>
+      <li>30-minute countdown — auto-submits at 0</li>
+      <li>Each correct answer = 1.4 marks (70 total)</li>
+      <li>Full review of all 50 questions at the end</li>
+    </ul>
+  </div>
+  <button class="btn-start" onclick="startQuiz()">START EXAM →</button>
+</div>
+
+<div id="quiz" class="screen">
+  <div class="quiz-header">
+    <div class="q-meta"><span class="q-counter" id="q-counter">Q1</span><span class="q-total">/ 50</span></div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:2%"></div></div>
+    <div class="timer-wrap"><span>⏱</span><span id="timer-display">30:00</span></div>
+  </div>
+  <div class="quiz-body">
+    <div class="question-card slide-in" id="question-card">
+      <div class="q-number-badge" id="q-badge">QUESTION 01</div>
+      <p class="question-text" id="question-text"></p>
+    </div>
+    <div class="options-list" id="options-list"></div>
+    <div class="nav-row">
+      <button class="btn-nav" id="btn-prev" onclick="navigate(-1)">← Prev</button>
+      <button class="btn-nav danger-btn" onclick="confirmSubmit()">Submit Exam</button>
+      <button class="btn-nav primary" id="btn-next" onclick="navigate(1)">Next →</button>
+    </div>
+  </div>
+  <div class="q-map-wrap">
+    <div class="q-map-label">// Question Map</div>
+    <div class="q-map" id="q-map"></div>
+  </div>
+</div>
+
+<div id="result" class="screen">
+  <div class="result-badge" id="result-emoji">🎓</div>
+  <div class="result-score" id="result-score">49/70</div>
+  <div class="result-label" id="result-label">Score</div>
+  <div class="result-stats">
+    <div class="stat-box correct-stat"><span class="sv" id="r-correct">0</span><span class="sl">Correct</span></div>
+    <div class="stat-box wrong-stat"><span class="sv" id="r-wrong">0</span><span class="sl">Wrong</span></div>
+    <div class="stat-box skip-stat"><span class="sv" id="r-skip">0</span><span class="sl">Skipped</span></div>
+  </div>
+  <div class="review-section">
+    <div class="review-title">// Full Question Review</div>
+    <div id="review-list"></div>
+  </div>
+  <button class="btn-retry" onclick="retryQuiz()">↺ Retry Quiz</button>
+  <button class="btn-retry" onclick="goHome()" style="background:linear-gradient(135deg,#1a2236,#0a0e1a);border:1px solid var(--border)">⌂ Home</button>
+</div>
+
+<script>
+// opts[0] is ALWAYS the correct answer — shuffled each session
+const questionBank = [
+
+  // ── UI / UID / UXD ────────────────────────────────────────────────────────
+  {q:"What does UI stand for in the context of digital design?",opts:["User Interface — the actual interface through which users interact with a computer or application","Universal Interface","User Integration","Unified Interaction"]},
+  {q:"Which of the following best defines User Experience Design (UXD)?",opts:["A broader, holistic approach focusing on how users interact with a product or service as a whole","The process of designing visual components of an interface","Creating buttons and icons for apps","Only about the visual aesthetics of a product"]},
+  {q:"What is the key difference between UI and UX design?",opts:["UI is what users interact with; UX is how they feel about interacting with it","UI focuses on usability; UX focuses on visuals","UI is for mobile; UX is for desktop","UI and UX are exactly the same thing"]},
+  {q:"Which of the following is an example of an Interactive Element in UI?",opts:["A button that submits a form","The background colour of a page","A loading spinner","A font style choice"]},
+  {q:"Wireframing is a step in which design process?",opts:["User Interface Design (UID)","User Research","Usability Testing","Accessibility Analysis"]},
+  {q:"Which UXD process step involves creating detailed profiles of typical users?",opts:["Personas","Wireframing","User Testing","Prototyping"]},
+  {q:"User Interface Design (UID) focuses on creating interfaces that are:",opts:["Both aesthetically pleasing and functionally effective in helping users achieve their goals","Only visually beautiful regardless of function","Only functional regardless of appearance","Easy to code for developers"]},
+
+  // ── HCI ───────────────────────────────────────────────────────────────────
+  {q:"HCI stands for:",opts:["Human-Computer Interaction","High-level Computing Interface","Human-Centred Integration","Hybrid Computer Interface"]},
+  {q:"Which of the three disciplines of HCI focuses on understanding human behaviour and cognition?",opts:["Psychology","Design","Technology","Engineering"]},
+  {q:"What is the primary focus of HCI?",opts:["Improving usability and the overall user experience by understanding risks and limitations","Designing hardware components","Writing back-end code","Managing databases"]},
+  {q:"The historical evolution of HCI began in which decade?",opts:["1970s","1990s","1950s","2000s"]},
+  {q:"Which HCI discipline involves leveraging advancements in computing to enhance user interaction?",opts:["Technology","Psychology","Design","Sociology"]},
+
+  // ── UCD ───────────────────────────────────────────────────────────────────
+  {q:"UCD stands for:",opts:["User-Centred Design","Universal Component Design","User-Created Design","Unified Content Design"]},
+  {q:"Which is NOT listed as a key concept of UCD/HCI?",opts:["Coding efficiency","Affordability","Prototyping","Accessibility"]},
+  {q:"What does 'Foster Innovation' mean in the context of UCD?",opts:["Creation of existing or new ideas for the sole purpose of adding value to society","Making products look more colourful","Reducing the cost of design tools","Speeding up the development process"]},
+  {q:"Strengthening users' trust and loyalty is achieved by:",opts:["Meeting the needs of users and generating positive feedback","Making the app look premium","Using the most expensive design tools","Writing more lines of code"]},
+  {q:"Which importance of UCD focuses on making interfaces usable by people with diverse abilities?",opts:["Accessibility and Inclusivity","Productivity","Foster Innovation","Market Competitiveness"]},
+
+  // ── UI STANDARDS ──────────────────────────────────────────────────────────
+  {q:"Which UI standard ensures that similar actions and elements look and function the same throughout the product?",opts:["Consistency","Simplicity","Affordance","Feedback"]},
+  {q:"What does 'Affordance' mean in UI design?",opts:["The design should indicate how an element can be used — buttons should look clickable, sliders should look draggable","Making the design simpler","Adding more colours to the interface","Ensuring the design works on all devices"]},
+  {q:"Which UI standard refers to designing interfaces usable by people with physical or cognitive disabilities?",opts:["Accessibility","Simplicity","Aesthetics","Feedback"]},
+  {q:"Providing alternative text for images is a principle of which UI standard?",opts:["Accessibility","Consistency","Aesthetics","Flexibility"]},
+  {q:"Haptic feedback in UI refers to:",opts:["Vibrations or physical sensations used to confirm actions on mobile devices","Sounds played when a user clicks a button","Colour changes when an action is performed","Text messages shown after an action"]},
+  {q:"Which UI standard ensures users can easily reverse their actions when necessary?",opts:["User Control and Freedom","Accessibility","Consistency","Aesthetics"]},
+  {q:"Input validation is a technique related to which UI standard?",opts:["Error Prevention and Recovery","Flexibility and Efficiency","Mobile Design","Aesthetics"]},
+  {q:"The principle that UI should adjust its layout to suit different screen sizes is called:",opts:["Responsive Design","Accessibility","Consistency","Affordance"]},
+  {q:"Which key principle of Simplicity involves eliminating non-essential elements?",opts:["Minimalistic Design","Clear Visual Hierarchy","Easy Navigation","Feedback Mechanisms"]},
+
+  // ── USER NEEDS & EXPECTATIONS ─────────────────────────────────────────────
+  {q:"Which type of user need relates to feelings about what users want to achieve with the system?",opts:["Emotional Needs","Cognitive Needs","Physical Needs","Social Needs"]},
+  {q:"Cognitive needs in HCI relate to:",opts:["What the user thinks about the system and what information they need to achieve their goals","The physical interaction requirements","The feelings users have about the system","Social interactions between users"]},
+  {q:"Which user expectation refers to users expecting a system that is fast and responsive without unnecessary delay?",opts:["Efficiency","Consistency","Learnability","Reliability"]},
+  {q:"'A system that encourages learning' describes which user expectation?",opts:["Learnability","Feedback","Efficiency","Control"]},
+  {q:"Users expecting a system that functions based on expected outcomes describes which expectation?",opts:["Reliability","Accessibility","Feedback","Consistency"]},
+
+  // ── HEURISTICS / HCI PRINCIPLES ───────────────────────────────────────────
+  {q:"Nielsen's heuristic 'Visibility of System Status' means:",opts:["The system should always keep users informed about what is going on through appropriate feedback","The system should be visually appealing","All menus should be visible at once","Users should see all options simultaneously"]},
+  {q:"The heuristic 'Recognition Rather Than Recall' means:",opts:["Minimise the user's memory load by making objects, actions, and options visible","Users should memorise keyboard shortcuts","The system should recognise user faces","Users should be tested on their memory"]},
+  {q:"Which heuristic emphasises that error messages should be expressed in plain language and suggest solutions?",opts:["Help Users Recognise and Recover from Errors","Error Prevention","Flexibility and Efficiency","User Control and Freedom"]},
+  {q:"'Aesthetic and Minimalist Design' as a heuristic means:",opts:["Dialogues should not contain irrelevant information — avoid all complexity","The interface should be as colourful as possible","Minimalism should override functionality","All white space should be eliminated"]},
+
+  // ── INTERACTION DESIGN & IA ───────────────────────────────────────────────
+  {q:"Information Architecture (IA) focuses on:",opts:["Organising and structuring information in a system so users can find and use it","Designing visual elements like colours and fonts","Creating animations for user interfaces","Writing server-side code"]},
+  {q:"'Chunking' in Information Architecture means:",opts:["Breaking information into smaller manageable chunks to avoid complexity","Deleting unnecessary content","Grouping only similar words together","Reducing image file sizes"]},
+  {q:"Interaction Design (IxD) primarily focuses on:",opts:["The flow and behaviour of interactive elements and how users interact with a system","Only the visual aesthetics of the interface","Writing code for back-end systems","Database design and management"]},
+
+  // ── THEORIES OF INTERACTION ───────────────────────────────────────────────
+  {q:"Cognitive Load Theory emphasises:",opts:["Designing interfaces that reduce the mental effort required by the user to process information","Making interfaces more colourful to attract users","Adding more features to increase user engagement","Using animation to guide users"]},
+  {q:"Fitts' Law states that the time to move to a target is related to:",opts:["The size of the target and the distance to it","The colour of the target","The number of options on screen","The user's age and experience"]},
+  {q:"Affordance Theory was developed by:",opts:["Psychologist James Gibson","Jakob Nielsen","Donald Norman","Alan Dix"]},
+  {q:"The 'Gulf of Execution and Evaluation' refers to:",opts:["The gap between the user's intention and the system's response, and between the response and user's understanding","The time it takes for a webpage to load","The distance between a button and the user's finger","The difference between GUI and CLI"]},
+  {q:"Norman's Seven Stages of Action in HCI include which of the following?",opts:["Goal formation, planning, execution, feedback, evaluation, and completion","Only login, interaction, and logout","Input, processing, output, and storage","Design, development, testing, and deployment"]},
+
+  // ── INTERACTION STYLES ────────────────────────────────────────────────────
+  {q:"Which interaction style uses visual elements like windows, icons, buttons, and menus?",opts:["Graphical User Interface (GUI)","Command-Line Interface (CLI)","Voice User Interface (VUI)","Gestural Interaction"]},
+  {q:"CLI (Command-Line Interface) is best suited for:",opts:["Experienced technical users needing efficiency and complete control","Beginners learning computers for the first time","Children using educational software","Elderly users who need simplified interfaces"]},
+  {q:"Voice User Interface (VUI) is commonly used in:",opts:["Smart home devices, virtual assistants, and accessibility tools","Desktop productivity software","Video game controllers","Printed media and newspapers"]},
+  {q:"Which interaction style involves tapping, swiping, or pinching on touch-sensitive devices?",opts:["Touch-Based Interaction","Gestural Interaction","Direct Manipulation","Voice User Interface"]},
+  {q:"Gestural Interaction is most commonly found in:",opts:["Virtual and augmented reality systems, gaming consoles like Kinect","Standard desktop computers","Basic mobile phones","Command-line terminals"]},
+  {q:"A major disadvantage of Direct Manipulation is:",opts:["It can be imprecise for complex tasks, especially in 2D environments","It requires a keyboard and mouse","It is not suitable for mobile devices","It does not provide visual feedback"]},
+
+  // ── DESIGN THINKING ───────────────────────────────────────────────────────
+  {q:"What is the first stage of the Design Thinking process?",opts:["Empathise — learn about the audience and understand their behaviours and needs","Define — clearly state the problem","Ideate — brainstorm creative solutions","Prototype — build a model of ideas"]},
+  {q:"The 'Ideate' stage of Design Thinking involves:",opts:["Brainstorming to come up with creative solutions","Building a physical prototype","Testing the product with users","Gathering user research data"]},
+  {q:"In Design Thinking, the 'Prototype' stage involves:",opts:["Building a representation of ideas to add value — a replicant on a different approach","Testing the product with end users","Identifying the user's problem","Conducting market research"]},
+
+  // ── FRONT-END / DESIGN PATTERNS ───────────────────────────────────────────
+  {q:"Which front-end technology is the core language for adding dynamic behaviour to UIs?",opts:["JavaScript","HTML","CSS","SQL"]},
+  {q:"The MVC (Model-View-Controller) pattern separates application into:",opts:["Model (data), View (UI), and Controller (logic)","Frontend, backend, and database","Design, development, and testing","Input, processing, and output"]},
+  {q:"Which design pattern restricts a class to one single instance and is used in SPAs for shared services?",opts:["Singleton Pattern","Observer Pattern","Factory Pattern","Decorator Pattern"]},
+  {q:"MVVM (Model-View-ViewModel) is commonly used in:",opts:["Desktop applications with complex data-binding requirements — WPF, Xamarin","Mobile applications using Android","Web applications using React","Command-line tools"]},
+  {q:"Microservices Architecture is best suited for:",opts:["Large-scale distributed systems requiring independent deployment, scalability, and fault tolerance","Small static websites","Desktop text editors","Simple mobile apps"]},
+  {q:"The Observer Pattern is particularly useful in React/Angular because it:",opts:["Allows components to subscribe to changes in application state and update automatically","Restricts the application to one instance","Hides the complexity of subsystems","Adds behaviour to objects without altering structure"]},
+
+  // ── WIREFRAMING & PROTOTYPING ─────────────────────────────────────────────
+  {q:"What is the key difference between a wireframe and a prototype?",opts:["A wireframe is a basic structural blueprint; a prototype is an interactive working model of the interface","A wireframe is colourful; a prototype is black and white","A wireframe is digital; a prototype is always paper-based","A wireframe is for developers; a prototype is for designers only"]},
+  {q:"Low-fidelity prototypes are best used for:",opts:["Early-stage exploration of concepts and workflows quickly and inexpensively","Final user testing before product launch","Detailed animation and transition testing","Presenting to executive stakeholders"]},
+  {q:"High-fidelity prototypes are characterised by:",opts:["Realistic appearance, interactivity, and behaviour simulation — mimicking the final product","Simple sketches drawn on paper","No colour or branding","Only showing one screen at a time"]},
+  {q:"Which prototyping tool is cloud-based with real-time collaboration features?",opts:["Figma","Balsamiq","Axure RP","InVision Studio"]},
+  {q:"Balsamiq is best known as a tool for:",opts:["Low-fidelity wireframing with a pen-and-paper feel","High-fidelity interactive prototyping","Cross-browser testing","Performance optimisation"]},
+  {q:"Which tool combines visual design and interaction prototyping with the ability to publish live websites directly?",opts:["WebFlow","Sketch","Axure RP","Craft by InVision"]},
+  {q:"Axure RP is best suited for:",opts:["Designing complex prototypes with conditional flows, variables, and dynamic content","Simple wireframe sketching","Real-time team collaboration on UI elements","Creating animated GIFs for social media"]},
+
+  // ── COLOUR THEORY & ACCESSIBILITY ────────────────────────────────────────
+  {q:"Colour Theory in HCI design is primarily concerned with:",opts:["Creating an effective colour palette that guides user focus and communicates emotional tone","Making interfaces use as many colours as possible","Only selecting background colours for websites","Choosing fonts and typography"]},
+  {q:"Warm colours (e.g., Red, Orange) in UI design tend to create:",opts:["Energy and urgency","Calm and trust","Sadness and confusion","Boredom and inactivity"]},
+  {q:"WCAG stands for:",opts:["Web Content Accessibility Guidelines","Web Colour and Graphic Standards","World Computing Accessibility Group","Wide Component Accessibility Guide"]},
+  {q:"Section 508 compliance refers to:",opts:["A US federal law requiring federal agencies' electronic information to be accessible to people with disabilities","A section in the W3C colour guidelines","A GDPR requirement for European websites","A Nigerian data protection standard"]},
+  {q:"Which tool is used to check colour contrast for accessibility compliance?",opts:["Colour Analyser","Nmap","Balsamiq","Metasploit"]},
+  {q:"VoiceOver and TalkBack are examples of:",opts:["Screen reader tools used by visually impaired users","Browser developer tools","UI prototyping applications","Code linting tools"]},
+
+  // ── USABILITY TESTING ─────────────────────────────────────────────────────
+  {q:"Formative usability testing is conducted:",opts:["During the early stages of the design process to identify design flaws early","After the system is fully developed and deployed","Only in laboratory settings","Only by the development team, not users"]},
+  {q:"Summative usability testing is conducted:",opts:["After the system is fully developed, similar to sitting a final exam","During early wireframing stages","Only with paper prototypes","Before the design process begins"]},
+  {q:"In a Remote Usability Test, users:",opts:["Test the system in their natural environment (e.g., at home or work) via the internet","Test the system in a controlled laboratory","Are supervised by a researcher in real time","Must travel to the testing facility"]},
+  {q:"A Moderated Usability Test involves:",opts:["A researcher interacting with the participant in real time, guiding them and collecting immediate feedback","Participants completing the test without direct supervision","Automated testing with no human involvement","Only heatmap analysis of user clicks"]},
+  {q:"Which usability testing tool tracks where users click and look on a screen?",opts:["Heatmap (Hit-map)","Screen Recording","Task Tracking","Card Sorting"]},
+
+  // ── HEURISTIC EVALUATION ──────────────────────────────────────────────────
+  {q:"Heuristic Evaluation is performed by:",opts:["Usability experts who evaluate the interface against recognised usability principles","Random end users without any guidance","Only the software developers who built the product","Automated testing software with no human input"]},
+  {q:"In Heuristic Evaluation, what happens during the 'Identify Issues' step?",opts:["Whatever is noticed should be recorded and rated according to severity","Evaluators redesign the entire interface","Evaluators interview users about their preferences","The product is released to the public"]},
+  {q:"The Prioritization step in Heuristic Evaluation involves:",opts:["Ranking issues by severity and focusing on high-priority problems first","Designing new features based on user requests","Testing the product in multiple languages","Publishing the findings in a research journal"]},
+
+  // ── CARD SORTING & NAVIGATION ─────────────────────────────────────────────
+  {q:"What is Card Sorting in UX research?",opts:["A research method where participants organise topics into categories to help designers build intuitive navigation","A technique for sorting database records efficiently","A method of physically organising office files","A graphic design technique for colour arrangement"]},
+  {q:"In Open Card Sorting, participants:",opts:["Can sort cards and create their own category names","Sort cards into pre-defined categories only","Only answer yes/no questions about the interface","Draw wireframes of proposed categories"]},
+  {q:"Closed Card Sorting involves:",opts:["Participants sorting cards into pre-defined categories set by the researcher","Participants creating their own categories","Participants drawing categories on paper","A combination of open and closed category creation"]},
+  {q:"Hybrid Card Sorting is a combination of:",opts:["Open and Closed card sorting — participants sort into pre-defined categories but can also create new ones","Qualitative and quantitative data only","Paper and digital prototyping","Low-fidelity and high-fidelity wireframing"]},
+
+  // ── SYSTEM DESIGN METHODS ─────────────────────────────────────────────────
+  {q:"Which system design methodology follows a linear and sequential process where each phase must be completed before the next begins?",opts:["Waterfall Model","Agile Model","Spiral Model","Iterative Model"]},
+  {q:"The Agile Model is best described as:",opts:["A flexible, collaborative methodology focusing on small iterative cycles (sprints) with frequent reassessment","A rigid sequential model with strict milestones","A model that combines waterfall and iterative approaches","A model focused exclusively on risk assessment"]},
+  {q:"Which system design model combines elements of both iterative and waterfall models, focusing on risk assessment?",opts:["Spiral Model","V-Model","Prototyping Model","Agile Model"]},
+  {q:"The V-Model emphasises:",opts:["Validation and verification in parallel with each phase of development","Rapid iterations with user feedback","Risk management at every stage","Only the final testing phase"]},
+  {q:"Which methodology is best suited for projects where user feedback is crucial and requirements are likely to change?",opts:["Prototyping Model","Waterfall Model","V-Model","Spiral Model"]},
+  {q:"The Iterative Model emphasises:",opts:["Repetition of phases allowing for gradual improvement and flexibility","A single, linear progression through design stages","Risk-driven development cycles","Validation testing in parallel with development"]},
+  {q:"HCSDLC stands for:",opts:["Human-Centred Software Development Lifecycle","High-Complexity System Design Language Cycle","Human-Computer Software Design and Learning Cycle","Hybrid-Centred Software Development Lifecycle"]},
+  {q:"The primary goal of the HCSDLC is to ensure:",opts:["The system is intuitive, usable, and provides a satisfying experience for the end-user","The system is built as quickly as possible","Code is written with no errors","Only developers' needs are addressed"]},
+  {q:"Which phase of the HCSDLC involves conducting interviews, surveys, and focus groups with potential users?",opts:["User Research and Requirements Gathering","Development","Testing and Evaluation","Deployment"]},
+  {q:"In Agile development, small iterative cycles of development are called:",opts:["Sprints","Milestones","Phases","Modules"]},
+  {q:"Which system design model is BEST for large projects with high complexity and significant risks?",opts:["Spiral Model","Waterfall Model","Prototyping Model","Agile Model"]},
+
+  // ── UX RESEARCH METHODS ───────────────────────────────────────────────────
+  {q:"User Interviews in UX research are best suited for:",opts:["Understanding the 'why' behind user behaviour through deep, one-on-one conversations","Collecting data from thousands of users quickly","Automated checking of accessibility compliance","Comparing two design versions statistically"]},
+  {q:"A/B Testing involves:",opts:["Showing two versions of a design to different user groups simultaneously to determine which performs better","Asking users to sort cards into categories","Observing users in their natural work environment","Rating interface problems by severity"]},
+  {q:"Which UX research method involves observing and interviewing users in their natural environment while performing tasks?",opts:["Contextual Inquiry","Focus Groups","A/B Testing","Heuristic Evaluation"]},
+  {q:"Analytics in UX research refers to:",opts:["Data collected from actual product usage — page views, click rates, session duration","Group discussions with 6–10 participants","Comparing two interface versions","Experts rating usability against heuristics"]},
+  {q:"Eye Tracking as a UX research method:",opts:["Tracks where users look on a screen to reveal attention patterns and points of confusion","Records users' verbal thoughts during tasks","Measures how long users take to complete tasks","Tests whether two design versions differ significantly"]},
+  {q:"The Think-Aloud Protocol involves:",opts:["Users verbalising their thoughts, feelings, and actions while performing tasks to provide insight into mental models","Experts evaluating the interface against usability heuristics","Collecting survey responses from large user groups","Observing users without any interaction from the researcher"]},
+  {q:"Which UX research method involves users recording their experiences over time, useful for understanding long-term behaviour?",opts:["Diary Studies","Focus Groups","Heuristic Evaluation","Card Sorting"]},
+  {q:"The System Usability Scale (SUS) is:",opts:["A 10-item questionnaire measuring perceived usability with a score of 0–100","A set of 10 heuristics for interface evaluation","A colour contrast measurement tool","A method for comparing two design versions"]},
+  {q:"Task Success Rate as a UX metric measures:",opts:["The percentage of users who successfully complete a specific task","How long it takes to complete a task","The number of errors users make","How likely users are to recommend the product"]},
+
+  // ── MOBILE APP INTERFACE DESIGN ───────────────────────────────────────────
+  {q:"Mobile-First Design means:",opts:["Designing for the smallest screen first, then scaling up to ensure core functionality works on mobile","Designing exclusively for mobile with no desktop version","Building mobile apps before web applications","Using only native mobile components"]},
+  {q:"Why should mobile touch targets be at least 44x44 points?",opts:["To provide enough space for accurate tapping with a thumb and avoid accidental inputs","To make the interface look larger on small screens","To comply with copyright regulations","To increase download speed"]},
+  {q:"Progressive Disclosure in mobile design means:",opts:["Presenting only the most important information first with more detailed options revealed as needed","Loading the entire app content at once","Disclosing user data to third parties progressively","Showing all available features on the home screen"]},
+  {q:"What is a Floating Action Button (FAB) in Android design?",opts:["A prominent circular button that provides access to the most common action in the app","A button that floats above the keyboard when typing","A navigation button at the top of the screen","A button that appears when scrolling down"]},
+  {q:"Which navigation pattern is most commonly used in iOS apps?",opts:["Bottom Tab Bar","Hamburger Menu drawer","Floating Action Button","Side Navigation Rail"]},
+  {q:"What does Material Design refer to?",opts:["Google's design language for Android with depth, shadows, and motion principles","Apple's design guidelines for iOS","A prototyping tool for mobile apps","A type of mobile gesture interaction"]},
+  {q:"Responsive Design in mobile development ensures:",opts:["Interfaces automatically adjust to different screen sizes and orientations","The app only works on one specific screen size","Faster loading times through code compression","Consistent colours across all devices"]},
+  {q:"Which accessibility feature must mobile apps support for visually impaired users?",opts:["VoiceOver (iOS) and TalkBack (Android) screen readers","High frame rate animations","Multi-window support","Always-on display mode"]},
+
+  // ── PRACTICAL EVALUATION TECHNIQUES ──────────────────────────────────────
+  {q:"Cognitive Walkthrough is an evaluation method where evaluators:",opts:["Step through tasks asking 'Will the user know what to do?' at each step to identify learnability issues","Ask real users to complete tasks while being observed","Automatically check the interface against coded rules","Rate severity of problems found during interviews"]},
+  {q:"In Heuristic Evaluation, a severity rating of 4 (Catastrophic) means:",opts:["Imperative to fix before product launch","Fix only if time permits","A low priority cosmetic issue","No usability issue present"]},
+  {q:"Which evaluation approach uses software tools to automatically check accessibility compliance?",opts:["Automated Evaluation (Axe, WAVE, Lighthouse)","Expert-Based Evaluation","Analytics-Based Evaluation","User-Based Evaluation"]},
+  {q:"Analytics-Based Evaluation identifies design problems by:",opts:["Analysing data collected from real product usage — tracking patterns and drop-off points","Asking experts to rate usability heuristics","Having users complete tasks while thinking aloud","Testing two design versions simultaneously"]},
+  {q:"Net Promoter Score (NPS) measures:",opts:["User loyalty — how likely users are to recommend the product to others","Task completion time","Number of errors in the interface","Overall visual appeal of the design"]},
+  {q:"Which practical evaluation technique is best for identifying problems that new users encounter when learning a system?",opts:["Cognitive Walkthrough","Analytics-Based Evaluation","A/B Testing","Diary Studies"]},
+];
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+let sessionQuestions=[],currentQ=0,answers=[],timerInterval=null,timeLeft=30*60;
+
+function buildSession(){
+  const picked=shuffle(questionBank).slice(0,50);
+  sessionQuestions=picked.map(q=>{
+    const correct=q.opts[0];
+    const shuffled=shuffle(q.opts);
+    return{q:q.q,opts:shuffled,ans:shuffled.indexOf(correct)};
+  });
+  answers=new Array(50).fill(-1);currentQ=0;timeLeft=30*60;
+}
+
+function startQuiz(){
+  buildSession();
+  document.getElementById('intro').classList.remove('active');
+  document.getElementById('quiz').classList.add('active');
+  updateTimerDisplay();renderQuestion();renderMap();startTimer();
+}
+
+function startTimer(){
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{timeLeft--;updateTimerDisplay();if(timeLeft<=0){clearInterval(timerInterval);submitQuiz(true);}},1000);
+}
+
+function updateTimerDisplay(){
+  const m=Math.floor(timeLeft/60),s=timeLeft%60;
+  const d=document.getElementById('timer-display');
+  d.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  d.className='';
+  if(timeLeft<=300)d.classList.add('danger');else if(timeLeft<=600)d.classList.add('warning');
+}
+
+function renderQuestion(){
+  const q=sessionQuestions[currentQ];
+  const card=document.getElementById('question-card');
+  card.classList.remove('slide-in');void card.offsetWidth;card.classList.add('slide-in');
+  document.getElementById('q-counter').textContent=`Q${currentQ+1}`;
+  document.getElementById('q-badge').textContent=`QUESTION ${String(currentQ+1).padStart(2,'0')}`;
+  document.getElementById('question-text').textContent=q.q;
+  document.getElementById('progress-fill').style.width=`${((currentQ+1)/50)*100}%`;
+  const ol=document.getElementById('options-list');ol.innerHTML='';
+  const L=['A','B','C','D'];
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');btn.className='option-btn';
+    if(answers[currentQ]===i)btn.classList.add('selected');
+    btn.innerHTML=`<span class="option-letter">${L[i]}</span><span>${opt}</span>`;
+    btn.onclick=()=>selectAnswer(i);ol.appendChild(btn);
+  });
+  document.getElementById('btn-prev').disabled=currentQ===0;
+  document.getElementById('btn-next').textContent=currentQ===49?'Finish':'Next →';
+}
+
+function selectAnswer(i){answers[currentQ]=i;renderQuestion();renderMap();}
+
+function navigate(dir){
+  const next=currentQ+dir;
+  if(next>=0&&next<=49){currentQ=next;renderQuestion();updateMapCurrent();}
+  else if(dir===1&&currentQ===49)confirmSubmit();
+}
+
+function renderMap(){
+  const map=document.getElementById('q-map');map.innerHTML='';
+  for(let i=0;i<50;i++){
+    const d=document.createElement('div');d.className='q-dot';
+    if(answers[i]!==-1)d.classList.add('answered');if(i===currentQ)d.classList.add('current');
+    d.textContent=i+1;d.onclick=()=>{currentQ=i;renderQuestion();updateMapCurrent();};
+    map.appendChild(d);
+  }
+}
+
+function updateMapCurrent(){
+  document.querySelectorAll('.q-dot').forEach((d,i)=>{
+    d.classList.toggle('current',i===currentQ);
+    d.classList.toggle('answered',answers[i]!==-1&&i!==currentQ);
+  });
+}
+
+function confirmSubmit(){
+  const u=answers.filter(a=>a===-1).length;
+  if(u>0&&!confirm(`You have ${u} unanswered question(s). Submit anyway?`))return;
+  submitQuiz(false);
+}
+
+function submitQuiz(timeout){
+  clearInterval(timerInterval);
+  let correct=0,wrong=0,skip=0;
+  sessionQuestions.forEach((q,i)=>{
+    if(answers[i]===-1)skip++;else if(answers[i]===q.ans)correct++;else wrong++;
+  });
+  const score=parseFloat((correct*1.4).toFixed(1));
+  const pct=(score/70)*100;
+  document.getElementById('quiz').classList.remove('active');
+  document.getElementById('result').classList.add('active');
+  const emoji=pct>=70?'🏆':pct>=50?'📚':'😓';
+  const label=pct>=70?'PASS':'FAIL — STUDY MORE';
+  document.getElementById('result-emoji').textContent=emoji;
+  document.getElementById('result-score').textContent=`${score}/70`;
+  document.getElementById('result-score').className='result-score '+(pct>=50?'pass':'fail');
+  document.getElementById('result-label').textContent=label+(timeout?' · TIME UP':'');
+  document.getElementById('r-correct').textContent=correct;
+  document.getElementById('r-wrong').textContent=wrong;
+  document.getElementById('r-skip').textContent=skip;
+  const rl=document.getElementById('review-list');rl.innerHTML='';
+  const L=['A','B','C','D'];
+  sessionQuestions.forEach((q,i)=>{
+    const ua=answers[i];
+    const isC=ua!==-1&&ua===q.ans,isW=ua!==-1&&ua!==q.ans,isS=ua===-1;
+    const item=document.createElement('div');item.className='review-item';
+    if(isC)item.classList.add('review-item-correct');
+    else if(isW)item.classList.add('review-item-wrong');
+    else item.classList.add('review-item-skip');
+    const tc=isC?'tag-correct':isW?'tag-wrong':'tag-skipped';
+    const tt=isC?'✓ CORRECT':isW?'✗ WRONG':'— SKIPPED';
+    let opts='<div class="review-opts">';
+    q.opts.forEach((opt,oi)=>{
+      const isCor=oi===q.ans,isCho=oi===ua;
+      let cls='opt-normal',tag='';
+      if(isCor&&isCho){cls='opt-correct';tag='<span class="review-tag tag-correct">Your Answer ✓</span>';}
+      else if(isCor){cls='opt-correct';tag='<span class="review-tag tag-correct">Correct Answer</span>';}
+      else if(isCho){cls='opt-wrong';tag='<span class="review-tag tag-wrong">Your Answer ✗</span>';}
+      opts+=`<div class="review-opt ${cls}"><span class="opt-ltr">${L[oi]}</span><span>${opt}</span>${tag}</div>`;
+    });
+    opts+='</div>';
+    item.innerHTML=`<div class="review-q"><span>Q${i+1}. ${q.q}</span><span class="review-tag ${tc}" style="flex-shrink:0">${tt}</span></div>${opts}`;
+    rl.appendChild(item);
+  });
+}
+
+function retryQuiz(){
+  document.getElementById('result').classList.remove('active');
+  buildSession();
+  document.getElementById('quiz').classList.add('active');
+  updateTimerDisplay();renderQuestion();renderMap();startTimer();
+}
+
+function goHome(){
+  document.getElementById('result').classList.remove('active');
+  document.getElementById('intro').classList.add('active');
+}
+</script>
+</body>
+</html>
