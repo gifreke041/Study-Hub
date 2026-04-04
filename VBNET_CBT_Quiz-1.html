@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced VB.NET CBT Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0e1a;--surface:#111827;--card:#1a2236;--border:#1e3a5f;--accent:#00ff88;--accent2:#f97316;--green:#00ff88;--red:#ff4466;--yellow:#ffd700;--text:#e2e8f0;--muted:#64748b;--glow:0 0 20px rgba(0,255,136,0.3)}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(0,255,136,.04),transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(249,115,22,.05),transparent 60%);pointer-events:none;z-index:0}
+  body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,136,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  .screen{display:none;position:relative;z-index:1}.screen.active{display:flex}
+  #intro{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center}
+  .logo-badge{display:inline-flex;align-items:center;gap:10px;background:rgba(0,255,136,.08);border:1px solid var(--accent);border-radius:100px;padding:8px 20px;font-family:'Share Tech Mono',monospace;font-size:.8rem;color:var(--accent);letter-spacing:2px;margin-bottom:2rem;animation:fadeDown .6s ease}
+  .logo-badge::before{content:'💻';animation:spin 4s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .intro-title{font-size:clamp(2rem,6vw,3.5rem);font-weight:900;line-height:1.1;margin-bottom:.5rem;animation:fadeDown .7s ease}
+  .intro-title span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .intro-sub{font-size:1rem;color:var(--muted);margin-bottom:3rem;animation:fadeDown .8s ease}
+  .info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;max-width:580px;margin-bottom:3rem;animation:fadeUp .9s ease}
+  .info-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center}
+  .info-card .val{font-size:1.6rem;font-weight:700;color:var(--accent);font-family:'Share Tech Mono',monospace;display:block}
+  .info-card .lbl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+  .rules{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem 2rem;max-width:520px;text-align:left;margin-bottom:2.5rem;animation:fadeUp 1s ease}
+  .rules h3{color:var(--accent);font-size:.85rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;font-family:'Share Tech Mono',monospace}
+  .rules li{list-style:none;padding:.4rem 0;font-size:.9rem;color:var(--muted);padding-left:1.2rem;position:relative}
+  .rules li::before{content:'›';position:absolute;left:0;color:var(--accent)}
+  .btn-start{background:linear-gradient(135deg,var(--accent),#00bb66);color:#000;border:none;padding:1rem 3rem;border-radius:100px;font-family:'Exo 2',sans-serif;font-size:1rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .3s;box-shadow:var(--glow);animation:fadeUp 1.1s ease}
+  .btn-start:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 0 40px rgba(0,255,136,.5)}
+  #quiz{flex-direction:column;min-height:100vh}
+  .quiz-header{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+  .q-meta{display:flex;align-items:center;gap:.5rem;font-family:'Share Tech Mono',monospace;font-size:.85rem}
+  .q-counter{color:var(--accent);font-weight:700}.q-total{color:var(--muted)}
+  .progress-bar-wrap{flex:1;height:4px;background:var(--border);border-radius:10px;overflow:hidden;max-width:300px}
+  .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:10px;transition:width .4s ease}
+  .timer-wrap{display:flex;align-items:center;gap:.5rem;background:var(--card);border:1px solid var(--border);border-radius:100px;padding:.4rem 1rem}
+  #timer-display{font-family:'Share Tech Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--accent);min-width:52px;text-align:center;transition:color .3s}
+  #timer-display.warning{color:var(--yellow)}#timer-display.danger{color:var(--red);animation:pulse .5s infinite alternate}
+  @keyframes pulse{from{opacity:1}to{opacity:.4}}
+  .quiz-body{flex:1;display:flex;flex-direction:column;padding:2rem 1.5rem;max-width:780px;width:100%;margin:0 auto}
+  .question-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+  .question-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+  .q-number-badge{display:inline-block;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:.75rem;padding:3px 10px;border-radius:100px;margin-bottom:1rem;letter-spacing:1px}
+  .question-text{font-size:1.05rem;font-weight:600;line-height:1.6;color:var(--text)}
+  .options-list{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.5rem}
+  .option-btn{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;cursor:pointer;transition:all .2s;text-align:left;width:100%;color:var(--text);font-family:'Exo 2',sans-serif;font-size:.95rem}
+  .option-btn:hover{border-color:var(--accent);background:rgba(0,255,136,.06);transform:translateX(4px)}
+  .option-btn.selected{border-color:var(--accent);background:rgba(0,255,136,.12);color:var(--accent)}
+  .option-letter{width:32px;height:32px;border-radius:8px;background:var(--border);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:.8rem;font-weight:700;flex-shrink:0;transition:background .2s}
+  .option-btn.selected .option-letter{background:var(--accent);color:#000}
+  .nav-row{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+  .btn-nav{padding:.75rem 1.75rem;border-radius:100px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-family:'Exo 2',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s}
+  .btn-nav:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+  .btn-nav:disabled{opacity:.3;cursor:not-allowed}
+  .btn-nav.primary{background:linear-gradient(135deg,var(--accent),#00bb66);border-color:transparent;color:#000;font-weight:700}
+  .btn-nav.primary:hover{box-shadow:var(--glow);transform:scale(1.02)}
+  .btn-nav.danger-btn{background:rgba(255,68,102,.1);border-color:var(--red);color:var(--red)}
+  .q-map-wrap{padding:0 1.5rem 2rem;max-width:780px;width:100%;margin:0 auto}
+  .q-map-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:.75rem;font-family:'Share Tech Mono',monospace}
+  .q-map{display:flex;flex-wrap:wrap;gap:6px}
+  .q-dot{width:28px;height:28px;border-radius:6px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-family:'Share Tech Mono',monospace;cursor:pointer;transition:all .15s;color:var(--muted)}
+  .q-dot:hover{border-color:var(--accent);color:var(--accent)}
+  .q-dot.answered{background:rgba(0,255,136,.15);border-color:var(--accent);color:var(--accent)}
+  .q-dot.current{background:var(--accent);color:#000;font-weight:700}
+  #result{flex-direction:column;align-items:center;justify-content:flex-start;min-height:100vh;padding:2rem;text-align:center;overflow-y:auto}
+  .result-badge{font-size:4rem;margin-bottom:1rem;animation:bounceIn .6s ease}
+  @keyframes bounceIn{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+  .result-score{font-size:clamp(2.5rem,8vw,4.5rem);font-weight:900;font-family:'Share Tech Mono',monospace;line-height:1;margin-bottom:.5rem}
+  .result-score.pass{color:var(--green);text-shadow:0 0 30px rgba(0,255,136,.4)}
+  .result-score.fail{color:var(--red);text-shadow:0 0 30px rgba(255,68,102,.4)}
+  .result-label{font-size:1rem;color:var(--muted);margin-bottom:2rem;letter-spacing:1px;text-transform:uppercase}
+  .result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;max-width:480px;margin-bottom:2rem;width:100%}
+  .stat-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.2rem}
+  .stat-box .sv{font-size:1.8rem;font-weight:700;font-family:'Share Tech Mono',monospace;display:block}
+  .stat-box .sl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+  .stat-box.correct-stat .sv{color:var(--green)}.stat-box.wrong-stat .sv{color:var(--red)}.stat-box.skip-stat .sv{color:var(--yellow)}
+  .review-section{width:100%;max-width:700px;text-align:left;margin-bottom:2rem}
+  .review-title{font-family:'Share Tech Mono',monospace;font-size:.8rem;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem}
+  .review-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:.75rem;border-left:3px solid var(--border)}
+  .review-item-correct{border-left-color:var(--green)!important}.review-item-wrong{border-left-color:var(--red)!important}.review-item-skip{border-left-color:var(--yellow)!important}
+  .review-q{font-size:.88rem;font-weight:600;margin-bottom:.6rem;color:var(--text);display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+  .review-opts{margin-top:.6rem;display:flex;flex-direction:column;gap:5px}
+  .review-opt{display:flex;align-items:center;gap:8px;font-size:.82rem;padding:5px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--border)}
+  .review-opt.opt-correct{background:rgba(0,255,136,.08);border-color:var(--green);color:var(--green)}
+  .review-opt.opt-wrong{background:rgba(255,68,102,.08);border-color:var(--red);color:var(--red)}
+  .review-opt.opt-normal{color:var(--muted)}
+  .opt-ltr{width:22px;height:22px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:.7rem;font-weight:700;background:var(--border)}
+  .review-opt.opt-correct .opt-ltr{background:var(--green);color:#000}.review-opt.opt-wrong .opt-ltr{background:var(--red);color:#fff}
+  .review-tag{font-size:.7rem;font-weight:700;letter-spacing:1px;padding:2px 7px;border-radius:100px;margin-left:auto;flex-shrink:0}
+  .tag-correct{background:rgba(0,255,136,.15);color:var(--green)}.tag-wrong{background:rgba(255,68,102,.15);color:var(--red)}.tag-skipped{background:rgba(255,215,0,.15);color:var(--yellow)}
+  .btn-retry{background:linear-gradient(135deg,var(--accent2),#c2410c);color:#fff;border:none;padding:1rem 2.5rem;border-radius:100px;font-family:'Exo 2',sans-serif;font-size:1rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .3s;margin:.5rem}
+  .btn-retry:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(249,115,22,.4)}
+  .slide-in{animation:slideIn .3s ease}
+  @keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  @media(max-width:500px){.info-grid{grid-template-columns:repeat(2,1fr)}.result-stats{gap:.5rem}.quiz-header{padding:.6rem 1rem}.quiz-body{padding:1rem}}
+</style>
+</head>
+<body>
+
+<div id="intro" class="screen active">
+  <div class="logo-badge">ADVANCED VB.NET — UNIPORT</div>
+  <h1 class="intro-title">Visual Basic<br><span>.NET CBT</span></h1>
+  <p class="intro-sub">Syntax · Data Types · Functions · OOP · File Handling · Directives</p>
+  <div class="info-grid">
+    <div class="info-card"><span class="val">50</span><span class="lbl">Questions</span></div>
+    <div class="info-card"><span class="val">30</span><span class="lbl">Minutes</span></div>
+    <div class="info-card"><span class="val">1.4</span><span class="lbl">Marks/Q</span></div>
+    <div class="info-card"><span class="val">70</span><span class="lbl">Total</span></div>
+  </div>
+  <div class="rules">
+    <h3>// Instructions</h3>
+    <ul>
+      <li>50 randomized multiple choice questions</li>
+      <li>Questions and options shuffle every attempt</li>
+      <li>30-minute countdown — auto-submits at 0</li>
+      <li>Each correct answer = 1.4 marks (70 total)</li>
+      <li>Full review of all 50 questions at the end</li>
+    </ul>
+  </div>
+  <button class="btn-start" onclick="startQuiz()">START EXAM →</button>
+</div>
+
+<div id="quiz" class="screen">
+  <div class="quiz-header">
+    <div class="q-meta"><span class="q-counter" id="q-counter">Q1</span><span class="q-total">/ 50</span></div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:2%"></div></div>
+    <div class="timer-wrap"><span>⏱</span><span id="timer-display">30:00</span></div>
+  </div>
+  <div class="quiz-body">
+    <div class="question-card slide-in" id="question-card">
+      <div class="q-number-badge" id="q-badge">QUESTION 01</div>
+      <p class="question-text" id="question-text"></p>
+    </div>
+    <div class="options-list" id="options-list"></div>
+    <div class="nav-row">
+      <button class="btn-nav" id="btn-prev" onclick="navigate(-1)">← Prev</button>
+      <button class="btn-nav danger-btn" onclick="confirmSubmit()">Submit Exam</button>
+      <button class="btn-nav primary" id="btn-next" onclick="navigate(1)">Next →</button>
+    </div>
+  </div>
+  <div class="q-map-wrap">
+    <div class="q-map-label">// Question Map</div>
+    <div class="q-map" id="q-map"></div>
+  </div>
+</div>
+
+<div id="result" class="screen">
+  <div class="result-badge" id="result-emoji">🎓</div>
+  <div class="result-score" id="result-score">49/70</div>
+  <div class="result-label" id="result-label">Score</div>
+  <div class="result-stats">
+    <div class="stat-box correct-stat"><span class="sv" id="r-correct">0</span><span class="sl">Correct</span></div>
+    <div class="stat-box wrong-stat"><span class="sv" id="r-wrong">0</span><span class="sl">Wrong</span></div>
+    <div class="stat-box skip-stat"><span class="sv" id="r-skip">0</span><span class="sl">Skipped</span></div>
+  </div>
+  <div class="review-section">
+    <div class="review-title">// Full Question Review</div>
+    <div id="review-list"></div>
+  </div>
+  <button class="btn-retry" onclick="retryQuiz()">↺ Retry Quiz</button>
+  <button class="btn-retry" onclick="goHome()" style="background:linear-gradient(135deg,#1a2236,#0a0e1a);border:1px solid var(--border)">⌂ Home</button>
+</div>
+
+<script>
+// opts[0] is ALWAYS the correct answer — shuffled each session
+const questionBank = [
+
+  // ── PROGRAM STRUCTURE & SYNTAX ────────────────────────────────────────────
+  {q:"What is the entry point of a VB.NET program?",opts:["Sub Main()","Public Class","Module Module1","Imports System"]},
+  {q:"Which statement is used to output text to the console in VB.NET?",opts:["Console.WriteLine()","Console.Print()","Debug.Print()","System.Out.Println()"]},
+  {q:"What does Console.ReadKey() do in a VB.NET program?",opts:["Prevents the program from running and closing quickly when launched from Visual Studio","Reads a line of text from the user","Clears the console screen","Reads a key and stores it as a string"]},
+  {q:"Which keyword is used to import a namespace in VB.NET?",opts:["Imports","Using","Include","Namespace"]},
+  {q:"What keyword declares a module in VB.NET?",opts:["Module","Class","Namespace","Public"]},
+  {q:"Which of the following is a valid VB.NET identifier rule?",opts:["A name must begin with a letter or underscore","A name can start with a digit","Identifiers can contain spaces","Reserved keywords can be used as identifiers"]},
+  {q:"In VB.NET, a comment is written using:",opts:["' (single quote)","// (double slash)","/* ... */","# (hash)"]},
+  {q:"What symbol is used for string concatenation in VB.NET?",opts:["& (ampersand)","+ (plus)",".. (double dot)",". (dot)"]},
+
+  // ── DATA TYPES & VARIABLES ────────────────────────────────────────────────
+  {q:"Which keyword is used to declare a variable in VB.NET?",opts:["Dim","Var","Let","Define"]},
+  {q:"What is the correct syntax to declare an integer variable 'count' with value 10?",opts:["Dim count As Integer = 10","int count = 10","Dim count = Integer(10)","Integer count As 10"]},
+  {q:"Which VB.NET data type stores True or False values?",opts:["Boolean","Bit","Logical","TrueFalse"]},
+  {q:"Which data type would you use for a name like 'Godswill Eshiet'?",opts:["String","Char","Text","Varchar"]},
+  {q:"What is the data type for very precise decimal numbers in VB.NET?",opts:["Double","Float","Decimal","Long"]},
+  {q:"A Date variable stores:",opts:["Date and time values","Only calendar dates","Only time values","Integer values representing days"]},
+  {q:"What does 'Dim balance As Double = 1000.50' do?",opts:["Declares a Double variable called balance and initializes it to 1000.50","Declares an Integer","Creates a constant","Imports the Double type"]},
+  {q:"Which statement declares a constant PI in VB.NET?",opts:["Const PI As Double = 3.14159","Dim PI = 3.14159","Fixed PI As Double = 3.14159","PI Constant = 3.14159"]},
+  {q:"An Enumeration in VB.NET is:",opts:["A set of named integer constants","A type of array","A class with methods","A loop structure"]},
+  {q:"What keyword declares an enumeration?",opts:["Enum","Const","Enumerate","Define"]},
+
+  // ── OPERATORS ─────────────────────────────────────────────────────────────
+  {q:"What is the result of 10 Mod 3 in VB.NET?",opts:["1","3","0","10"]},
+  {q:"Which operator is used for exponentiation in VB.NET?",opts:["^","**","^^","Exp"]},
+  {q:"What does the '+=' operator do?",opts:["Adds right operand to left operand and assigns result to left operand","Compares two values","Increments by 1","Subtracts and assigns"]},
+  {q:"Which operator performs integer division (discards decimal) in VB.NET?",opts:["\\","/","Div","Int"]},
+  {q:"What is the difference between 'And' and 'AndAlso' in VB.NET?",opts:["AndAlso is short-circuit — stops evaluation if first condition is False","They are identical","And is for strings, AndAlso for numbers","AndAlso uses bitwise operations"]},
+  {q:"In operator precedence, which has the HIGHEST priority?",opts:["Exponentiation (^)","Multiplication (*)","Addition (+)","Logical NOT"]},
+  {q:"The '&=' operator in VB.NET is used for:",opts:["Concatenating a string to a variable","Bitwise AND assignment","Address-of operation","Integer AND assignment"]},
+  {q:"What does 'Not' do in VB.NET?",opts:["Reverses the logical state of a Boolean expression","Negates a number","Removes a variable","Inverts bits only"]},
+
+  // ── DECISION MAKING ───────────────────────────────────────────────────────
+  {q:"Which statement tests a single condition and executes code if True?",opts:["If...Then","Select Case","For...Next","While...End While"]},
+  {q:"What keyword handles multiple conditions in an If block?",opts:["ElseIf","Elif","ElseWhen","Case"]},
+  {q:"When should you use Select Case instead of If...ElseIf?",opts:["When testing a single variable against multiple specific values","When testing complex logical expressions","When working with strings only","When using nested loops"]},
+  {q:"What is nested If in VB.NET?",opts:["Using one If or ElseIf statement inside another","Putting two If blocks side by side","An If with no Else","An If inside a loop only"]},
+  {q:"What does 'Case Else' do in a Select Case block?",opts:["Executes if no other case matches — the default case","Exits the Select Case","Throws an error","Repeats the last matching case"]},
+  {q:"What happens if a condition in an If...Then statement is False and there is no Else?",opts:["Nothing — the If block is skipped","The program crashes","The condition is re-evaluated","The next Case is executed"]},
+
+  // ── LOOPS ─────────────────────────────────────────────────────────────────
+  {q:"Which loop is best when you know the exact number of iterations?",opts:["For...Next","While...End While","Do...Loop","For Each...Next"]},
+  {q:"What does 'Exit For' do inside a For loop?",opts:["Terminates the loop immediately and continues after the loop","Skips to the next iteration","Exits the entire program","Resets the counter to 0"]},
+  {q:"What does 'Continue For' do?",opts:["Skips the rest of the current iteration and moves to the next iteration","Exits the loop completely","Restarts the loop from the beginning","Pauses execution"]},
+  {q:"A Do...Loop While guarantees:",opts:["The body executes at least once before checking the condition","The condition is checked before the first execution","Equal iterations every time","Infinite loop behaviour"]},
+  {q:"Which loop iterates over every element in a collection or array?",opts:["For Each...Next","For...Next","While...End While","Do Until...Loop"]},
+  {q:"What is the purpose of With...End With in VB.NET?",opts:["Executes a series of statements that repeatedly refer to a single object","Creates a new object","Defines a class","Imports a namespace"]},
+
+  // ── FUNCTIONS & SUBS ──────────────────────────────────────────────────────
+  {q:"What is the key difference between a Function and a Sub in VB.NET?",opts:["A Function returns a value; a Sub does not return a value","A Sub can take parameters; a Function cannot","Functions are slower than Subs","Subs are public; Functions are private"]},
+  {q:"What keyword is used to pass a parameter by value in VB.NET?",opts:["ByVal","ByRef","ByValue","ByPass"]},
+  {q:"When passing by reference (ByRef), changes made inside the method:",opts:["DO affect the original variable","Do NOT affect the original variable","Only affect local copies","Are ignored by the compiler"]},
+  {q:"What is a recursive function?",opts:["A function that calls itself","A function with no parameters","A function that returns void","A function inside a loop"]},
+  {q:"What does ParamArray allow in a VB.NET function?",opts:["A variable number of arguments to be passed","Only one argument","Array arguments only","No arguments"]},
+  {q:"The FindMax function returns the larger of two integers. Which of these correctly assigns the return value?",opts:["FindMax = result","Return = result","Output FindMax","Send result"]},
+  {q:"What is the syntax to declare a Sub procedure called 'Display' with no parameters?",opts:["Sub Display()\n    ...\nEnd Sub","Function Display() As Void","Procedure Display()","Define Sub Display:"]},
+  {q:"In ByVal parameter passing, what happens to the original variable?",opts:["It remains unchanged — only a copy is modified inside the method","It is deleted after the call","It is passed as a reference","It must be declared Global"]},
+
+  // ── ARRAYS ────────────────────────────────────────────────────────────────
+  {q:"How do you declare an Integer array of 5 elements in VB.NET?",opts:["Dim marks(4) As Integer","Dim marks[5] As Integer","Array marks(5) As Integer","Dim marks As Integer[5]"]},
+  {q:"Arrays in VB.NET are:",opts:["Zero-based — the first element is at index 0","One-based — the first element is at index 1","Random-based","Size-based"]},
+  {q:"Which of the following initializes an array with values at declaration?",opts:["Dim scores() As Integer = {90, 85, 78}","Dim scores(3) As Integer = [90, 85, 78]","Dim scores As Integer{90, 85, 78}","Array scores = (90, 85, 78)"]},
+  {q:"How do you get the number of elements in a VB.NET array called 'arr'?",opts:["arr.Length","arr.Size","arr.Count","Length(arr)"]},
+  {q:"What keyword allows a function to accept an unknown number of array elements?",opts:["ParamArray","ArrayParams","VarArgs","MultiArray"]},
+
+  // ── STRINGS ───────────────────────────────────────────────────────────────
+  {q:"Which String method checks if a string contains a specified substring?",opts:["Contains()","Has()","Includes()","Find()"]},
+  {q:"What does the ToUpper() string method do?",opts:["Returns a copy of the string in uppercase","Converts to Unicode","Makes the first letter uppercase only","Removes spaces"]},
+  {q:"Which String method removes leading and trailing whitespace?",opts:["Trim()","Strip()","Clean()","Remove()"]},
+  {q:"What does Substring(3) do on the string 'Hello'?",opts:["Returns 'lo' — substring starting at index 3","Returns the first 3 characters","Returns 'Hel'","Returns an error"]},
+  {q:"What property gives the number of characters in a string?",opts:["Length","Size","Count","Chars"]},
+  {q:"The Replace('old','new') string method:",opts:["Replaces all occurrences of the old string with the new string","Replaces only the first occurrence","Inserts the new string at position","Swaps two strings"]},
+  {q:"Which method splits a string into an array of substrings?",opts:["Split()","Divide()","Separate()","Break()"]},
+
+  // ── COMPILER DIRECTIVES ───────────────────────────────────────────────────
+  {q:"All VB.NET compiler directives begin with which symbol?",opts:["# (hash)","@ (at)","$ (dollar)","! (exclamation)"]},
+  {q:"The #Const directive is used to:",opts:["Define conditional compiler constants","Declare regular variables","Import namespaces","Create macros like C++"]},
+  {q:"The #If...Then...#Else directive is used to:",opts:["Conditionally compile selected blocks of VB.NET code","Handle runtime errors","Create conditional loops","Define optional parameters"]},
+  {q:"What does the #Region directive do in VB.NET?",opts:["Helps in collapsing and hiding sections of code in Visual Basic files","Declares a new namespace","Creates a code region variable","Restricts access to a code block"]},
+  {q:"Unlike C and C++, VB.NET compiler directives are NOT used to:",opts:["Create macros","Perform conditional compilation","Control code visibility","Define constants"]},
+
+  // ── TYPE CONVERSION ───────────────────────────────────────────────────────
+  {q:"Which function converts an expression to an Integer in VB.NET?",opts:["CInt()","ToInt()","IntConvert()","ParseInt()"]},
+  {q:"Which function converts to a String data type?",opts:["CStr()","ToString()","CString()","ConvertStr()"]},
+  {q:"What does CBool() do?",opts:["Converts the expression to a Boolean data type","Creates a new Boolean variable","Checks if a value is true","Converts Boolean to integer"]},
+  {q:"Which conversion function converts to Double?",opts:["CDbl()","ToDouble()","CDouble()","ConvertDbl()"]},
+
+  // ── STATEMENTS ────────────────────────────────────────────────────────────
+  {q:"What is the purpose of the Class statement in VB.NET?",opts:["Declares the name of a class and introduces the definition of variables, properties, events, and procedures","Declares a module","Imports a library","Creates a procedure"]},
+  {q:"The Delegate statement in VB.NET is used to:",opts:["Declare a delegate — a reference to a method with a specific signature","Define a class","Create a loop","Declare an interface"]},
+  {q:"What does the Structure statement do?",opts:["Declares the name of a structure and introduces the definition of its variables, properties, and procedures","Imports a namespace","Creates a module","Defines an array"]},
+  {q:"The Property statement is used to:",opts:["Declare the name of a property and the procedures used to store and retrieve its value","Create a subroutine","Define a constant","Declare an event"]},
+
+  // ── PRACTICALS ────────────────────────────────────────────────────────────
+  {q:"Which VB.NET form event fires when the form is first loaded into memory before it is displayed?",opts:["Form_Load","Form_Start","Form_Initialize","Form_Begin"]},
+  {q:"In the Form_Load event, which is the correct way to set a Label's text?",opts:["Label1.Text = \"Hello\"","Label1.Value = \"Hello\"","Label1.Caption = \"Hello\"","Label1.Content = \"Hello\""]},
+  {q:"What does 'Me.BackColor = Color.LightBlue' do in a Button_Click event?",opts:["Changes the background colour of the current form to Light Blue","Changes the button's colour","Changes text colour","Changes the border colour"]},
+  {q:"In Practical 3 (File Handling), which class is used to WRITE text to a file?",opts:["StreamWriter","StreamReader","FileWriter","TextWriter"]},
+  {q:"In Practical 3, which method writes a line of text to a file using StreamWriter?",opts:["writer.WriteLine()","writer.Write()","writer.Append()","writer.Output()"]},
+  {q:"After using StreamWriter or StreamReader, which method MUST be called?",opts:["Close()","End()","Finish()","Dispose()"]},
+  {q:"In Practical 4 (Exception Handling), which block contains the code that might cause an error?",opts:["Try","Catch","Finally","Error"]},
+  {q:"What does the 'Catch ex As Exception' block do?",opts:["Catches and handles the runtime error, storing exception details in 'ex'","Catches compile-time errors only","Logs errors to a file automatically","Ignores the error and continues"]},
+  {q:"The 'Finally' block in Try...Catch...Finally:",opts:["Always executes whether or not an exception occurred — used for cleanup","Only executes when an exception occurs","Only executes when no exception occurs","Is optional and rarely used"]},
+  {q:"In Practical 5 (Database Programming), which ADO.NET object opens a connection to SQL Server?",opts:["SqlConnection","SqlCommand","SqlDataReader","DataSet"]},
+  {q:"Which ADO.NET object executes SQL queries against the database?",opts:["SqlCommand","SqlConnection","SqlDataReader","SqlAdapter"]},
+  {q:"What does SqlDataReader.Read() return?",opts:["True if there is another row to read; False when there are no more rows","The current row as a string","An integer count of rows","A DataSet object"]},
+  {q:"In the Button_Click event for adding to a ListBox, which code correctly adds text from TextBox1?",opts:["ListBox1.Items.Add(TextBox1.Text)","ListBox1.Add(TextBox1.Text)","ListBox1.Insert(TextBox1.Text)","ListBox1.Items.Insert(TextBox1.Text)"]},
+  {q:"The 'Imports System.IO' statement is required for:",opts:["File handling operations (StreamWriter, StreamReader)","Database operations","Form events","Type conversion"]},
+
+  // ── EVENTS & EVENT PROCEDURES (from Q&A notes) ────────────────────────────
+  {q:"What event fires when a form is first loaded into memory before it is displayed?",opts:["Load event (Form_Load)","Show event","Start event","Initialize event"]},
+  {q:"Where is an event procedure written in VB.NET?",opts:["Inside the form's class in the Code Window (press F7)","In the Toolbox","In the Properties Window","In the Solution Explorer"]},
+  {q:"In the event procedure format, what does the 'Handles' keyword do?",opts:["Links the procedure to a specific event on a specific control","Declares the procedure as private","Passes event data to the procedure","Marks the end of the procedure"]},
+  {q:"In an event procedure, what does the parameter 'e As EventArgs' contain?",opts:["Extra data about the event (e.g. key pressed, mouse position)","The name of the control that raised the event","The return value of the procedure","The form's properties"]},
+  {q:"Which parameter type contains the mouse position and button clicked in a MouseClick event?",opts:["MouseEventArgs","EventArgs","KeyPressEventArgs","MouseDataArgs"]},
+  {q:"Which parameter type is used in a KeyPress event to find which key was pressed?",opts:["KeyPressEventArgs","EventArgs","KeyEventArgs","CharEventArgs"]},
+  {q:"What is the fastest way to create an event procedure for a control in Visual Studio?",opts:["Double-click the control — Visual Studio auto-generates the default event procedure","Press F5 on the control","Right-click and choose Add Event","Type the Sub manually in the Code Window"]},
+  {q:"What is an event procedure?",opts:["A block of code that runs automatically in response to a specific event on a control or form","A function that returns a value","A variable that stores event data","A method that is called manually by the programmer"]},
+  {q:"Which event is triggered when a Button control is clicked?",opts:["Click event","Press event","Activate event","Select event"]},
+  {q:"In the event procedure format, what does 'sender As Object' represent?",opts:["The object (control) that raised the event","The form that contains the control","The event data","The return value of the event"]},
+  {q:"Which keyboard shortcut opens the Code Window in Visual Studio?",opts:["F7","F5","F11","Ctrl+E"]},
+
+  // ── IDE COMPONENTS & CONTROLS (from Q&A notes) ────────────────────────────
+  {q:"Which part of the Visual Studio IDE displays messages like 'Build succeeded' and 'Ready'?",opts:["Status Bar","Error List Window","Toolbox","Solution Explorer"]},
+  {q:"Which Visual Studio window automatically detects and lists coding errors as you write?",opts:["Error List Window","Output Window","Status Bar","Immediate Window"]},
+  {q:"In the Error List Window, a red X icon indicates:",opts:["A serious error that prevents the program from running","A warning that the program can still run through","General information about the code","A suggestion for improvement"]},
+  {q:"In the Error List Window, a yellow warning icon means:",opts:["A potential issue that the program can still run through","A serious error preventing execution","The build succeeded","The debugger is attached"]},
+  {q:"What is a control in VB.NET?",opts:["A visual element placed on a form to build the user interface, found in the Toolbox","A block of code that handles events","A type of variable","A database connection object"]},
+  {q:"Each VB.NET control has three aspects: Properties, Events, and:",opts:["Methods","Classes","Modules","Statements"]},
+  {q:"Which VB.NET control is used to display a dropdown list?",opts:["ComboBox","ListBox","TextBox","RadioButton"]},
+  {q:"Which control allows a user to select only ONE option from a group?",opts:["RadioButton","CheckBox","ComboBox","ListBox"]},
+  {q:"What happens when you double-click a menu item in the Form Designer?",opts:["The Click event procedure is auto-generated AND the Code Window opens inside it","Nothing — you must add code manually","The menu item is deleted","The Properties Window opens"]},
+  {q:"How do you jump directly to the line of a coding error in Visual Studio?",opts:["Double-click the error in the Error List Window","Press F5","Click the error in the Status Bar","Right-click the form and choose Go To Error"]},
+  {q:"Which VB.NET control is used to display an image?",opts:["PictureBox","ImageBox","Canvas","GraphicLabel"]},
+
+  // ── OPERATORS, SELECTION & LOOPS (from Q&A notes) ─────────────────────────
+  {q:"What is the key difference between 'And' and 'AndAlso' in VB.NET?",opts:["AndAlso is short-circuit — stops if the first condition is False; And always evaluates both sides","They are identical in all situations","And is faster than AndAlso","AndAlso only works with Integer values"]},
+  {q:"Which logical AND operator is preferred for safety and efficiency in VB.NET?",opts:["AndAlso — because it short-circuits and avoids unnecessary evaluation","And — because it evaluates both sides always","Both are equally preferred","Neither — use & instead"]},
+  {q:"For a logical AND result to be True, how many conditions must be True?",opts:["Both conditions must be True","Only one condition must be True","Neither condition needs to be True","At least one condition must be False"]},
+  {q:"Which control structure is BEST for checking a variable against specific fixed values?",opts:["Select Case","If...ElseIf","For...Next","Do While"]},
+  {q:"What does 'Case Else' represent in a Select Case block?",opts:["The default case — executes when no other Case matches","An error handler","An exit condition","A loop termination"]},
+  {q:"Select Case is preferred over If...ElseIf when:",opts:["Testing a variable against multiple specific fixed values","Testing complex boolean expressions with ranges","Working with loops","Working with arrays"]},
+  {q:"In a For...Next loop, what does the 'Step' keyword control?",opts:["How much the counter increases or decreases each iteration (default is 1)","Where the loop starts","Where the loop ends","The number of iterations"]},
+  {q:"What is the correct For...Next loop to count from 10 down to 1?",opts:["For i = 10 To 1 Step -1","For i = 1 To 10 Step -1","For i = 10 To 1","For i = 10 DownTo 1"]},
+  {q:"The Do While loop checks its condition:",opts:["Before execution — if False from the start, the body never runs","After execution — always runs at least once","Every 2 iterations","Only when Exit Do is used"]},
+  {q:"If a Do While loop's condition is False from the very start, how many times does the body run?",opts:["Zero times — the body is skipped entirely","Once — it runs once before checking","Indefinitely — it becomes infinite","It throws a runtime error"]},
+  {q:"What is the difference between Do While and Do Until in VB.NET?",opts:["Do While runs while condition is True; Do Until runs while condition is False","They are identical","Do Until is faster than Do While","Do While uses Step; Do Until does not"]},
+
+  // ── ARRAYS & FUNCTIONS (from Q&A notes) ───────────────────────────────────
+  {q:"Array indices in VB.NET always start at:",opts:["0 (zero — zero-based indexing)","1 (one-based indexing)","Any number you choose","-1 (negative one)"]},
+  {q:"What error occurs when you access an array index that doesn't exist?",opts:["IndexOutOfRangeException","ArrayOverflowException","NullReferenceException","InvalidIndexException"]},
+  {q:"Given 'Dim fruits(2) As String' with fruits(0)='Apple', fruits(1)='Banana', fruits(2)='Cherry', what does fruits(1) return?",opts:["Banana","Apple","Cherry","Nothing — index 1 is empty"]},
+  {q:"Which loop is BEST for iterating through every element of an array without needing the index?",opts:["For Each...Next","For...Next","Do While","While...End While"]},
+  {q:"When should you use For...Next instead of For Each for an array?",opts:["When you need to access or use the index position of elements","When you only need to read every element","When the array contains strings","When the array has only one element"]},
+  {q:"What is a function in VB.NET?",opts:["A block of code that performs a task and returns a value to the caller","A block of code that performs a task but returns nothing","A type of loop","A control on a form"]},
+  {q:"What keyword marks the beginning of a function in VB.NET?",opts:["Function","Sub","Define","Procedure"]},
+  {q:"What keyword marks the end of a function in VB.NET?",opts:["End Function","End Sub","Return","Close Function"]},
+  {q:"What keyword is used inside a function to send a value back to the caller?",opts:["Return","Send","Output","Give"]},
+  {q:"If a function is declared 'As Integer', its Return statement must return:",opts:["An Integer value — mismatches cause a compile error","Any data type — VB.NET converts automatically","Nothing — Return is optional","A String representation of the integer"]},
+  {q:"Which of these correctly defines a function that adds two integers and returns the result?",opts:["Function AddNumbers(a As Integer, b As Integer) As Integer : Return a + b : End Function","Sub AddNumbers(a As Integer, b As Integer) : Return a + b : End Sub","Function AddNumbers As Integer : a + b : End Function","AddNumbers(a, b) = a + b"]},
+  {q:"What is the key difference between a Function and a Sub in VB.NET?",opts:["A Function returns a value; a Sub does not return any value","A Sub can have parameters; a Function cannot","Functions are private; Subs are public","Subs execute faster than Functions"]},
+];
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+let sessionQuestions=[],currentQ=0,answers=[],timerInterval=null,timeLeft=30*60;
+
+function buildSession(){
+  const picked=shuffle(questionBank).slice(0,50);
+  sessionQuestions=picked.map(q=>{
+    const correct=q.opts[0];
+    const shuffled=shuffle(q.opts);
+    return{q:q.q,opts:shuffled,ans:shuffled.indexOf(correct)};
+  });
+  answers=new Array(50).fill(-1);currentQ=0;timeLeft=30*60;
+}
+
+function startQuiz(){
+  buildSession();
+  document.getElementById('intro').classList.remove('active');
+  document.getElementById('quiz').classList.add('active');
+  updateTimerDisplay();renderQuestion();renderMap();startTimer();
+}
+
+function startTimer(){
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{timeLeft--;updateTimerDisplay();if(timeLeft<=0){clearInterval(timerInterval);submitQuiz(true);}},1000);
+}
+
+function updateTimerDisplay(){
+  const m=Math.floor(timeLeft/60),s=timeLeft%60;
+  const d=document.getElementById('timer-display');
+  d.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  d.className='';
+  if(timeLeft<=300)d.classList.add('danger');else if(timeLeft<=600)d.classList.add('warning');
+}
+
+function renderQuestion(){
+  const q=sessionQuestions[currentQ];
+  const card=document.getElementById('question-card');
+  card.classList.remove('slide-in');void card.offsetWidth;card.classList.add('slide-in');
+  document.getElementById('q-counter').textContent=`Q${currentQ+1}`;
+  document.getElementById('q-badge').textContent=`QUESTION ${String(currentQ+1).padStart(2,'0')}`;
+  document.getElementById('question-text').textContent=q.q;
+  document.getElementById('progress-fill').style.width=`${((currentQ+1)/50)*100}%`;
+  const ol=document.getElementById('options-list');ol.innerHTML='';
+  const L=['A','B','C','D'];
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');btn.className='option-btn';
+    if(answers[currentQ]===i)btn.classList.add('selected');
+    btn.innerHTML=`<span class="option-letter">${L[i]}</span><span>${opt}</span>`;
+    btn.onclick=()=>selectAnswer(i);ol.appendChild(btn);
+  });
+  document.getElementById('btn-prev').disabled=currentQ===0;
+  document.getElementById('btn-next').textContent=currentQ===49?'Finish':'Next →';
+}
+
+function selectAnswer(i){answers[currentQ]=i;renderQuestion();renderMap();}
+
+function navigate(dir){
+  const next=currentQ+dir;
+  if(next>=0&&next<=49){currentQ=next;renderQuestion();updateMapCurrent();}
+  else if(dir===1&&currentQ===49)confirmSubmit();
+}
+
+function renderMap(){
+  const map=document.getElementById('q-map');map.innerHTML='';
+  for(let i=0;i<50;i++){
+    const d=document.createElement('div');d.className='q-dot';
+    if(answers[i]!==-1)d.classList.add('answered');if(i===currentQ)d.classList.add('current');
+    d.textContent=i+1;d.onclick=()=>{currentQ=i;renderQuestion();updateMapCurrent();};
+    map.appendChild(d);
+  }
+}
+
+function updateMapCurrent(){
+  document.querySelectorAll('.q-dot').forEach((d,i)=>{
+    d.classList.toggle('current',i===currentQ);
+    d.classList.toggle('answered',answers[i]!==-1&&i!==currentQ);
+  });
+}
+
+function confirmSubmit(){
+  const u=answers.filter(a=>a===-1).length;
+  if(u>0&&!confirm(`You have ${u} unanswered question(s). Submit anyway?`))return;
+  submitQuiz(false);
+}
+
+function submitQuiz(timeout){
+  clearInterval(timerInterval);
+  let correct=0,wrong=0,skip=0;
+  sessionQuestions.forEach((q,i)=>{
+    if(answers[i]===-1)skip++;else if(answers[i]===q.ans)correct++;else wrong++;
+  });
+  const score=parseFloat((correct*1.4).toFixed(1));
+  const pct=(score/70)*100;
+  document.getElementById('quiz').classList.remove('active');
+  document.getElementById('result').classList.add('active');
+  const emoji=pct>=70?'🏆':pct>=50?'📚':'😓';
+  const label=pct>=70?'PASS':'FAIL — STUDY MORE';
+  document.getElementById('result-emoji').textContent=emoji;
+  document.getElementById('result-score').textContent=`${score}/70`;
+  document.getElementById('result-score').className='result-score '+(pct>=50?'pass':'fail');
+  document.getElementById('result-label').textContent=label+(timeout?' · TIME UP':'');
+  document.getElementById('r-correct').textContent=correct;
+  document.getElementById('r-wrong').textContent=wrong;
+  document.getElementById('r-skip').textContent=skip;
+  const rl=document.getElementById('review-list');rl.innerHTML='';
+  const L=['A','B','C','D'];
+  sessionQuestions.forEach((q,i)=>{
+    const ua=answers[i];
+    const isC=ua!==-1&&ua===q.ans,isW=ua!==-1&&ua!==q.ans,isS=ua===-1;
+    const item=document.createElement('div');item.className='review-item';
+    if(isC)item.classList.add('review-item-correct');
+    else if(isW)item.classList.add('review-item-wrong');
+    else item.classList.add('review-item-skip');
+    const tc=isC?'tag-correct':isW?'tag-wrong':'tag-skipped';
+    const tt=isC?'✓ CORRECT':isW?'✗ WRONG':'— SKIPPED';
+    let opts='<div class="review-opts">';
+    q.opts.forEach((opt,oi)=>{
+      const isCor=oi===q.ans,isCho=oi===ua;
+      let cls='opt-normal',tag='';
+      if(isCor&&isCho){cls='opt-correct';tag='<span class="review-tag tag-correct">Your Answer ✓</span>';}
+      else if(isCor){cls='opt-correct';tag='<span class="review-tag tag-correct">Correct Answer</span>';}
+      else if(isCho){cls='opt-wrong';tag='<span class="review-tag tag-wrong">Your Answer ✗</span>';}
+      opts+=`<div class="review-opt ${cls}"><span class="opt-ltr">${L[oi]}</span><span>${opt}</span>${tag}</div>`;
+    });
+    opts+='</div>';
+    item.innerHTML=`<div class="review-q"><span>Q${i+1}. ${q.q}</span><span class="review-tag ${tc}" style="flex-shrink:0">${tt}</span></div>${opts}`;
+    rl.appendChild(item);
+  });
+}
+
+function retryQuiz(){
+  document.getElementById('result').classList.remove('active');
+  buildSession();
+  document.getElementById('quiz').classList.add('active');
+  updateTimerDisplay();renderQuestion();renderMap();startTimer();
+}
+
+function goHome(){
+  document.getElementById('result').classList.remove('active');
+  document.getElementById('intro').classList.add('active');
+}
+</script>
+</body>
+</html>
