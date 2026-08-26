@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSC 273.2 Blockchain CBT</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --surface: #111827;
+  --card: #1a2236;
+  --border: #1e3a5f;
+  --accent: #00d4ff;
+  --accent2: #237cae;
+  --green: #00ff88;
+  --red: #ff4466;
+  --yellow: #ffd700;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --glow: 0 0 20px rgba(0,212,255,0.3);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(0,212,255,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(124,58,237,0.06) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.screen { display: none; position: relative; z-index: 1; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ===== INTRO SCREEN ===== */
+#intro {
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0,212,255,0.08);
+  border: 1px solid var(--accent);
+  border-radius: 100px;
+  padding: 8px 20px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--accent);
+  letter-spacing: 2px;
+  margin-bottom: 2rem;
+  animation: fadeDown 0.6s ease;
+}
+
+.logo-badge::before { content: "▣"; animation: spin 3s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.intro-title {
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+  animation: fadeDown 0.7s ease;
+}
+
+.intro-title span {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.intro-sub { font-size: 1rem; color: var(--muted); margin-bottom: 3rem; animation: fadeDown 0.8s ease; }
+
+.info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; max-width: 600px; margin-bottom: 3rem; animation: fadeUp 0.9s ease; }
+
+.info-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1rem; text-align: center; }
+.info-card .val { font-size: 1.8rem; font-weight: 700; color: var(--accent); font-family: 'Share Tech Mono', monospace; display: block; }
+.info-card .lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+.rules { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem 2rem; max-width: 500px; text-align: left; margin-bottom: 2.5rem; animation: fadeUp 1s ease; }
+.rules h3 { color: var(--accent); font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem; font-family: 'Share Tech Mono', monospace; }
+.rules li { list-style: none; padding: 0.4rem 0; font-size: 0.9rem; color: var(--muted); padding-left: 1.2rem; position: relative; }
+.rules li::before { content: ">"; position: absolute; left: 0; color: var(--accent); }
+
+.btn-start {
+  background: linear-gradient(135deg, var(--accent), #0099cc);
+  color: #000; border: none; padding: 1rem 3rem; border-radius: 100px; font-family: 'Exo 2', sans-serif;
+  font-size: 1rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+  transition: all 0.3s; box-shadow: var(--glow); animation: fadeUp 1.1s ease;
+}
+.btn-start:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 0 40px rgba(0,212,255,0.5); }
+
+/* ===== QUIZ SCREEN ===== */
+#quiz { min-height: 100vh; }
+
+.quiz-header {
+  position: sticky; top: 0; z-index: 100; background: rgba(10,14,26,0.95); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); padding: 0.75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+
+.q-meta { display: flex; align-items: center; gap: 0.5rem; font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; }
+.q-counter { color: var(--accent); font-weight: 700; }
+.q-total { color: var(--muted); }
+
+.progress-bar-wrap { flex: 1; height: 4px; background: var(--border); border-radius: 10px; overflow: hidden; max-width: 300px; }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 10px; transition: width 0.4s ease; width: 0%; }
+
+.timer-wrap { display: flex; align-items: center; gap: 0.5rem; background: var(--card); border: 1px solid var(--border); border-radius: 100px; padding: 0.4rem 1rem; }
+#timer-display { font-family: 'Share Tech Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--accent); min-width: 52px; text-align: center; transition: color 0.3s; }
+#timer-display.warning { color: var(--yellow); }
+#timer-display.danger { color: var(--red); animation: pulse 0.5s infinite alternate; }
+
+@keyframes pulse { from { opacity: 1; } to { opacity: 0.4; } }
+
+/* QUESTION BODY */
+.quiz-body { flex: 1; display: flex; flex-direction: column; padding: 2rem 1.5rem; max-width: 780px; width: 100%; margin: 0 auto; }
+.question-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem; position: relative; overflow: hidden; }
+.question-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+.q-number-badge { display: inline-block; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); color: var(--accent); font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; padding: 3px 10px; border-radius: 100px; margin-bottom: 1rem; letter-spacing: 1px; }
+.question-text { font-size: 1.05rem; font-weight: 600; line-height: 1.6; color: var(--text); }
+
+.options-list { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
+.option-btn { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: all 0.2s; text-align: left; width: 100%; color: var(--text); font-family: 'Exo 2', sans-serif; font-size: 0.95rem; font-weight: 400; }
+.option-btn:hover { border-color: var(--accent); background: rgba(0,212,255,0.06); transform: translateX(4px); }
+.option-btn.selected { border-color: var(--accent); background: rgba(0,212,255,0.12); color: var(--accent); }
+.option-letter { width: 32px; height: 32px; border-radius: 8px; background: var(--border); display: flex; align-items: center; justify-content: center; font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; transition: background 0.2s; }
+.option-btn.selected .option-letter { background: var(--accent); color: #000; }
+
+.nav-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.btn-nav { padding: 0.75rem 1.75rem; border-radius: 100px; border: 1.5px solid var(--border); background: var(--card); color: var(--text); font-family: 'Exo 2', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; }
+.btn-nav:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.btn-nav:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-nav.primary { background: linear-gradient(135deg, var(--accent), #0099cc); border-color: transparent; color: #000; font-weight: 700; }
+.btn-nav.primary:hover { box-shadow: var(--glow); transform: scale(1.02); }
+.btn-nav.danger-btn { background: rgba(255,68,102,0.1); border-color: var(--red); color: var(--red); }
+
+/* ===== QUESTION MAP ===== */
+.q-map-wrap { padding: 0 1.5rem 2rem; max-width: 780px; width: 100%; margin: 0 auto; }
+.q-map-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.75rem; font-family: 'Share Tech Mono', monospace; }
+.q-map { display: flex; flex-wrap: wrap; gap: 6px; }
+.q-dot { width: 28px; height: 28px; border-radius: 6px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-family: 'Share Tech Mono', monospace; cursor: pointer; transition: all 0.15s; color: var(--muted); }
+.q-dot:hover { border-color: var(--accent); color: var(--accent); }
+.q-dot.answered { background: rgba(0,212,255,0.15); border-color: var(--accent); color: var(--accent); }
+.q-dot.current { background: var(--accent); color: #000; font-weight: 700; }
+
+/* ===== RESULT SCREEN ===== */
+#result { align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; text-align: center; }
+.result-badge { font-size: 4rem; margin-bottom: 1rem; animation: bounceIn 0.6s ease; }
+@keyframes bounceIn { 0% { transform: scale(0); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
+.result-score { font-size: clamp(3rem, 10vw, 5.5rem); font-weight: 900; font-family: 'Share Tech Mono', monospace; line-height: 1; margin-bottom: 0.5rem; }
+.result-score.pass { color: var(--green); text-shadow: 0 0 30px rgba(0,255,136,0.4); }
+.result-score.fail { color: var(--red); text-shadow: 0 0 30px rgba(255,68,102,0.4); }
+.result-label { font-size: 1rem; color: var(--muted); margin-bottom: 2.5rem; letter-spacing: 1px; text-transform: uppercase; }
+.result-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; max-width: 480px; margin-bottom: 2.5rem; }
+.stat-box { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.2rem; }
+.stat-box .sv { font-size: 1.8rem; font-weight: 700; font-family: 'Share Tech Mono', monospace; display: block; }
+.stat-box .sl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.stat-box.correct-stat .sv { color: var(--green); }
+.stat-box.wrong-stat .sv { color: var(--red); }
+.stat-box.skip-stat .sv { color: var(--yellow); }
+.result-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.btn-retry { background: linear-gradient(135deg, var(--accent2), #6d28d9); color: #fff; border: none; padding: 1rem 2.5rem; border-radius: 100px; font-family: 'Exo 2', sans-serif; font-size: 1rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; }
+.btn-retry:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(124,58,237,0.4); }
+.btn-review { background: transparent; color: var(--accent); border: 2px solid var(--accent); padding: 1rem 2.5rem; border-radius: 100px; font-family: 'Exo 2', sans-serif; font-size: 1rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; }
+.btn-review:hover { background: rgba(0,212,255,0.1); transform: translateY(-2px); }
+
+/* ===== REVIEW SCREEN ===== */
+#review { padding: 2rem 1.5rem; max-width: 800px; margin: 0 auto; width: 100%; }
+.review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+.review-title { font-size: 1.8rem; color: var(--accent); font-weight: 700; }
+.review-list { display: flex; flex-direction: column; gap: 1.5rem; }
+.review-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+.review-card.correct { border-left: 4px solid var(--green); }
+.review-card.wrong { border-left: 4px solid var(--red); }
+.review-card.skipped { border-left: 4px solid var(--yellow); }
+.review-q { font-size: 1.05rem; font-weight: 600; margin-bottom: 1rem; }
+.review-ans { font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--muted); }
+.review-ans span { font-weight: 700; }
+.ans-correct { color: var(--green); }
+.ans-wrong { color: var(--red); }
+.review-exp { margin-top: 1rem; background: rgba(0, 212, 255, 0.05); padding: 1rem; border-radius: 8px; font-size: 0.9rem; color: #a0aec0; border-left: 2px solid var(--accent); }
+
+@keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.slide-in { animation: slideIn 0.3s ease; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+@media (max-width: 500px) { .info-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; } .result-stats { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; } .quiz-header { padding: 0.6rem 1rem; } .quiz-body { padding: 1rem; } }
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="intro" class="screen active">
+  <div class="logo-badge">CSC 273.2 UNIPORT</div>
+  <h1 class="intro-title">Cryptography and<br><span>Blockchain Technology CBT</span></h1>
+  <p class="intro-sub">Test your knowledge. Beat the clock.</p>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <span class="val">50</span>
+      <span class="lbl">Questions</span>
+    </div>
+    <div class="info-card">
+      <span class="val">30</span>
+      <span class="lbl">Minutes</span>
+    </div>
+    <div class="info-card">
+      <span class="val">1.4</span>
+      <span class="lbl">Marks/Q</span>
+    </div>
+    <div class="info-card">
+      <span class="val">70</span>
+      <span class="lbl">Total</span>
+    </div>
+  </div>
+
+  <div class="rules">
+    <h3>// Instructions</h3>
+    <ul>
+      <li id="bank-size-line">50 random questions selected from the master bank.</li>
+      <li>30-minute countdown timer.</li>
+      <li>Each correct answer = 1.4 marks (70 Max).</li>
+      <li>Navigate freely between questions using the map.</li>
+      <li>Quiz auto-submits when time runs out.</li>
+    </ul>
+  </div>
+  <button class="btn-start" onclick="startQuiz()">START EXAM &rarr;</button>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="screen">
+  <div class="quiz-header">
+    <div class="q-meta">
+      <span class="q-counter" id="q-counter">Q1</span>
+      <span class="q-total" id="q-total">/ 50</span>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+
+    <div class="timer-wrap">
+      <span class="timer-icon">⏱️</span>
+      <span id="timer-display">30:00</span>
+    </div>
+  </div>
+
+  <div class="quiz-body">
+    <div class="question-card slide-in" id="question-card">
+      <div class="q-number-badge" id="q-badge">QUESTION 01</div>
+      <p class="question-text" id="question-text"></p>
+    </div>
+
+    <div class="options-list" id="options-list"></div>
+
+    <div class="nav-row">
+      <button class="btn-nav" id="btn-prev" onclick="navigate(-1)">Prev</button>
+      <button class="btn-nav danger-btn" onclick="confirmSubmit()">Submit Exam</button>
+      <button class="btn-nav primary" id="btn-next" onclick="navigate(1)">Next &rarr;</button>
+    </div>
+  </div>
+
+  <div class="q-map-wrap">
+    <div class="q-map-label">// Question Map</div>
+    <div class="q-map" id="q-map"></div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result" class="screen">
+  <div class="result-badge" id="result-emoji">🎯</div>
+  <div class="result-score" id="result-score">0/70</div>
+  <div class="result-label" id="result-label">Total Score</div>
+
+  <div class="result-stats">
+    <div class="stat-box correct-stat">
+      <span class="sv" id="stat-correct">0</span>
+      <span class="sl">Correct</span>
+    </div>
+    <div class="stat-box wrong-stat">
+      <span class="sv" id="stat-wrong">0</span>
+      <span class="sl">Wrong</span>
+    </div>
+    <div class="stat-box skip-stat">
+      <span class="sv" id="stat-skip">0</span>
+      <span class="sl">Skipped</span>
+    </div>
+  </div>
+
+  <div class="result-actions">
+    <button class="btn-review" onclick="showReview()">Review Answers</button>
+    <button class="btn-retry" onclick="location.reload()">Take Another Random Test</button>
+  </div>
+</div>
+
+<!-- REVIEW -->
+<div id="review" class="screen">
+  <div class="review-header">
+    <div class="review-title">Exam Review</div>
+    <button class="btn-nav" onclick="backToResults()">Back to Results</button>
+  </div>
+  <div class="review-list" id="review-list"></div>
+</div>
+
+<!-- CUSTOM CONFIRM MODAL (replaces native confirm(), which browsers/embedded viewers can block) -->
+<div id="modal-overlay" style="display:none; position:fixed; inset:0; z-index:1000; background:rgba(5,8,15,0.75); backdrop-filter: blur(4px); align-items:center; justify-content:center; padding:1.5rem;">
+  <div style="background:var(--card); border:1px solid var(--border); border-radius:18px; padding:2rem; max-width:380px; width:100%; text-align:center; box-shadow: var(--glow);">
+    <p id="modal-message" style="font-size:1rem; color:var(--text); margin-bottom:1.75rem; line-height:1.5;"></p>
+    <div style="display:flex; gap:0.75rem; justify-content:center;">
+      <button class="btn-nav" id="modal-cancel" style="flex:1;">Cancel</button>
+      <button class="btn-nav primary" id="modal-confirm" style="flex:1;">Submit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// --- MASTER QUESTION BANK (100+ questions) ---
+const rawQuizData = [
+  // SECTION 1: FOUNDATIONS OF BLOCKCHAIN TECHNOLOGY
+  { text: "What is a blockchain best defined as?", options: ["A single company's private database", "A peer-to-peer computer network running a distributed ledger, with data securely chained together chronologically using cryptography", "A type of cryptocurrency wallet", "A programming language for smart contracts"], answer: 1, explanation: "A blockchain is a peer-to-peer network running a distributed ledger, with data cryptographically chained together chronologically." },
+  { text: "What role do 'nodes' play in a blockchain network?", options: ["They are powerful computers spread around the world that maintain and manage the blockchain", "They are the physical wallets storing coins", "They are the companies that regulate cryptocurrency", "They are a type of token"], answer: 0, explanation: "Nodes are computers spread around the world that maintain and manage the blockchain." },
+  { text: "What are 'smart contracts'?", options: ["Legal documents signed by lawyers", "Self-executing code stored on the blockchain that carries out an agreement automatically when its conditions are met", "A type of centralized exchange", "A hardware wallet brand"], answer: 1, explanation: "Smart contracts are self-executing code on the blockchain that runs automatically when conditions are met." },
+  { text: "What does 'programmable trust' refer to in blockchain technology?", options: ["Trusting a single central bank completely", "Participants not needing to trust a central authority, only the shared rules encoded into the network itself", "A type of cryptographic algorithm", "Trusting only the wallet developer"], answer: 1, explanation: "Programmable trust means the network's shared rules, not a central authority, are what participants rely on." },
+  { text: "What distinguishes a public blockchain from a private blockchain?", options: ["Public blockchains are open to anyone; private blockchains restrict access to approved participants", "Public blockchains cannot be viewed by anyone", "Private blockchains are always faster", "There is no real difference"], answer: 0, explanation: "Public blockchains are open to anyone; private/permissioned blockchains restrict access." },
+  { text: "Which of the following is an example of a public blockchain?", options: ["Bitcoin", "A bank's internal private ledger", "eNaira", "A corporate permissioned ledger"], answer: 0, explanation: "Bitcoin is a classic example of a public, permissionless blockchain." },
+  { text: "What is a CBDC (Central Bank Digital Currency)?", options: ["A decentralized cryptocurrency with no issuer", "A digital currency issued and controlled directly by a country's central bank/government", "A type of NFT", "A hardware wallet"], answer: 1, explanation: "A CBDC is a digital currency issued and controlled by a central bank/government." },
+  { text: "Which of the following is an example of a CBDC?", options: ["Bitcoin", "Ethereum", "Nigeria's eNaira", "Solana"], answer: 2, explanation: "Nigeria's eNaira is a real-world example of a CBDC." },
+  { text: "How does a CBDC fundamentally differ from a decentralized cryptocurrency like Bitcoin?", options: ["A CBDC is centrally issued and controlled by a government; Bitcoin is decentralized with no single issuer", "They are functionally identical", "CBDCs cannot be digital", "Bitcoin is issued by a central bank"], answer: 0, explanation: "CBDCs are centrally controlled; decentralized cryptocurrencies like Bitcoin have no single issuing authority." },
+  { text: "What advanced technique do nodes use to secure blockchain data?", options: ["Advanced encryption algorithms", "Simple plain-text storage", "Physical locks", "Manual auditing only"], answer: 0, explanation: "Nodes use advanced encryption algorithms to secure blockchain data." },
+  { text: "Why is a blockchain described as removing the need for a 'middleman'?", options: ["Because the distributed ledger is maintained securely by the network itself, not a single intermediary institution", "Because it has no users", "Because transactions are always free", "Because it requires a bank to approve each transaction"], answer: 0, explanation: "A blockchain lets a ledger be maintained securely by a distributed network, without needing a middleman institution." },
+  { text: "What does holding cryptocurrency actually mean, in terms of what you possess?", options: ["Owning a physical file of digital money stored on your device", "Holding the cryptographic keys that let you transfer digital ledger records on the blockchain", "Owning a printed certificate", "Having a bank account number"], answer: 1, explanation: "Holding crypto means holding the cryptographic keys to transfer ledger records, not owning a physical money file." },
+  { text: "Which best describes the overall purpose of blockchain technology's design?", options: ["To enable secure, trustless, peer-to-peer value transfer without needing a central authority", "To replace all programming languages", "To eliminate the need for the internet", "To make transactions slower but more artistic"], answer: 0, explanation: "Blockchain's core purpose is enabling trustless, peer-to-peer value transfer without a central authority." },
+  { text: "What kind of ledger structure does a blockchain use?", options: ["A distributed ledger maintained by many nodes", "A single centralized spreadsheet", "A paper ledger", "No ledger at all"], answer: 0, explanation: "A blockchain uses a distributed ledger maintained across many nodes." },
+  { text: "Which of these is NOT typically a characteristic of a public blockchain?", options: ["Anyone can join as a node", "Anyone can view the ledger", "Anyone can transact on it", "Access is restricted to a small approved group"], answer: 3, explanation: "Restricted access describes a private/permissioned blockchain, not a public one." },
+
+  // SECTION 2: CRYPTOCURRENCIES, COINS, AND NATIVE ASSETS
+  { text: "What secures cryptocurrency and makes verification possible without a central authority?", options: ["Cryptography", "Physical printing", "Government decree", "Manual bookkeeping"], answer: 0, explanation: "Cryptography is what secures cryptocurrency and enables trustless verification." },
+  { text: "What is the key distinguishing feature of a 'coin,' as opposed to a token?", options: ["A coin operates on its own independent, standalone blockchain, acting as that network's native gas", "A coin is always worth more than a token", "A coin can only be used for gambling", "A coin cannot be transferred"], answer: 0, explanation: "A coin runs on its own dedicated blockchain and serves as that network's native currency/gas." },
+  { text: "Which of the following is an example of a coin (has its own dedicated blockchain)?", options: ["Bitcoin", "Shiba Inu", "Chainlink", "Uniswap token"], answer: 0, explanation: "Bitcoin runs on its own dedicated blockchain, making it a coin rather than a token." },
+  { text: "Which of the following is an example of a token (lives on a host blockchain)?", options: ["Bitcoin", "Ether", "Shiba Inu (on Ethereum)", "Solana's native asset"], answer: 2, explanation: "Shiba Inu is a token living on the Ethereum host blockchain, not its own dedicated chain." },
+  { text: "What does a coin pay on its own native blockchain?", options: ["The network's own gas fees", "Only stock dividends", "Nothing at all", "Bank transaction fees"], answer: 0, explanation: "Coins pay the network's own gas fees, since they are the native currency of that blockchain." },
+  { text: "Cryptocurrency can be described as being which of the following?", options: ["Public, private, or hybrid", "Only ever public", "Only ever private", "Neither public nor private"], answer: 0, explanation: "Cryptocurrency can be public, private, or hybrid depending on the blockchain it runs on." },
+  { text: "Which of these is a decentralized, public cryptocurrency (not a CBDC)?", options: ["eNaira", "Solana", "A hypothetical national digital currency issued by a central bank", "A government-controlled ledger"], answer: 1, explanation: "Solana is a decentralized public cryptocurrency, unlike a CBDC." },
+  { text: "What does it mean for a coin to act as a network's 'native gas'?", options: ["It is the currency required to pay for transactions/operations on that specific blockchain", "It literally powers physical machines with fuel", "It has no functional purpose", "It can only be used outside its own blockchain"], answer: 0, explanation: "Native gas refers to the currency required to pay for computation/transactions on that specific blockchain." },
+  { text: "Which best distinguishes cryptocurrency from a CBDC?", options: ["Cryptocurrency is decentralized and not issued by a single authority; a CBDC is issued and controlled by a government", "They are identical in every way", "CBDCs are always decentralized", "Cryptocurrency requires government approval to exist"], answer: 0, explanation: "Cryptocurrency is decentralized; a CBDC is centrally issued and controlled." },
+  { text: "Ethereum's native coin (Ether) is used for what basic purpose on its own blockchain?", options: ["Paying gas fees for transactions and smart contract execution", "Only for governance voting", "Only for NFT trading", "It has no functional use"], answer: 0, explanation: "Ether is Ethereum's native gas, used to pay for transactions and smart contract execution." },
+  { text: "Which statement correctly compares Bitcoin and a typical ERC-20 token?", options: ["Bitcoin has its own dedicated blockchain; a typical ERC-20 token lives on a host blockchain like Ethereum", "Both always run on their own dedicated blockchains", "ERC-20 tokens always have more value than Bitcoin", "Bitcoin is a token, not a coin"], answer: 0, explanation: "Bitcoin has its own blockchain (coin); ERC-20 tokens live on a host chain like Ethereum." },
+  { text: "What is the primary purpose of cryptography within a cryptocurrency system?", options: ["To secure the currency and enable trustless verification of ownership and transactions", "To make transactions slower", "To increase transaction fees", "To centralize control"], answer: 0, explanation: "Cryptography secures cryptocurrency and enables trustless verification without a central authority." },
+  { text: "Which of the following coins is generally recognized as commanding the largest share of total crypto market value?", options: ["Bitcoin", "Dogecoin", "A random low-cap altcoin", "A newly launched meme coin"], answer: 0, explanation: "Bitcoin commands the largest share (dominance) of total crypto market cap." },
+  { text: "What kind of asset is Solana's native currency?", options: ["A coin, since Solana has its own dedicated blockchain", "A token living on Ethereum", "A CBDC", "A stablecoin"], answer: 0, explanation: "Solana's native currency is a coin, since Solana runs its own dedicated blockchain." },
+  { text: "Why can't tokens exist without a host blockchain?", options: ["Because tokens are generated using smart contract code that must run on an existing blockchain's infrastructure", "Because tokens are physical objects", "Because tokens are illegal without a host", "Tokens can exist entirely independently with no blockchain"], answer: 0, explanation: "Tokens rely on smart contract code running on an existing host blockchain's infrastructure." },
+
+  // SECTION 3: TOKENS: TYPES AND CHARACTERISTICS
+  { text: "What is a token, in blockchain terminology?", options: ["A programmable digital asset generated using smart contract code, living on a host blockchain", "A physical coin", "A type of consensus mechanism", "A cryptographic hash function"], answer: 0, explanation: "A token is a programmable digital asset created via smart contract code on a host blockchain." },
+  { text: "Which blockchain is credited with having the first tokens?", options: ["Bitcoin", "Ethereum", "Solana", "Litecoin"], answer: 1, explanation: "Ethereum had the first tokens, pioneering smart-contract-based programmable assets." },
+  { text: "What is the purpose of a utility token?", options: ["To grant access to a specific product, service, or functionality within a blockchain ecosystem", "To represent voting rights only", "To represent a real estate deed only", "To function as a stablecoin"], answer: 0, explanation: "Utility tokens grant access to a specific product, service, or functionality." },
+  { text: "What do governance tokens give their holders?", options: ["The right to vote on decisions, proposals, and updates influencing a blockchain project's future", "Guaranteed dividends", "A fixed interest rate", "Ownership of a company's physical assets"], answer: 0, explanation: "Governance tokens give holders voting rights over a project's decisions and future direction." },
+  { text: "What is a DAO?", options: ["A Decentralized Autonomous Organization, governed by token holders rather than a traditional hierarchy", "A type of hardware wallet", "A centralized exchange", "A cryptographic algorithm"], answer: 0, explanation: "A DAO is a Decentralized Autonomous Organization governed by governance token holders." },
+  { text: "In a typical DAO, how is voting power usually determined?", options: ["By the number of governance tokens an individual holds", "By seniority within a company", "By a random lottery", "By a government-appointed board"], answer: 0, explanation: "Voting power in a DAO is typically weighted by the number of governance tokens held." },
+  { text: "What is a tokenized stock?", options: ["A token that gives exposure to (or control of) a real stock, without needing to buy it through a traditional broker", "A physical paper stock certificate", "A type of stablecoin", "A cryptographic hashing algorithm"], answer: 0, explanation: "Tokenized stocks give exposure to real stocks via tokens, bypassing a traditional broker." },
+  { text: "What is a stablecoin?", options: ["A coin/token pegged to a stable external asset, most commonly the US Dollar", "A highly volatile speculative token", "A type of governance token", "A hardware wallet brand"], answer: 0, explanation: "Stablecoins are pegged to a stable external asset like the US Dollar." },
+  { text: "Which of these is a well-known example of a stablecoin?", options: ["USDT", "Bitcoin", "Ethereum", "Solana"], answer: 0, explanation: "USDT (Tether) is a widely used stablecoin pegged to the US Dollar." },
+  { text: "What are DeFi tokens primarily used for?", options: ["Decentralized finance applications, such as lending, trading, or earning interest", "Only for gaming", "Only for identity verification", "Only for physical asset storage"], answer: 0, explanation: "DeFi tokens are native to decentralized finance applications like lending and trading." },
+  { text: "What defines an NFT (Non-Fungible Token)?", options: ["A unique, non-interchangeable digital token representing ownership of a specific item or asset", "A token identical in value to every other unit of the same token", "A type of stablecoin", "A consensus mechanism"], answer: 0, explanation: "NFTs are unique, non-interchangeable tokens representing a specific asset." },
+  { text: "Which token type would a decentralized exchange like Uniswap most likely use to grant access to its platform features?", options: ["Utility token", "Governance token only", "Stablecoin only", "NFT only"], answer: 0, explanation: "Uniswap-style access/functionality is a classic use case for utility tokens." },
+  { text: "Tesla token and Nvidia token, as described in this course, are examples of which token type?", options: ["Tokenized stocks", "Stablecoins", "NFTs", "Governance tokens"], answer: 0, explanation: "Tesla and Nvidia tokens are examples of tokenized stocks." },
+  { text: "Why might someone prefer a tokenized stock over buying the real stock through a broker?", options: ["It can offer exposure to the stock without needing a traditional broker", "It guarantees higher returns always", "It removes all investment risk", "It is required by law in all countries"], answer: 0, explanation: "Tokenized stocks let holders gain stock exposure without going through a traditional broker." },
+  { text: "Which of the following best distinguishes a governance token from a utility token?", options: ["Governance tokens grant voting rights over a project; utility tokens grant access to a product/service/functionality", "They are functionally identical", "Utility tokens always cost more", "Governance tokens can never be traded"], answer: 0, explanation: "Governance tokens grant voting rights; utility tokens grant access to specific functionality." },
+
+  // SECTION 4: FUNGIBLE VS NON-FUNGIBLE TOKENS
+  { text: "What does 'fungible' mean in the context of tokens?", options: ["Interchangeable, identical-value tokens, where one unit equals another unit of the same token", "Unique and non-interchangeable", "Only usable once", "Physically printed"], answer: 0, explanation: "Fungible tokens are interchangeable — one unit is equivalent to another unit of the same token." },
+  { text: "What does 'non-fungible' mean in the context of tokens?", options: ["Each token is unique and not directly interchangeable with another", "All tokens of that type are identical", "The token cannot be transferred at all", "The token has no owner"], answer: 0, explanation: "Non-fungible tokens are unique and not directly interchangeable with one another." },
+  { text: "Which Ethereum token standard is used for fungible tokens?", options: ["ERC-20", "ERC-721", "ERC-1155 only", "ERC-404 only"], answer: 0, explanation: "ERC-20 is the standard for fungible tokens on Ethereum." },
+  { text: "Which Ethereum token standard is used for non-fungible tokens (NFTs)?", options: ["ERC-20", "ERC-721", "ERC-10", "ERC-5"], answer: 1, explanation: "ERC-721 is the standard for NFTs on Ethereum." },
+  { text: "What is the Ethereum Virtual Machine (EVM)?", options: ["The runtime environment that executes smart contracts on Ethereum and EVM-compatible chains", "A type of hardware wallet", "A cryptographic hash function", "A centralized exchange"], answer: 0, explanation: "The EVM is the runtime environment executing smart contracts on Ethereum and compatible chains." },
+  { text: "Is a standard US dollar bill an example of a fungible or non-fungible asset?", options: ["Fungible — one dollar bill is interchangeable with another", "Non-fungible — each bill is entirely unique in value", "Neither concept applies to currency", "It is always non-fungible"], answer: 0, explanation: "A dollar bill is fungible: any one bill is interchangeable in value with another." },
+  { text: "Which type of token would best represent ownership of a unique piece of digital art?", options: ["An NFT (non-fungible token)", "A fungible ERC-20 token", "A stablecoin", "A coin with its own blockchain"], answer: 0, explanation: "NFTs are used to represent ownership of unique items like digital art." },
+  { text: "Why are ERC-20 tokens well-suited for use as currencies or utility tokens?", options: ["Because they are fungible — every unit has identical value and is interchangeable", "Because each unit is completely unique", "Because they cannot be transferred", "Because they require no smart contract"], answer: 0, explanation: "ERC-20's fungibility (identical, interchangeable units) suits currencies and utility tokens." },
+  { text: "What makes the EVM significant to token standards like ERC-20 and ERC-721?", options: ["It provides the execution environment that makes these smart-contract-based standards possible", "It has nothing to do with token standards", "It only supports NFTs, not fungible tokens", "It replaces the need for smart contracts"], answer: 0, explanation: "The EVM is the execution environment that makes smart-contract-based token standards possible." },
+  { text: "Which of the following would most likely use the ERC-721 standard?", options: ["A collectible digital trading card with a unique ID", "A stablecoin pegged to the dollar", "A generic utility token used for platform fees", "A governance token"], answer: 0, explanation: "Unique collectibles are the classic use case for the ERC-721 (NFT) standard." },
+  { text: "Are all tokens on Ethereum required to be either purely fungible or purely non-fungible with no in-between?", options: ["No — while ERC-20 and ERC-721 are the classic fungible/non-fungible standards, other standards exist for more flexible use cases", "Yes, there are only these two possible categories", "Fungibility does not apply to Ethereum tokens", "Only NFTs exist on Ethereum"], answer: 0, explanation: "Beyond ERC-20 and ERC-721, other standards (like ERC-1155) support more flexible combinations, though ERC-20/721 are the classic pair covered here." },
+  { text: "What is the core practical difference between owning an ERC-20 token and owning an ERC-721 NFT?", options: ["ERC-20 units are identical and interchangeable; each ERC-721 NFT is unique with its own identity", "There is no practical difference", "ERC-721 tokens are always worth less", "ERC-20 tokens are always unique"], answer: 0, explanation: "ERC-20 units are interchangeable; each ERC-721 token has a unique, distinct identity." },
+
+  // SECTION 5: WALLETS AND ADDRESSES
+  { text: "What is a crypto wallet, fundamentally?", options: ["Software or hardware storing the cryptographic keys for your assets", "A physical container holding actual coins", "A bank account", "A type of exchange"], answer: 0, explanation: "A wallet is software or hardware that stores the cryptographic keys for your assets." },
+  { text: "What metaphor is commonly used to describe how a wallet relates to your crypto assets?", options: ["A key ring — it stores the keys to unlock your coins on the blockchain, not the coins themselves", "A vault physically containing coins", "A printing press", "A bank teller"], answer: 0, explanation: "A wallet acts like a key ring, storing the keys needed to access assets on the blockchain, not the assets directly." },
+  { text: "What two main functions does a wallet perform for the network?", options: ["It confirms your identity to the network and grants you required access to authorize transactions", "It sets exchange listing prices", "It mines new coins automatically", "It regulates government currency"], answer: 0, explanation: "A wallet confirms identity to the network and grants the access needed to authorize transactions." },
+  { text: "What is the difference between a software wallet and a hardware wallet?", options: ["A software wallet is an app; a hardware wallet is a dedicated physical device, often storing keys offline for extra security", "They are identical in every respect", "Hardware wallets cannot store private keys", "Software wallets are always more secure"], answer: 0, explanation: "Software wallets are apps; hardware wallets are physical devices, often offering offline (cold) storage." },
+  { text: "Which of these is an example of a popular software/browser wallet?", options: ["MetaMask", "A generic USB flash drive", "A printed piece of paper", "A bank debit card"], answer: 0, explanation: "MetaMask is a well-known software/browser wallet." },
+  { text: "Why might someone prefer a hardware wallet over a software wallet?", options: ["Hardware wallets store private keys offline, providing extra security against online attacks", "Hardware wallets are always free", "Software wallets cannot connect to the internet at all", "Hardware wallets are illegal in most countries"], answer: 0, explanation: "Hardware wallets keep private keys offline, adding a layer of security against online threats." },
+  { text: "What actually authorizes a transaction from your wallet?", options: ["Your private key, used to cryptographically sign the transaction", "A phone call to your bank", "A physical signature on paper", "A government ID card"], answer: 0, explanation: "Transactions are authorized by cryptographically signing them with the wallet's private key." },
+  { text: "If you lose access to your wallet's private key, what typically happens to the associated assets?", options: ["You generally lose the ability to access and transfer those assets", "The assets automatically transfer to a backup account", "Nothing changes; access is unaffected", "The blockchain automatically issues you a new key"], answer: 0, explanation: "Losing a private key generally means losing access to the associated assets, since there's no central authority to restore it." },
+  { text: "What kind of information does a wallet's public address reveal?", options: ["A shareable identifier others can use to send you assets, without exposing your private key", "Your private key directly", "Your government identification", "Your bank account balance"], answer: 0, explanation: "A public address is shareable for receiving funds and does not expose the private key." },
+  { text: "Why is it critical to never share your wallet's private key with anyone?", options: ["Because whoever holds the private key has full control to authorize transactions and move the associated assets", "Because it is only used for display purposes", "Because sharing it has no security implications", "Because private keys expire automatically after sharing"], answer: 0, explanation: "Anyone holding the private key has full control over the associated assets." },
+  { text: "What best describes the relationship between a wallet and the blockchain ledger?", options: ["The wallet holds the keys to interact with assets recorded on the blockchain ledger; it doesn't store the assets itself", "The wallet is a separate blockchain entirely", "The wallet replaces the need for a blockchain", "The blockchain ledger is stored entirely inside the wallet app"], answer: 0, explanation: "The wallet holds keys to interact with assets recorded on the blockchain; the ledger itself lives on the blockchain." },
+  { text: "What does granting a decentralized application 'wallet access' typically allow it to do?", options: ["Request that you authorize specific transactions or view your public address/balance", "Immediately take all your funds without your consent", "Delete your wallet permanently", "Change your private key without permission"], answer: 0, explanation: "Wallet access typically lets an app request transaction authorization or view public info, not seize funds without consent." },
+
+  // SECTION 6: CONSENSUS MECHANISMS - MINING AND STAKING
+  { text: "What principle underlies blockchain consensus?", options: ["A 'majority decides' mentality, where the majority of participating nodes agree on the final ledger state", "A single owner decides everything", "Consensus is chosen randomly with no rules", "Only the newest node decides"], answer: 0, explanation: "Blockchain consensus follows a majority-decides principle among participating nodes." },
+  { text: "Why is consensus described as the core principle guiding blockchain technology?", options: ["It's how a decentralized network of mutually distrusting nodes can still agree on one shared version of the truth", "It has no real importance", "It only matters for private blockchains", "It replaces the need for cryptography"], answer: 0, explanation: "Consensus enables decentralized, mutually distrusting nodes to agree on a shared ledger state." },
+  { text: "What happens in Proof of Work consensus?", options: ["Participants (miners) compete to solve a math equation; the first to solve it adds the next block and earns a reward", "Participants vote directly with no computation involved", "A single central authority decides the next block", "No reward is ever given"], answer: 0, explanation: "In Proof of Work, miners compete to solve a math puzzle; the winner adds the block and earns a reward." },
+  { text: "What is 'mining' in the context of blockchain?", options: ["The process of solving math problems to generate new coins and validate the ledger", "Digging for physical minerals", "A type of wallet", "A consensus-free process"], answer: 0, explanation: "Mining is the process of solving math problems to validate the ledger and earn new coins." },
+  { text: "What is 'staking' in the context of blockchain?", options: ["Locking up an amount of the native coin/token as collateral to be selected to validate transactions", "Digging for coins with computational power", "Buying stock in a company", "A type of NFT"], answer: 0, explanation: "Staking involves locking up coins/tokens as collateral to become eligible to validate transactions." },
+  { text: "What is the main practical difference between mining and staking?", options: ["Mining relies on computational competition (Proof of Work); staking relies on locked collateral (Proof of Stake)", "They are identical processes", "Staking requires more electricity than mining", "Mining requires no computer at all"], answer: 0, explanation: "Mining is computation-based (PoW); staking is collateral-based (PoS)." },
+  { text: "Why are mining and staking both described as 'self-sustaining loops'?", options: ["They secure the network while simultaneously rewarding the participants who do the securing", "They require constant government funding", "They do not provide any reward", "They only work for a limited time before stopping"], answer: 0, explanation: "Both mechanisms simultaneously secure the network and reward participants, forming a self-sustaining loop." },
+  { text: "In Proof of Work, what does the winning miner typically receive as a reward?", options: ["The network's native gas/coin (e.g. Bitcoin)", "A government bond", "A physical trophy", "Nothing at all"], answer: 0, explanation: "The winning miner receives the network's native coin as a reward (e.g. Bitcoin for Bitcoin mining)." },
+  { text: "What does 'Bitcoin gas' refer to, in the context of the Bitcoin network?", options: ["Bitcoin itself, used as the network's native currency/fee payment", "A separate token unrelated to Bitcoin", "A physical fuel", "An NFT collection"], answer: 0, explanation: "Bitcoin acts as its own network's native gas/currency." },
+  { text: "What does 'Ethereum gas' refer to?", options: ["Ether, used to pay for transactions and smart contract execution on Ethereum", "A completely separate cryptocurrency", "A type of wallet", "A consensus algorithm name"], answer: 0, explanation: "Ether serves as Ethereum's native gas, paying for transactions and contract execution." },
+  { text: "Which consensus mechanism does Proof of Stake avoid relying heavily on, compared to Proof of Work?", options: ["Heavy computational/energy competition", "Any form of security", "Wallets", "Blockchain technology entirely"], answer: 0, explanation: "Proof of Stake avoids the heavy computational competition central to Proof of Work." },
+  { text: "How does consensus help prevent a single bad actor from corrupting the blockchain?", options: ["Because changes must be agreed upon by the majority of nodes, a single actor cannot unilaterally alter the shared ledger", "Consensus has no effect on security", "A single actor can always override consensus", "Consensus only applies to private blockchains"], answer: 0, explanation: "Requiring majority agreement makes it very difficult for a single bad actor to corrupt the ledger." },
+  { text: "What is validated each time a new block is added to the blockchain under a consensus mechanism?", options: ["The transactions within that block, according to the network's shared consensus rules", "Nothing is validated", "Only the miner's personal identity", "The wallet's private key"], answer: 0, explanation: "Adding a new block involves validating its transactions according to the network's consensus rules." },
+  { text: "Why might staking be considered more energy-efficient than mining?", options: ["Staking doesn't require the massive computational power used to solve Proof of Work puzzles", "Staking uses more electricity than mining", "Mining requires no electricity at all", "There is no energy difference between the two"], answer: 0, explanation: "Staking avoids the heavy computational (and energy) demands of Proof of Work mining." },
+  { text: "Which best summarizes the overall purpose of any blockchain consensus mechanism?", options: ["To let a decentralized network agree on and secure a single shared ledger state without a central authority", "To centralize all decision-making in one company", "To eliminate the need for a ledger entirely", "To make blockchains impossible to use"], answer: 0, explanation: "Consensus mechanisms let a decentralized network securely agree on a shared ledger state." },
+
+  // SECTION 7: EXCHANGES
+  { text: "What is a centralized exchange (CEX)?", options: ["A company-operated platform that holds custody of users' funds and matches buyers/sellers internally", "A purely peer-to-peer smart contract with no company involved", "A type of wallet only", "A consensus mechanism"], answer: 0, explanation: "A CEX is a company-operated platform that custodies user funds and matches trades internally." },
+  { text: "What is a decentralized/distributed exchange (DEX)?", options: ["Peer-to-peer trading directly on the blockchain via smart contracts, with no central custodian", "A bank branch", "A hardware wallet", "A type of stablecoin"], answer: 0, explanation: "A DEX enables peer-to-peer trading via smart contracts, without a central custodian holding funds." },
+  { text: "Which of the following is an example of a decentralized exchange (DEX)?", options: ["Uniswap", "A traditional bank", "A government treasury", "A hardware wallet brand"], answer: 0, explanation: "Uniswap is a well-known decentralized exchange (DEX)." },
+  { text: "What key custody difference separates a CEX from a DEX?", options: ["A CEX holds custody of user funds; a DEX lets users trade directly from their own wallets without surrendering custody", "Both hold identical custody arrangements", "A DEX always requires users to give up their private keys", "A CEX never holds any user funds"], answer: 0, explanation: "CEXs custody user funds; DEXs let users retain custody, trading directly from their own wallets." },
+  { text: "Why is DEX activity considered directly linked to the blockchain itself?", options: ["Because DEX trades occur via on-chain smart contracts, making the activity directly checkable on-chain", "Because DEXs operate entirely off-chain", "Because DEXs are run by a single central company", "DEX activity has no connection to the blockchain"], answer: 0, explanation: "DEX trades happen via on-chain smart contracts, so this activity is directly verifiable on-chain." },
+  { text: "What does the formula 'Total buy and sell in all exchanges put together' calculate?", options: ["Total exchange (trading) volume", "Market capitalization", "Total value locked", "Circulating supply"], answer: 0, explanation: "This formula describes total exchange volume — the combined buy/sell activity across all exchanges." },
+  { text: "Why might on-chain, DEX-based trading data be considered more transparent than centralized exchange data?", options: ["Because DEX trades are recorded directly and verifiably on the public blockchain, rather than hidden in a private company's internal database", "Because DEXs have no data at all", "Because CEX data is always more transparent", "There is no meaningful transparency difference"], answer: 0, explanation: "On-chain DEX data is publicly and verifiably recorded on the blockchain, unlike private internal CEX databases." },
+  { text: "What might happen to 'unaccounted sell' activity, and why does it matter for analysis?", options: ["Analysts may investigate who coins are being sold to, since this can reveal important market behavior", "It is always irrelevant to market analysis", "It only matters for NFTs", "It has no impact on price"], answer: 0, explanation: "Tracking who unaccounted sell activity goes to can reveal important insights into market behavior." },
+  { text: "Which type of exchange typically requires users to complete identity verification (KYC) before trading?", options: ["Centralized exchanges (CEX), more commonly than DEXs", "Decentralized exchanges (DEX), always", "Neither type ever requires identity verification", "Both types never allow any trading"], answer: 0, explanation: "Centralized exchanges more commonly require KYC (identity verification) than decentralized exchanges." },
+  { text: "What advantage does a DEX offer that a CEX generally does not?", options: ["Users retain control of their private keys and funds throughout the trading process", "Guaranteed profit on every trade", "Zero technical knowledge required", "Government-backed insurance on all funds"], answer: 0, explanation: "DEX users retain control of their own private keys/funds, unlike custodial CEX trading." },
+
+  // SECTION 8: DECENTRALIZED FINANCE (DEFI)
+  { text: "What does DeFi stand for?", options: ["Decentralized (Distributed) Finance", "Digital Finance Institute", "Direct Financial Investment", "Data-Encrypted Financial Instrument"], answer: 0, explanation: "DeFi stands for Decentralized (Distributed) Finance." },
+  { text: "What is DeFi, broadly?", options: ["Financial applications — lending, trading, earning interest — built on blockchain infrastructure without traditional banks or intermediaries", "A single company offering all financial services", "A type of centralized bank", "A government financial regulator"], answer: 0, explanation: "DeFi refers to financial applications built on blockchain infrastructure without traditional intermediaries." },
+  { text: "Which of the following would be considered a DeFi token?", options: ["Hex or YFI", "A government-issued CBDC", "A traditional bank savings account", "A physical gold bar"], answer: 0, explanation: "Hex and YFI are examples of DeFi tokens, native to decentralized finance applications." },
+  { text: "How can DeFi applications let holders earn interest without a traditional bank?", options: ["Through code-based (smart contract) mechanisms that automatically distribute rewards for participation, like lending or liquidity provision", "By manually mailing checks to users", "Through government subsidy programs only", "DeFi applications cannot offer interest"], answer: 0, explanation: "DeFi uses smart-contract-based mechanisms to automatically distribute interest/rewards without a bank." },
+  { text: "What is a key feature that distinguishes DeFi from traditional finance?", options: ["The removal of traditional banks/intermediaries, replaced by blockchain-based smart contracts", "DeFi requires more paperwork than traditional finance", "DeFi is always run by a single central bank", "DeFi cannot involve lending or trading"], answer: 0, explanation: "DeFi's key feature is removing traditional intermediaries, replacing them with blockchain-based smart contracts." },
+  { text: "Which of these activities is commonly associated with DeFi applications?", options: ["Lending, trading, and earning interest", "Printing physical currency", "Issuing government bonds", "Setting national interest rates"], answer: 0, explanation: "DeFi applications commonly support lending, trading, and earning interest." },
+  { text: "Why might 'Decentralized Finance Token' be described as representing 'modern finance'?", options: ["Because it can give holders interest directly through code, without relying on a traditional bank intermediary", "Because it eliminates the concept of money entirely", "Because it only works with physical cash", "Because it requires a government charter to operate"], answer: 0, explanation: "DeFi tokens represent a shift toward interest paid directly via code, rather than through a bank." },
+  { text: "What underlying blockchain feature makes automated DeFi lending/interest possible?", options: ["Smart contracts, which execute financial logic automatically when conditions are met", "Physical bank vaults", "Government-issued paper certificates", "Manual approval by a bank teller"], answer: 0, explanation: "Smart contracts are the underlying feature enabling automated DeFi financial logic." },
+  { text: "Which of the following best describes the relationship between DEXs and DeFi?", options: ["DEXs are a core component of the broader DeFi ecosystem, enabling decentralized trading", "DEXs and DeFi are entirely unrelated concepts", "DeFi only refers to centralized exchanges", "DEXs replace the need for blockchain entirely"], answer: 0, explanation: "DEXs are a core part of the DeFi ecosystem, providing decentralized trading infrastructure." },
+  { text: "Why is DeFi considered a significant shift in how financial services can be delivered?", options: ["It enables lending, trading, and interest-earning directly through blockchain code, without needing traditional banking intermediaries", "It requires more bureaucracy than traditional finance", "It only works for large institutions", "It has no real functional difference from traditional banks"], answer: 0, explanation: "DeFi's significance lies in delivering financial services directly through code, bypassing traditional banking intermediaries." },
+
+  // SECTION 9: ASSET TOKENIZATION
+  { text: "What is asset tokenization?", options: ["The process of converting an asset — digital or real-world — into a digital token on a blockchain network", "The process of destroying a digital asset", "A type of consensus mechanism", "A cryptographic hash function"], answer: 0, explanation: "Tokenization converts an asset (digital or real-world) into a digital token on a blockchain." },
+  { text: "Which of the following can be tokenized, according to this course's material?", options: ["Real estate, stocks, commodities, and fiat currencies, in addition to digital assets", "Only cryptocurrencies", "Only NFT art", "Nothing outside of Bitcoin"], answer: 0, explanation: "Tokenization applies broadly, including real estate, stocks, commodities, and fiat currencies." },
+  { text: "What is 'Minting,' in the tokenization process?", options: ["The act of creating (issuing) the actual tokens on the blockchain according to the smart contract's rules", "The act of destroying tokens permanently", "A type of consensus mechanism", "A hardware wallet feature"], answer: 0, explanation: "Minting is the act of creating/issuing tokens on the blockchain per the smart contract's rules." },
+  { text: "Why must a smart contract for a new token be written inside an already-existing blockchain?", options: ["Because if a chain isn't ready (still being developed), it isn't yet possible to release a coin on it", "Smart contracts can exist without any blockchain at all", "New blockchains are always instantly ready for token creation", "This requirement does not actually exist"], answer: 0, explanation: "A chain must be functional/ready before a smart contract token can actually be released on it." },
+  { text: "Which programming language is commonly used to write smart contracts for Ethereum-based tokenization?", options: ["Solidity", "COBOL", "Assembly only", "SQL"], answer: 0, explanation: "Solidity is the dominant language for writing Ethereum smart contracts." },
+  { text: "What does commodity tokenization typically represent?", options: ["Precious metals such as gold and silver, represented as tokens", "Only digital art", "Only government bonds", "Only social media accounts"], answer: 0, explanation: "Commodity tokenization commonly represents precious metals like gold and silver." },
+  { text: "What is a real estate token meant to represent?", options: ["Property ownership/value represented as a tradeable digital token", "A random meme image", "A government ID", "A type of consensus mechanism"], answer: 0, explanation: "Real estate tokens represent property ownership or value as a tradeable digital asset." },
+  { text: "What is a 'blockchain meme' tokenization example, as covered in this course?", options: ["Novelty/community-driven coins (e.g. themed around a cat, teddy bear, or public figure) created largely for cultural/speculative purposes", "A serious government financial instrument", "A regulated banking product", "A type of consensus algorithm"], answer: 0, explanation: "Meme tokenization refers to novelty, community-driven coins created for cultural/speculative reasons." },
+  { text: "According to the notes, what basic market dynamic affects a newly trading coin's price?", options: ["The lower the number of holders willing to sell at first trading, the higher the price tends to be pushed", "Price is always fixed regardless of selling behavior", "More sellers always increases price", "Price has no relationship to supply/demand"], answer: 0, explanation: "Fewer willing sellers at launch (scarce supply relative to demand) tends to push the price higher." },
+  { text: "What must generally be true about a blockchain before a token can be tokenized/minted on it?", options: ["The blockchain must already exist and be functional/ready to host the smart contract", "The blockchain must be brand new and untested", "No blockchain is actually required", "The blockchain must belong to a government"], answer: 0, explanation: "The host blockchain must already exist and be ready before a token can be minted on it." },
+  { text: "Which best describes the overall goal of tokenizing traditional real-world assets like real estate or commodities?", options: ["To bring them onto blockchain infrastructure for improved liquidity, accessibility, and tradability", "To make them completely illiquid", "To remove all forms of ownership", "To eliminate their real-world value entirely"], answer: 0, explanation: "Tokenizing real-world assets aims to improve their liquidity and accessibility via blockchain infrastructure." },
+  { text: "In the tokenization process, what typically comes first: asset selection or minting?", options: ["Asset selection, followed eventually by minting the actual tokens", "Minting always happens before any asset is selected", "They always happen simultaneously with no order", "Neither step is part of tokenization"], answer: 0, explanation: "Asset selection logically precedes minting, since you must decide what's being tokenized before creating the tokens." },
+  { text: "What does a smart contract do once a token has been tokenized on a host blockchain like Ethereum?", options: ["It governs the rules for that token, since it becomes a token relying on the host blockchain via the smart contract", "It has no further role after minting", "It deletes the host blockchain", "It converts the token back into a coin automatically"], answer: 0, explanation: "The smart contract continues to govern the token's rules and behavior on its host blockchain." },
+  { text: "Which of the following would be an example of tokenizing a fiat currency?", options: ["A stablecoin pegged to the US Dollar (e.g. USDT)", "Bitcoin", "A meme coin with no peg", "A governance token"], answer: 0, explanation: "Stablecoins like USDT are examples of tokenized fiat currency, pegged to the US Dollar." },
+  { text: "Why is tokenization considered relevant beyond just cryptocurrency enthusiasts?", options: ["Because it extends blockchain technology's benefits (liquidity, accessibility) to traditional real-world assets like stocks and real estate", "Because it only benefits cryptocurrency miners", "Because it has no real-world financial application", "Because it eliminates the need for any asset ownership"], answer: 0, explanation: "Tokenization extends blockchain's benefits to traditional finance and real-world assets, broadening its relevance." },
+
+  // SECTION 10: MAJOR BLOCKCHAIN NETWORKS
+  { text: "Which cryptocurrency is widely regarded as the first and most dominant?", options: ["Bitcoin", "Ethereum", "Dogecoin", "Solana"], answer: 0, explanation: "Bitcoin is the first and most dominant cryptocurrency by market cap." },
+  { text: "Which of the following is a fork/split related to Bitcoin?", options: ["Bitcoin Cash (BCH)", "Ethereum", "Solana", "PulseChain"], answer: 0, explanation: "Bitcoin Cash (BCH) is a fork created from Bitcoin's original codebase/history." },
+  { text: "Which coin was originally created as a lighthearted, meme-based cryptocurrency, later gaining major attention partly due to high-profile investment interest?", options: ["Dogecoin", "Bitcoin", "Ethereum", "Litecoin"], answer: 0, explanation: "Dogecoin began as a meme coin and later gained major attention, including investment interest from Elon Musk." },
+  { text: "Which blockchain introduced programmable smart contracts and the first tokens?", options: ["Ethereum", "Bitcoin", "Dogecoin", "Litecoin"], answer: 0, explanation: "Ethereum introduced programmable smart contracts and pioneered tokens." },
+  { text: "What is BNB Chain?", options: ["Binance's own native blockchain", "A fork of Bitcoin", "A stablecoin", "A hardware wallet"], answer: 0, explanation: "BNB Chain is Binance's own native blockchain." },
+  { text: "What is BSC (Binance Smart Chain)?", options: ["An EVM-compatible chain associated with Binance, allowing Ethereum-style smart contracts and tokens", "A type of hardware wallet", "A fork of Dogecoin", "A cryptographic algorithm"], answer: 0, explanation: "BSC is an EVM-compatible chain associated with Binance, supporting Ethereum-style smart contracts." },
+  { text: "Which blockchain network is known for high transaction throughput and low fees?", options: ["Solana", "Bitcoin", "A generic private ledger", "None of these are known for this"], answer: 0, explanation: "Solana is known for high throughput and low transaction fees." },
+  { text: "What is PulseChain?", options: ["An EVM-compatible network using a fungible token standard similar to Ethereum's", "A fork of Bitcoin only", "A hardware wallet manufacturer", "A cryptographic hash function"], answer: 0, explanation: "PulseChain is an EVM-compatible blockchain network." },
+  { text: "What historic event is often remembered as the first real-world purchase made using cryptocurrency?", options: ["Someone famously spending a large amount of Bitcoin to buy everyday goods (widely remembered as the 'Bitcoin Pizza' event)", "The launch of Ethereum", "The creation of the first NFT", "The founding of a central bank"], answer: 0, explanation: "The 'Bitcoin Pizza' event is remembered as the first real-world crypto purchase." },
+  { text: "Before Bitcoin gained real-world purchasing recognition, how were early cryptocurrencies often described?", options: ["As 'experimental coins,' obtained only via mining", "As government-backed currencies", "As physical printed money", "As stock certificates"], answer: 0, explanation: "Early cryptocurrencies were dismissively called 'experimental coins,' obtained only through mining." },
+  { text: "Which high-profile individual is noted for investing in Dogecoin, boosting its attention?", options: ["Elon Musk", "A random anonymous miner", "A central bank governor", "A national president"], answer: 0, explanation: "Elon Musk's investment/attention is credited with boosting Dogecoin's profile." },
+  { text: "Which network relationship is correctly described: Litecoin's origins?", options: ["Litecoin is a Bitcoin-inspired network, often described as designed for faster, lighter transactions", "Litecoin predates Bitcoin", "Litecoin has no relation to Bitcoin at all", "Litecoin is a CBDC"], answer: 0, explanation: "Litecoin is a Bitcoin-inspired network designed with faster, lighter transactions in mind." },
+  { text: "Which of the following pairs correctly matches a blockchain to a related network it's associated with?", options: ["Binance — BNB Chain/BSC", "Bitcoin — Ethereum", "Ethereum — Dogecoin", "Solana — Bitcoin Cash"], answer: 0, explanation: "Binance is associated with BNB Chain and BSC, its own native/related networks." },
+  { text: "Why does Ethereum host such a large share of all existing tokens?", options: ["Because it introduced programmable smart contracts, making it the primary host blockchain for tokens", "Because it has no smart contract capability", "Because all tokens are legally required to use Ethereum", "Because Ethereum has the lowest market cap"], answer: 0, explanation: "Ethereum's smart contract capability made it the primary host blockchain for a huge share of tokens." },
+  { text: "What is a defining characteristic separating a Bitcoin 'fork' like Bitcoin Cash from an entirely unrelated blockchain?", options: ["A fork originates from splitting Bitcoin's existing codebase/history, rather than being built independently from scratch", "A fork has no relationship to the original blockchain at all", "Forks are always unrelated to their origin chain", "There is no meaningful distinction"], answer: 0, explanation: "A fork originates by splitting from an existing blockchain's codebase/history, unlike an independently built chain." },
+
+  // SECTION 11: CRYPTOGRAPHY FUNDAMENTALS
+  { text: "What is cryptography, broadly defined?", options: ["The practice of securing information so only intended parties can access it", "The practice of mining physical minerals", "A type of blockchain consensus mechanism", "A wallet brand"], answer: 0, explanation: "Cryptography is the practice of securing information so only intended parties can access it." },
+  { text: "Which ancient cipher is commonly cited as an early example of cryptography?", options: ["The Caesar cipher", "SHA-256", "RSA", "ECDSA"], answer: 0, explanation: "The Caesar cipher, a simple substitution cipher, is a classic early cryptography example." },
+  { text: "Which mechanical cipher device from the 20th century is a well-known historical cryptography example?", options: ["The Enigma machine", "MetaMask", "A hardware wallet", "A DEX"], answer: 0, explanation: "The Enigma machine is a famous 20th-century mechanical cipher device." },
+  { text: "What development in the 1970s made modern secure digital communication (and eventually blockchain) possible?", options: ["Public-key cryptography breakthroughs", "The invention of the printing press", "The creation of the first stablecoin", "The founding of the first central bank"], answer: 0, explanation: "1970s public-key cryptography breakthroughs enabled modern secure digital communication and blockchain." },
+  { text: "In symmetric cryptography, how many keys are used to both encrypt and decrypt data?", options: ["The same single key for both", "Two completely unrelated keys", "No keys at all", "A different key for every byte of data"], answer: 0, explanation: "Symmetric cryptography uses the same single key for both encryption and decryption." },
+  { text: "In asymmetric (public-key) cryptography, what two components make up the key pair?", options: ["A public key (shareable) and a private key (kept secret)", "Two identical public keys", "Two identical private keys", "A username and password only"], answer: 0, explanation: "Asymmetric cryptography uses a public key (shareable) and a private key (secret)." },
+  { text: "What is cryptographic hashing?", options: ["A one-way function converting input data into a fixed-length output, where even a tiny input change drastically changes the output", "A reversible encryption method", "A type of consensus mechanism", "A hardware wallet feature"], answer: 0, explanation: "Hashing is a one-way function producing a fixed-length output that changes drastically with tiny input changes." },
+  { text: "Why can a cryptographic hash not be reversed back into its original input?", options: ["Because hashing is specifically designed as a one-way function", "Because hashing uses no mathematical structure at all", "Hashes can actually always be reversed easily", "Because hashes are simply random with no algorithm"], answer: 0, explanation: "Hash functions are deliberately designed to be one-way (non-reversible)." },
+  { text: "How is hashing used in blockchain technology?", options: ["To link blocks together securely and verify data integrity", "To generate wallet passwords manually", "To physically mine minerals", "To centralize the ledger in one location"], answer: 0, explanation: "Hashing links blocks together securely and verifies data integrity in a blockchain." },
+  { text: "Which cryptographic hash function is notably used in Bitcoin's Proof of Work mining process?", options: ["SHA-256", "RSA", "AES", "MetaMask"], answer: 0, explanation: "SHA-256 is the hash function used in Bitcoin's mining process." },
+  { text: "Which algorithm is used to generate the public/private key pairs behind most blockchain wallet addresses and to digitally sign transactions?", options: ["ECDSA (Elliptic Curve Digital Signature Algorithm)", "AES", "SHA-256 alone", "A symmetric-only cipher"], answer: 0, explanation: "ECDSA generates key pairs for wallet addresses and digitally signs blockchain transactions." },
+  { text: "Which algorithm is described as an older but still widely used asymmetric encryption algorithm foundational to modern public-key cryptography?", options: ["RSA", "AES", "SHA-256", "ECDSA exclusively"], answer: 0, explanation: "RSA is a foundational, widely used asymmetric encryption algorithm." },
+  { text: "Which algorithm is a common symmetric encryption algorithm used to secure data at rest, such as an encrypted wallet file?", options: ["AES (Advanced Encryption Standard)", "RSA", "ECDSA", "SHA-256"], answer: 0, explanation: "AES is a common symmetric algorithm used to secure data at rest, like a wallet file." },
+  { text: "How does public-key cryptography let someone prove a transaction was authorized without revealing their private key?", options: ["By digitally signing the transaction with the private key, which can be verified using the corresponding public key, without exposing the private key itself", "By emailing the private key to the recipient", "By printing the private key on the transaction receipt", "By avoiding the use of any keys entirely"], answer: 0, explanation: "A digital signature can be verified using the public key without ever exposing the private key." },
+  { text: "Which of the following best distinguishes symmetric from asymmetric cryptography?", options: ["Symmetric uses one shared key for both encryption/decryption; asymmetric uses a mathematically linked public/private key pair", "They are functionally identical", "Symmetric always uses two different keys", "Asymmetric cryptography does not use keys at all"], answer: 0, explanation: "Symmetric cryptography uses one shared key; asymmetric uses a linked public/private key pair." },
+  { text: "Why is symmetric cryptography considered less common directly within blockchain transaction verification, compared to asymmetric cryptography?", options: ["Because of key-sharing challenges — a single shared key would need to be securely distributed, which is harder to manage safely at scale", "Because symmetric cryptography does not exist", "Because asymmetric cryptography is illegal in blockchain use", "Because symmetric cryptography is always faster and simpler to use in every context"], answer: 0, explanation: "Symmetric cryptography's need to securely share a single key makes it less suited to trustless blockchain verification." },
+  { text: "What overall role does cryptography play across the layers of a blockchain system?", options: ["It secures wallet addresses, signs and verifies transactions, and links blocks together via hashing", "It has no functional role in blockchain", "It only affects the visual design of wallet apps", "It replaces the need for consensus entirely"], answer: 0, explanation: "Cryptography secures addresses, signs/verifies transactions, and links blocks via hashing throughout blockchain systems." },
+  { text: "Historically, what types of communication did early cryptography (like the Caesar cipher) primarily aim to protect?", options: ["Wartime and diplomatic messages", "Cryptocurrency transactions", "Blockchain smart contracts", "NFT metadata"], answer: 0, explanation: "Early cryptography, like the Caesar cipher, was primarily used to protect wartime and diplomatic communication." },
+
+  // SECTION 12: CRYPTO MARKET ANALYSIS AND RANKINGS
+  { text: "Why did crypto ranking emerge as a practice?", options: ["Directly out of the proliferation of blockchain projects, to help investors evaluate size, stability, and popularity amid thousands of coins/tokens", "Because governments mandated it", "Because there was only ever one cryptocurrency to rank", "Because rankings have no practical purpose"], answer: 0, explanation: "Crypto ranking emerged to help investors navigate the proliferation of blockchain projects." },
+  { text: "What is the formula for Market Capitalization?", options: ["Current Trading Price × Circulating Supply", "Total Value Locked ÷ Trading Volume", "Max Supply × Fear and Greed Index", "Total exchange volume × number of wallets"], answer: 0, explanation: "Market Capitalization = Current Trading Price × Circulating Supply." },
+  { text: "What does Market Capitalization primarily serve as a metric for?", options: ["Gauging a coin's size and assessing risk", "Measuring transaction speed only", "Measuring wallet security", "Measuring the number of nodes only"], answer: 0, explanation: "Market Cap is the primary metric for a coin's size and risk assessment." },
+  { text: "According to the material, roughly what share of the total crypto market cap has Bitcoin commanded?", options: ["Around 56–58%", "Around 5%", "Around 99%", "Around 15%"], answer: 0, explanation: "Bitcoin has been cited as commanding roughly 56–58% of the total crypto market cap." },
+  { text: "Which platform is described as the industry standard for comprehensive crypto market data?", options: ["CoinMarketCap", "A random personal blog", "A single Twitter account", "A local newspaper"], answer: 0, explanation: "CoinMarketCap is described as the industry standard for comprehensive market data." },
+  { text: "Which platform is known for tracking developer activity and NFT rankings, and tracks over 10,000 assets?", options: ["CoinGecko", "A generic search engine", "A hardware wallet app", "A government finance portal"], answer: 0, explanation: "CoinGecko is known for tracking developer activity, NFT rankings, and over 10,000 assets." },
+  { text: "Which of these are described as alternative, more niche crypto ranking tools?", options: ["CoinRanking, CryptoSlate, and CryptoRank", "MetaMask and hardware wallets", "SHA-256 and RSA", "Solidity and Java"], answer: 0, explanation: "CoinRanking, CryptoSlate, and CryptoRank are mentioned as more niche ranking tools." },
+  { text: "What do CryptoBubbles and BanterBubbles visualize?", options: ["Market movements and relative size using physics-based bubble visualizations", "Only text-based lists with no visuals", "Wallet passwords", "Consensus mechanism code"], answer: 0, explanation: "CryptoBubbles and BanterBubbles use physics-based bubbles to visualize market movements and size." },
+  { text: "What does Bubblemaps.io specialize in?", options: ["Mapping wallet connections directly on-chain to reveal insider clusters and market 'whales'", "Tracking only fiat currency exchange rates", "Mining Bitcoin directly", "Issuing CBDCs"], answer: 0, explanation: "Bubblemaps.io maps on-chain wallet connections to reveal insider clusters and whales." },
+  { text: "What do DexScreener and GeckoTerminal specialize in tracking?", options: ["Real-time analytics for decentralized exchange (DEX) liquidity and token trading pairs across many blockchains", "Only centralized exchange data", "Only NFT ownership records", "Only hardware wallet firmware updates"], answer: 0, explanation: "DexScreener and GeckoTerminal track real-time DEX liquidity and trading pairs across many blockchains." },
+  { text: "What does TVL (Total Value Locked) measure?", options: ["The total value of assets deposited/locked in a DeFi protocol", "The total number of wallet addresses ever created", "The market cap of Bitcoin alone", "The number of blocks mined per day"], answer: 0, explanation: "TVL measures the total value of assets locked in a DeFi protocol." },
+  { text: "Why is a high TVL generally considered a positive sign for a project?", options: ["It suggests genuine usage, rather than being a 'zombie' project with no real activity", "It always guarantees the coin's price will rise", "It has no relationship to a project's legitimacy", "It indicates the project has failed"], answer: 0, explanation: "High TVL suggests genuine usage and activity, distinguishing a project from a hollow 'zombie' coin." },
+  { text: "What does FDV (Fully Diluted Valuation) reveal?", options: ["What the market cap would be if the maximum possible supply were all in circulation, revealing future dilution risk", "The current trading price only", "The number of active wallet addresses", "The total exchange volume"], answer: 0, explanation: "FDV shows the hypothetical market cap at maximum supply, revealing dilution risk." },
+  { text: "What does the Fear & Greed Index gauge?", options: ["Overall market sentiment/emotion", "The exact price of Bitcoin", "The total number of blockchain nodes", "The speed of transaction confirmation"], answer: 0, explanation: "The Fear & Greed Index gauges overall market sentiment/emotion." },
+  { text: "What is a 'Zombie Coin'?", options: ["A token with a high theoretical market cap based on massive supply, but with little to no real-world usage, trading volume, or liquidity", "A coin specifically designed for Halloween-themed NFTs", "A coin with the highest trading volume in the market", "A coin banned by every government"], answer: 0, explanation: "A Zombie Coin has an inflated theoretical market cap but lacks genuine usage/liquidity." },
+  { text: "Why should market cap alone not be fully trusted when evaluating a coin?", options: ["Because it can be misleadingly inflated by simply minting a huge token supply, without real usage behind it", "Because market cap is always 100% accurate with no caveats", "Because market cap cannot be calculated at all", "Because market cap only applies to Bitcoin"], answer: 0, explanation: "Market cap can be artificially inflated by a large supply alone, without genuine usage behind it." },
+  { text: "What is 'rank fixing'?", options: ["Overriding or bypassing a ranking website's normal methodology, sometimes to drive away investors from a competing asset", "A government regulation improving ranking accuracy", "A type of consensus mechanism", "A hardware wallet security feature"], answer: 0, explanation: "Rank fixing involves manipulating a ranking platform's normal methodology, sometimes for competitive reasons." },
+  { text: "Which metric shows organic adoption of a blockchain project, beyond just price speculation?", options: ["On-chain activity, such as active addresses and transaction volume", "The coin's logo design", "The founder's social media follower count alone", "The length of the project's whitepaper"], answer: 0, explanation: "On-chain activity (active addresses, transaction volume) shows organic adoption beyond speculation." },
+  { text: "What does 'Circulating Supply' refer to, as used in the Market Cap formula?", options: ["The amount of a coin's total supply that is currently available and trading in the market", "The maximum number of coins that could ever be created", "The number of wallets holding the coin", "The number of exchanges listing the coin"], answer: 0, explanation: "Circulating supply is the portion of a coin's total supply currently available/trading in the market." },
+  { text: "What is the difference between 'Circulating Supply' and 'Max Supply'?", options: ["Circulating supply is currently available/trading; max supply is the maximum number of coins that can ever exist", "They are always identical numbers", "Max supply is always smaller than circulating supply", "Circulating supply refers only to NFTs"], answer: 0, explanation: "Circulating supply is currently trading; max supply is the hard cap on total possible coins." },
+
+  // SECTION 13: PROGRAMMING IN CRYPTOGRAPHY AND BLOCKCHAIN
+  { text: "Which programming language was historically used to build Bitcoin's core client software?", options: ["C++", "Python", "Solidity", "Java"], answer: 0, explanation: "C++ was chosen for Bitcoin's core client, valued for performance and low-level control." },
+  { text: "Which language is the dominant choice for writing smart contracts on Ethereum and other EVM-compatible chains?", options: ["Solidity", "C++", "Java", "SQL"], answer: 0, explanation: "Solidity is the dominant smart contract language for Ethereum and EVM-compatible chains." },
+  { text: "Which language is widely used for building blockchain-facing web applications and interacting with wallets like MetaMask from the browser?", options: ["JavaScript", "Solidity", "C++", "Assembly"], answer: 0, explanation: "JavaScript is widely used for web apps that interact with browser wallets like MetaMask." },
+  { text: "Which language is popular for prototyping cryptographic algorithms and blockchain data analysis due to its readability and libraries?", options: ["Python", "Solidity", "C++", "COBOL"], answer: 0, explanation: "Python's readability and rich libraries make it popular for prototyping and data analysis." },
+  { text: "Which language is used in Hyperledger, an enterprise-focused permissioned blockchain framework?", options: ["Java", "Solidity", "C++", "JavaScript"], answer: 0, explanation: "Java is used in Hyperledger, a framework favored for private/consortium blockchain applications." },
+  { text: "Why was C++ historically chosen to build Bitcoin's core software?", options: ["For its performance and low-level control", "Because it was the only language that existed at the time", "Because it is the easiest language to learn", "Because it cannot run on servers"], answer: 0, explanation: "C++'s performance and low-level control made it suitable for Bitcoin's core client." },
+  { text: "What kind of blockchain applications is Hyperledger typically favored for?", options: ["Private/consortium (permissioned) blockchain applications, often enterprise-focused", "Public, permissionless meme coins", "NFT art marketplaces exclusively", "Consumer mobile games only"], answer: 0, explanation: "Hyperledger is favored for private/consortium, enterprise-focused blockchain applications." },
+  { text: "What do developers use Solidity specifically to write?", options: ["Smart contracts that run on Ethereum and EVM-compatible chains", "Bitcoin's core mining software", "Hardware wallet firmware exclusively", "Operating system kernels"], answer: 0, explanation: "Solidity is used specifically to write smart contracts for Ethereum and EVM-compatible chains." },
+  { text: "Which language would a developer most likely use to quickly prototype and test a new cryptographic algorithm?", options: ["Python", "Solidity", "A hardware description language only", "None — cryptography cannot be prototyped in software"], answer: 0, explanation: "Python's simplicity and libraries make it a common choice for prototyping cryptographic algorithms." },
+  { text: "Why might a project choose Java and Hyperledger over Solidity and Ethereum?", options: ["If it needs a private/permissioned enterprise blockchain rather than a public smart contract platform", "Because Java cannot be used for blockchain development at all", "Because Solidity is a general-purpose language unrelated to blockchains", "There is no meaningful reason to ever choose one over the other"], answer: 0, explanation: "Java/Hyperledger suits private/permissioned enterprise needs, distinct from Solidity/Ethereum's public smart contract model." },
+
+  // SECTION 14: REAL-WORLD APPLICATIONS, CASE STUDIES, AND GLOBAL OUTLOOK
+  { text: "Which of the following is a real-world application of a public blockchain, as covered in this course?", options: ["Bitcoin, used for peer-to-peer digital currency and censorship-resistant value transfer", "A private company's internal spreadsheet", "A physical bank vault", "A paper ledger with no digital component"], answer: 0, explanation: "Bitcoin is the classic real-world application of public blockchain technology." },
+  { text: "Which country's CBDC (eNaira) is highlighted as a real-world application of private/government-controlled blockchain infrastructure?", options: ["Nigeria", "A hypothetical country with no digital currency", "A country with no central bank", "A purely private company"], answer: 0, explanation: "Nigeria's eNaira is highlighted as a real-world CBDC application." },
+  { text: "According to the material, which emerging market region is specifically highlighted as showing growing interest in tokenization and crypto adoption?", options: ["Nigeria / emerging African economies", "Only Western Europe", "Only North America", "No specific region is highlighted"], answer: 0, explanation: "Nigeria and emerging economies are specifically highlighted for growing crypto/tokenization interest." },
+  { text: "What opportunity is cited as driving crypto/tokenization interest in emerging markets like Nigeria?", options: ["Cross-border transactions and tokenizing physical/real-world assets to improve liquidity and accessibility", "A complete absence of any financial need", "A government ban on all digital currency", "Guaranteed zero-risk investment returns"], answer: 0, explanation: "Cross-border transactions and asset tokenization for liquidity/accessibility are cited as key drivers." },
+  { text: "What is the purpose of cross-border tokenized asset platforms, as described in this course's material?", options: ["To bridge financial networks between regions (e.g. the US and Africa) and the rest of the world, making investment more decentralized and accessible", "To restrict all international financial transactions", "To eliminate the concept of international trade", "To replace all national currencies with a single global currency by force"], answer: 0, explanation: "Cross-border tokenized platforms aim to bridge regional financial networks and broaden accessible investment opportunities." },
+  { text: "Which proposed US regulatory frameworks are mentioned as potentially driving institutional adoption of tokenized financial assets (2025–2026)?", options: ["The GENIUS Act and the Clarity Act", "The Sarbanes-Oxley Act only", "A single global crypto ban", "No regulatory frameworks are being discussed"], answer: 0, explanation: "The GENIUS Act and Clarity Act are mentioned as proposed frameworks shaping institutional adoption." },
+  { text: "What is the general purpose of evolving regulatory frameworks around tokenized financial assets?", options: ["To provide clearer legal treatment for digital assets and encourage institutional adoption", "To make all cryptocurrency illegal worldwide", "To eliminate blockchain technology entirely", "To prevent any future innovation in finance"], answer: 0, explanation: "Evolving regulation aims to clarify legal treatment and support institutional adoption of digital assets." },
+  { text: "Which of the following best describes DeFi's real-world application, as covered in this course?", options: ["Enabling lending, trading, and earning interest without traditional banking intermediaries", "Only enabling physical cash withdrawals", "Replacing the need for the internet", "Eliminating all forms of digital security"], answer: 0, explanation: "DeFi's real-world application is enabling financial services (lending, trading, interest) without traditional banks." },
+  { text: "How might tokenizing real-world assets like real estate improve accessibility for investors in emerging markets?", options: ["By allowing fractional, more liquid ownership of assets that would otherwise be illiquid or hard to access directly", "By making the asset completely impossible to trade", "By requiring investors to physically relocate to own any share", "By eliminating the asset's real-world value entirely"], answer: 0, explanation: "Tokenization can enable fractional, more liquid ownership of otherwise illiquid or hard-to-access assets." },
+  { text: "Which best summarizes the overall global trend discussed regarding blockchain and tokenization's future?", options: ["Expansion into real-world applications, emerging markets, and increasingly clear regulatory frameworks worldwide", "A complete global shutdown of all blockchain projects", "No further growth or change expected in the technology", "A return to purely paper-based financial systems"], answer: 0, explanation: "The overall trend is expansion into real-world use, emerging markets, and clearer global regulation." },
+];
+
+
+// --- CONFIG ---
+const QUIZ_SIZE = 50;
+const TIME_LIMIT = 30 * 60;
+const MARKS_PER_Q = 1.4;
+const TOTAL_MARKS = Math.round(QUIZ_SIZE * MARKS_PER_Q * 10) / 10;
+
+document.getElementById('bank-size-line').textContent =
+  QUIZ_SIZE + " random questions selected from a master bank of " + rawQuizData.length + ".";
+
+// --- STATE ---
+let quizQuestions = [];
+let currentIndex = 0;
+let userAnswers = [];
+let timerInterval = null;
+let secondsLeft = TIME_LIMIT;
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildQuiz() {
+  const pool = shuffle(rawQuizData);
+  const chosen = pool.slice(0, Math.min(QUIZ_SIZE, rawQuizData.length));
+  quizQuestions = chosen.map(q => {
+    const optIdx = q.options.map((opt, i) => ({ opt, isCorrect: i === q.answer }));
+    const shuffled = shuffle(optIdx);
+    return {
+      text: q.text,
+      explanation: q.explanation,
+      options: shuffled.map(o => o.opt),
+      answer: shuffled.findIndex(o => o.isCorrect)
+    };
+  });
+  userAnswers = new Array(quizQuestions.length).fill(null);
+  currentIndex = 0;
+  secondsLeft = TIME_LIMIT;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startQuiz() {
+  buildQuiz();
+  document.getElementById('q-total').textContent = '/ ' + quizQuestions.length;
+  showScreen('quiz');
+  startTimer();
+  renderQuestion();
+  renderMap();
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    updateTimerDisplay();
+    if (secondsLeft <= 0) {
+      clearInterval(timerInterval);
+      finishQuiz();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(secondsLeft / 60);
+  const s = secondsLeft % 60;
+  const disp = document.getElementById('timer-display');
+  disp.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  disp.classList.remove('warning', 'danger');
+  if (secondsLeft <= 60) disp.classList.add('danger');
+  else if (secondsLeft <= 300) disp.classList.add('warning');
+}
+
+function renderQuestion() {
+  const q = quizQuestions[currentIndex];
+  const n = quizQuestions.length;
+  document.getElementById('q-counter').textContent = 'Q' + (currentIndex + 1);
+  document.getElementById('progress-fill').style.width = (currentIndex / (n - 1)) * 100 + '%';
+  document.getElementById('q-badge').textContent = 'QUESTION ' + String(currentIndex + 1).padStart(2, '0');
+  document.getElementById('question-text').textContent = q.text;
+
+  const card = document.getElementById('question-card');
+  card.classList.remove('slide-in');
+  void card.offsetWidth;
+  card.classList.add('slide-in');
+
+  const list = document.getElementById('options-list');
+  list.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.options.forEach((optText, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn' + (userAnswers[currentIndex] === i ? ' selected' : '');
+    btn.innerHTML = '<span class="option-letter">' + letters[i] + '</span><span>' + optText + '</span>';
+    btn.onclick = () => {
+      userAnswers[currentIndex] = i;
+      renderQuestion();
+      renderMap();
+    };
+    list.appendChild(btn);
+  });
+
+  document.getElementById('btn-prev').disabled = currentIndex === 0;
+  document.getElementById('btn-next').disabled = currentIndex === n - 1;
+}
+
+function renderMap() {
+  const map = document.getElementById('q-map');
+  map.innerHTML = '';
+  quizQuestions.forEach((q, i) => {
+    const dot = document.createElement('div');
+    let cls = 'q-dot';
+    if (i === currentIndex) cls += ' current';
+    else if (userAnswers[i] !== null) cls += ' answered';
+    dot.className = cls;
+    dot.textContent = i + 1;
+    dot.onclick = () => { currentIndex = i; renderQuestion(); renderMap(); };
+    map.appendChild(dot);
+  });
+}
+
+function navigate(dir) {
+  const newIndex = currentIndex + dir;
+  if (newIndex >= 0 && newIndex < quizQuestions.length) {
+    currentIndex = newIndex;
+    renderQuestion();
+    renderMap();
+  }
+}
+
+function showConfirmModal(message, onConfirm) {
+  const overlay = document.getElementById('modal-overlay');
+  document.getElementById('modal-message').textContent = message;
+  overlay.style.display = 'flex';
+
+  const confirmBtn = document.getElementById('modal-confirm');
+  const cancelBtn = document.getElementById('modal-cancel');
+
+  // Clone buttons to strip any previously attached one-time listeners
+  const newConfirm = confirmBtn.cloneNode(true);
+  const newCancel = cancelBtn.cloneNode(true);
+  confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
+  cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+
+  newConfirm.addEventListener('click', () => {
+    overlay.style.display = 'none';
+    onConfirm();
+  });
+  newCancel.addEventListener('click', () => {
+    overlay.style.display = 'none';
+  });
+}
+
+function confirmSubmit() {
+  const unanswered = userAnswers.filter(a => a === null).length;
+  const msg = unanswered > 0
+    ? 'You have ' + unanswered + ' unanswered question(s). Submit anyway?'
+    : 'Submit the exam now?';
+  showConfirmModal(msg, finishQuiz);
+}
+
+function finishQuiz() {
+  clearInterval(timerInterval);
+
+  let correct = 0, wrong = 0, skipped = 0;
+  quizQuestions.forEach((q, i) => {
+    if (userAnswers[i] === null) skipped++;
+    else if (userAnswers[i] === q.answer) correct++;
+    else wrong++;
+  });
+
+  const marks = Math.round(correct * MARKS_PER_Q * 10) / 10;
+  const pct = Math.round((correct / quizQuestions.length) * 100);
+
+  const scoreEl = document.getElementById('result-score');
+  scoreEl.textContent = marks + '/' + TOTAL_MARKS;
+  scoreEl.className = 'result-score ' + (pct >= 50 ? 'pass' : 'fail');
+
+  document.getElementById('result-emoji').textContent =
+    pct >= 85 ? '🏆' : pct >= 70 ? '🎯' : pct >= 50 ? '📚' : '💪';
+  document.getElementById('result-label').textContent =
+    correct + ' / ' + quizQuestions.length + ' correct (' + pct + '%)';
+
+  document.getElementById('stat-correct').textContent = correct;
+  document.getElementById('stat-wrong').textContent = wrong;
+  document.getElementById('stat-skip').textContent = skipped;
+
+  showScreen('result');
+}
+
+function showReview() {
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+
+  quizQuestions.forEach((q, i) => {
+    const chosen = userAnswers[i];
+    const status = chosen === null ? 'skipped' : (chosen === q.answer ? 'correct' : 'wrong');
+
+    const card = document.createElement('div');
+    card.className = 'review-card ' + status;
+
+    let yourAnsHtml = '';
+    if (chosen === null) {
+      yourAnsHtml = '<div class="review-ans">Your answer: <span class="ans-wrong">Skipped</span></div>';
+    } else {
+      yourAnsHtml = '<div class="review-ans">Your answer: <span class="' + (status === 'correct' ? 'ans-correct' : 'ans-wrong') + '">' +
+        letters[chosen] + '. ' + q.options[chosen] + '</span></div>';
+    }
+
+    let correctAnsHtml = '';
+    if (status !== 'correct') {
+      correctAnsHtml = '<div class="review-ans">Correct answer: <span class="ans-correct">' +
+        letters[q.answer] + '. ' + q.options[q.answer] + '</span></div>';
+    }
+
+    card.innerHTML =
+      '<div class="review-q">' + (i + 1) + '. ' + q.text + '</div>' +
+      yourAnsHtml + correctAnsHtml +
+      '<div class="review-exp">' + q.explanation + '</div>';
+
+    list.appendChild(card);
+  });
+
+  showScreen('review');
+}
+
+function backToResults() {
+  showScreen('result');
+}
+</script>
+</body>
+</html>
