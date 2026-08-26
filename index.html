@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -80,7 +80,7 @@ html, body {
 .splash-title {
   font-size: 40px;
   font-weight: 900;
-  line-height: 1.1;
+  line-height: 1.1; 
   animation: fadeUp 0.7s ease both;
 }
 
@@ -196,7 +196,7 @@ html, body {
   font-size: 19px;
   font-weight: 800;
   margin-bottom: 8px;
-}
+}    
 
 .card-topics {
   font-size: 12px;
@@ -599,92 +599,92 @@ html, body {
 
 const courses = [
 
-  // ── COURSE 1: IFT 211 ─────────────────────────────────────────────────────
+  // ── COURSE 1: IFT 212.2 ─────────────────────────────────────────────────────
   {
-    code:      "IFT 211",
-    name:      "Digital Logic Design",
+    code:      "IFT 212.2",
+    name:      "Computer Architecture and Organization",
     emoji:     "⚡",
-    topics:    "Data Representation · Number Systems\nLogic Gates · Boolean Algebra\nBinary Arithmetic · Flip-Flops\nInstruction Cycle · Computer Architecture",
+    topics:    "Data Representation · Number Systems · Memory Management Unit · Flip-Flops\nInstruction Cycle · Computer Architecture",
     accent:    "#00d4ff",
-    quizFile:  "IFT211_CBT_Quiz.html",    // ← quiz HTML filename (same folder as this file)
-    notesFile: "IFT211_Digital_Logic_Design_Notes.pdf",                  // ← PDF filename or null if no PDF yet
+    quizFile:  "IFT211_CBT_Quiz.html",  // ← quiz HTML filename (same folder as this file)
+    notesFile: "IFT212.2_Computer_Architecture_Notes-1.pdf",                 // ← PDF filename or null if no PDF yet
   },
 
-  // ── COURSE 2: CSC 203.1 ───────────────────────────────────────────────────
+  // ── COURSE 2: DTS 204.2 ───────────────────────────────────────────────────
   {
-    code:      "CSC 203.1",
-    name:      "Discrete Structures",
+    code:      "DTS 204.2",
+    name:      "Data Management 1",
     emoji:     "∑",
-    topics:    "Set Theory · Mathematical Logic\nProofs & Induction · Graph Theory\nBoolean Algebra · Matrices\nCounting · Probability Generating Functions",
+    topics:    "Population, samples and sampling method . Asymptotics Statistics and sampling Distribution . Elementary time Series Analysis",
     accent:    "#7c3aed",
-    quizFile:  "CSC203_Discrete_Structures_CBT.html",            // ← quiz HTML filename
-    notesFile: "CSC203_Discrete_Structures_Notes.pdf",  // ← PDF filename
+    quizFile:  "DTS 204.2 cbt quiz.html",            // ← quiz HTML filename
+    notesFile: "DTS204.2_Data_Management_Notes.pdf",  // ← PDF filename
   },
 
-  // ── COURSE 2: CSC 201.1 ───────────────────────────────────────────────────
+  // ── COURSE 3: CSC 201.1 ───────────────────────────────────────────────────
   {
-    code:      "CSC 201.1",
+    code:      "CSC 202.2",
     name:      "Computer Programming 1",
     emoji:     "🖥️",
     topics:    "Introduction to java programming . Java Data types . Conditional Statements",
     accent:    "#84cc16",
-    quizFile:  "CSC201_CBT_Quiz.html", 
-    notesFile: "CSC201_Computer_Programming_Java.pdf",
+    quizFile:  "csc201_quiz.html", 
+    notesFile: "  ",
   },
 
-  // ── COURSE 2: CSC 286.1 ───────────────────────────────────────────────────
+  // ── COURSE 4: CSC 273.2 ───────────────────────────────────────────────────
   {
-    code:      "CSC 286.1",
-    name:      "Cloud Computing",
+    code:      "CSC 273.2",
+    name:      "Introduction to Cryptography and Blockchain Technology",
     emoji:     "☁️",
-    topics:    "Introduction to Cloud computing . Cloud programming fundamentals . Cloud development and deployment essentials",
+    topics:    "CryptoCurrencies . Tokens . Blockchains . Tokenization . Ranking Platforms",
     accent:    "#f97316",
     quizFile:  "csc281_quiz.html", 
-    notesFile: "CSC201_Cloud_computing_Notes.pdf",
+    notesFile: "CSC273.2_Cryptography_Blockchain_Notes.pdf",
   },
 
-  // ── COURSE 2: COS 270.1 ───────────────────────────────────────────────────
+  // ── COURSE 5: CSC 288.2 ───────────────────────────────────────────────────
   {
-    code:      "CSC 270.1",
-    name:      "UI/UX",
-    emoji:     "📴",
-    topics:    "Human computer interaction . Graphic user interface . Colour theorem",
+    code:      "CSC 288.2",
+    name:      "Interactive Programming using Java Script",
+    emoji:     "🖥️",
+    topics:    "Interactive Applications . Java Script Conditional Statement . Tenari Operators . loops",
     accent:    "#fb923c",
-    quizFile:  "CSC270_CBT_Quiz-1.html", 
-    notesFile: "CSC270_UI_UX_Notes-2.pdf",
+    quizFile:  "cos270.html", 
+    notesFile: "CSC288_2_Study_Guide-2.pdf",
   },
 
-  // ── COURSE 2: COS 238.1 ───────────────────────────────────────────────────
+  // ── COURSE 6: SEN 201.2 ───────────────────────────────────────────────────
   {
-    code:      "COS 238.1",
-    name:      "VB.Net",
+    code:      "SEN 201.2",
+    name:      "Software Engineering and Testing",
     emoji:     "👨‍💻",
-    topics:    "Introductiob into Object oriented programming . Introduction to GUI",
+    topics:    "Software Developement Life-Cycle . System Design . Software Testing . Coding",
     accent:    "#ef4444",
-    quizFile:  "VBNET_CBT_Quiz-2.html", 
-    notesFile: "VBNET_Notes-3.pdf",
+    quizFile:  "csc201_quiz.html", 
+    notesFile: "Software Engineering and Testing An Introduction.pdf",
   },
 
-  // ── COURSE 2: MTH 201.1 ───────────────────────────────────────────────────
+  // ── COURSE 7: MTH 250.2 ───────────────────────────────────────────────────
   {
-    code:      "MTH 201.1",
-    name:      "Mathemathical methods",
+    code:      "MTH 250.2",
+    name:      "Elementary Differential Equations",
     emoji:     "#",
-    topics:    "Introduction to java programming . Java Data types . Conditional Statements",
+    topics:    "Order and Degree . Homogenous Equation . First and Second order Differential Equations . Exact Differential Equation . Bernoulli's Equation",
     accent:    "#00d4ff",
-   // quizFile:  "csc201_quiz.html", 
-    notesFile: "CSC201_Computer_Programming_Notes.pdf",
+    quizFile:  "csc201_quiz.html", 
+    notesFile: "MTH250.2_Differential_Equations_Notes.pdf",
   },
 
-  // ── COURSE 2: CSC 281.1 ───────────────────────────────────────────────────
+  // ── COURSE 8: GES 212.2 ───────────────────────────────────────────────────
   {
-    code:      "CSC 281.1",
-    name:      "Introduction to cyber security",
-    emoji:     "#",
-    topics:    "Introduction to java programming . Java Data types . Conditional Statements",
+    code:      "GES 212.2",
+    name:      "Philosophy, Logic, and Critical Thinking",
+    emoji:     "🤔",
+    topics:    "Philosophy . Existence . Epistemology . Ethics",
     accent:    "#94a3b8",
-    quizFile:  "CSC281_CBT_Quiz.html", 
-    notesFile: "CSC281_Intro_Cyber_Technologies_Notes.pdf",
+    quizFile:  "GES212.2_Philosophy_CBT_Quiz.html", 
+    notesFile: "GES212.2_Philosophy_Notes-1.pdf",
   },
 
   // ── ADD NEW COURSE HERE ───────────────────────────────────────────────────
