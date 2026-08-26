@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GES 212.2 Philosophy CBT</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --surface: #111827;
+  --card: #1a2236;
+  --border: #1e3a5f;
+  --accent: #00d4ff;
+  --accent2: #237cae;
+  --green: #00ff88;
+  --red: #ff4466;
+  --yellow: #ffd700;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --glow: 0 0 20px rgba(0,212,255,0.3);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(0,212,255,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(124,58,237,0.06) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.screen { display: none; position: relative; z-index: 1; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ===== INTRO SCREEN ===== */
+#intro {
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0,212,255,0.08);
+  border: 1px solid var(--accent);
+  border-radius: 100px;
+  padding: 8px 20px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--accent);
+  letter-spacing: 2px;
+  margin-bottom: 2rem;
+  animation: fadeDown 0.6s ease;
+}
+
+.logo-badge::before { content: "▣"; animation: spin 3s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.intro-title {
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+  animation: fadeDown 0.7s ease;
+}
+
+.intro-title span {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.intro-sub { font-size: 1rem; color: var(--muted); margin-bottom: 3rem; animation: fadeDown 0.8s ease; }
+
+.info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; max-width: 600px; margin-bottom: 3rem; animation: fadeUp 0.9s ease; }
+
+.info-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1rem; text-align: center; }
+.info-card .val { font-size: 1.8rem; font-weight: 700; color: var(--accent); font-family: 'Share Tech Mono', monospace; display: block; }
+.info-card .lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+.rules { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem 2rem; max-width: 500px; text-align: left; margin-bottom: 2.5rem; animation: fadeUp 1s ease; }
+.rules h3 { color: var(--accent); font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem; font-family: 'Share Tech Mono', monospace; }
+.rules li { list-style: none; padding: 0.4rem 0; font-size: 0.9rem; color: var(--muted); padding-left: 1.2rem; position: relative; }
+.rules li::before { content: ">"; position: absolute; left: 0; color: var(--accent); }
+
+.btn-start {
+  background: linear-gradient(135deg, var(--accent), #0099cc);
+  color: #000; border: none; padding: 1rem 3rem; border-radius: 100px; font-family: 'Exo 2', sans-serif;
+  font-size: 1rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+  transition: all 0.3s; box-shadow: var(--glow); animation: fadeUp 1.1s ease;
+}
+.btn-start:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 0 40px rgba(0,212,255,0.5); }
+
+/* ===== QUIZ SCREEN ===== */
+#quiz { min-height: 100vh; }
+
+.quiz-header {
+  position: sticky; top: 0; z-index: 100; background: rgba(10,14,26,0.95); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); padding: 0.75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+
+.q-meta { display: flex; align-items: center; gap: 0.5rem; font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; }
+.q-counter { color: var(--accent); font-weight: 700; }
+.q-total { color: var(--muted); }
+
+.progress-bar-wrap { flex: 1; height: 4px; background: var(--border); border-radius: 10px; overflow: hidden; max-width: 300px; }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 10px; transition: width 0.4s ease; width: 0%; }
+
+.timer-wrap { display: flex; align-items: center; gap: 0.5rem; background: var(--card); border: 1px solid var(--border); border-radius: 100px; padding: 0.4rem 1rem; }
+#timer-display { font-family: 'Share Tech Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--accent); min-width: 52px; text-align: center; transition: color 0.3s; }
+#timer-display.warning { color: var(--yellow); }
+#timer-display.danger { color: var(--red); animation: pulse 0.5s infinite alternate; }
+
+@keyframes pulse { from { opacity: 1; } to { opacity: 0.4; } }
+
+/* QUESTION BODY */
+.quiz-body { flex: 1; display: flex; flex-direction: column; padding: 2rem 1.5rem; max-width: 780px; width: 100%; margin: 0 auto; }
+.question-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem; position: relative; overflow: hidden; }
+.question-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+.q-number-badge { display: inline-block; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); color: var(--accent); font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; padding: 3px 10px; border-radius: 100px; margin-bottom: 1rem; letter-spacing: 1px; }
+.question-text { font-size: 1.05rem; font-weight: 600; line-height: 1.6; color: var(--text); }
+
+.options-list { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
+.option-btn { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: all 0.2s; text-align: left; width: 100%; color: var(--text); font-family: 'Exo 2', sans-serif; font-size: 0.95rem; font-weight: 400; }
+.option-btn:hover { border-color: var(--accent); background: rgba(0,212,255,0.06); transform: translateX(4px); }
+.option-btn.selected { border-color: var(--accent); background: rgba(0,212,255,0.12); color: var(--accent); }
+.option-letter { width: 32px; height: 32px; border-radius: 8px; background: var(--border); display: flex; align-items: center; justify-content: center; font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; transition: background 0.2s; }
+.option-btn.selected .option-letter { background: var(--accent); color: #000; }
+
+.nav-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.btn-nav { padding: 0.75rem 1.75rem; border-radius: 100px; border: 1.5px solid var(--border); background: var(--card); color: var(--text); font-family: 'Exo 2', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; }
+.btn-nav:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.btn-nav:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-nav.primary { background: linear-gradient(135deg, var(--accent), #0099cc); border-color: transparent; color: #000; font-weight: 700; }
+.btn-nav.primary:hover { box-shadow: var(--glow); transform: scale(1.02); }
+.btn-nav.danger-btn { background: rgba(255,68,102,0.1); border-color: var(--red); color: var(--red); }
+
+/* ===== QUESTION MAP ===== */
+.q-map-wrap { padding: 0 1.5rem 2rem; max-width: 780px; width: 100%; margin: 0 auto; }
+.q-map-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.75rem; font-family: 'Share Tech Mono', monospace; }
+.q-map { display: flex; flex-wrap: wrap; gap: 6px; }
+.q-dot { width: 28px; height: 28px; border-radius: 6px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-family: 'Share Tech Mono', monospace; cursor: pointer; transition: all 0.15s; color: var(--muted); }
+.q-dot:hover { border-color: var(--accent); color: var(--accent); }
+.q-dot.answered { background: rgba(0,212,255,0.15); border-color: var(--accent); color: var(--accent); }
+.q-dot.current { background: var(--accent); color: #000; font-weight: 700; }
+
+/* ===== RESULT SCREEN ===== */
+#result { align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; text-align: center; }
+.result-badge { font-size: 4rem; margin-bottom: 1rem; animation: bounceIn 0.6s ease; }
+@keyframes bounceIn { 0% { transform: scale(0); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
+.result-score { font-size: clamp(3rem, 10vw, 5.5rem); font-weight: 900; font-family: 'Share Tech Mono', monospace; line-height: 1; margin-bottom: 0.5rem; }
+.result-score.pass { color: var(--green); text-shadow: 0 0 30px rgba(0,255,136,0.4); }
+.result-score.fail { color: var(--red); text-shadow: 0 0 30px rgba(255,68,102,0.4); }
+.result-label { font-size: 1rem; color: var(--muted); margin-bottom: 2.5rem; letter-spacing: 1px; text-transform: uppercase; }
+.result-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; max-width: 480px; margin-bottom: 2.5rem; }
+.stat-box { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.2rem; }
+.stat-box .sv { font-size: 1.8rem; font-weight: 700; font-family: 'Share Tech Mono', monospace; display: block; }
+.stat-box .sl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.stat-box.correct-stat .sv { color: var(--green); }
+.stat-box.wrong-stat .sv { color: var(--red); }
+.stat-box.skip-stat .sv { color: var(--yellow); }
+.result-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.btn-retry { background: linear-gradient(135deg, var(--accent2), #6d28d9); color: #fff; border: none; padding: 1rem 2.5rem; border-radius: 100px; font-family: 'Exo 2', sans-serif; font-size: 1rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; }
+.btn-retry:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(124,58,237,0.4); }
+.btn-review { background: transparent; color: var(--accent); border: 2px solid var(--accent); padding: 1rem 2.5rem; border-radius: 100px; font-family: 'Exo 2', sans-serif; font-size: 1rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; }
+.btn-review:hover { background: rgba(0,212,255,0.1); transform: translateY(-2px); }
+
+/* ===== REVIEW SCREEN ===== */
+#review { padding: 2rem 1.5rem; max-width: 800px; margin: 0 auto; width: 100%; }
+.review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+.review-title { font-size: 1.8rem; color: var(--accent); font-weight: 700; }
+.review-list { display: flex; flex-direction: column; gap: 1.5rem; }
+.review-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+.review-card.correct { border-left: 4px solid var(--green); }
+.review-card.wrong { border-left: 4px solid var(--red); }
+.review-card.skipped { border-left: 4px solid var(--yellow); }
+.review-q { font-size: 1.05rem; font-weight: 600; margin-bottom: 1rem; }
+.review-ans { font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--muted); }
+.review-ans span { font-weight: 700; }
+.ans-correct { color: var(--green); }
+.ans-wrong { color: var(--red); }
+.review-exp { margin-top: 1rem; background: rgba(0, 212, 255, 0.05); padding: 1rem; border-radius: 8px; font-size: 0.9rem; color: #a0aec0; border-left: 2px solid var(--accent); }
+
+@keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.slide-in { animation: slideIn 0.3s ease; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+@media (max-width: 500px) { .info-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; } .result-stats { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; } .quiz-header { padding: 0.6rem 1rem; } .quiz-body { padding: 1rem; } }
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="intro" class="screen active">
+  <div class="logo-badge">GES 212.2 UNIPORT</div>
+  <h1 class="intro-title">Philosophy, Logic<br><span>and Critical Thinking CBT</span></h1>
+  <p class="intro-sub">Test your knowledge. Beat the clock.</p>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <span class="val">50</span>
+      <span class="lbl">Questions</span>
+    </div>
+    <div class="info-card">
+      <span class="val">30</span>
+      <span class="lbl">Minutes</span>
+    </div>
+    <div class="info-card">
+      <span class="val">1.4</span>
+      <span class="lbl">Marks/Q</span>
+    </div>
+    <div class="info-card">
+      <span class="val">70</span>
+      <span class="lbl">Total</span>
+    </div>
+  </div>
+
+  <div class="rules">
+    <h3>// Instructions</h3>
+    <ul>
+      <li id="bank-size-line">50 random questions selected from the master bank.</li>
+      <li>30-minute countdown timer.</li>
+      <li>Each correct answer = 1.4 marks (70 Max).</li>
+      <li>Navigate freely between questions using the map.</li>
+      <li>Quiz auto-submits when time runs out.</li>
+    </ul>
+  </div>
+  <button class="btn-start" onclick="startQuiz()">START EXAM &rarr;</button>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="screen">
+  <div class="quiz-header">
+    <div class="q-meta">
+      <span class="q-counter" id="q-counter">Q1</span>
+      <span class="q-total" id="q-total">/ 50</span>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+
+    <div class="timer-wrap">
+      <span class="timer-icon">⏱️</span>
+      <span id="timer-display">30:00</span>
+    </div>
+  </div>
+
+  <div class="quiz-body">
+    <div class="question-card slide-in" id="question-card">
+      <div class="q-number-badge" id="q-badge">QUESTION 01</div>
+      <p class="question-text" id="question-text"></p>
+    </div>
+
+    <div class="options-list" id="options-list"></div>
+
+    <div class="nav-row">
+      <button class="btn-nav" id="btn-prev" onclick="navigate(-1)">Prev</button>
+      <button class="btn-nav danger-btn" onclick="confirmSubmit()">Submit Exam</button>
+      <button class="btn-nav primary" id="btn-next" onclick="navigate(1)">Next &rarr;</button>
+    </div>
+  </div>
+
+  <div class="q-map-wrap">
+    <div class="q-map-label">// Question Map</div>
+    <div class="q-map" id="q-map"></div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result" class="screen">
+  <div class="result-badge" id="result-emoji">🎯</div>
+  <div class="result-score" id="result-score">0/70</div>
+  <div class="result-label" id="result-label">Total Score</div>
+
+  <div class="result-stats">
+    <div class="stat-box correct-stat">
+      <span class="sv" id="stat-correct">0</span>
+      <span class="sl">Correct</span>
+    </div>
+    <div class="stat-box wrong-stat">
+      <span class="sv" id="stat-wrong">0</span>
+      <span class="sl">Wrong</span>
+    </div>
+    <div class="stat-box skip-stat">
+      <span class="sv" id="stat-skip">0</span>
+      <span class="sl">Skipped</span>
+    </div>
+  </div>
+
+  <div class="result-actions">
+    <button class="btn-review" onclick="showReview()">Review Answers</button>
+    <button class="btn-retry" onclick="location.reload()">Take Another Random Test</button>
+  </div>
+</div>
+
+<!-- REVIEW -->
+<div id="review" class="screen">
+  <div class="review-header">
+    <div class="review-title">Exam Review</div>
+    <button class="btn-nav" onclick="backToResults()">Back to Results</button>
+  </div>
+  <div class="review-list" id="review-list"></div>
+</div>
+
+<!-- CUSTOM CONFIRM MODAL (replaces native confirm(), which browsers/embedded viewers can block) -->
+<div id="modal-overlay" style="display:none; position:fixed; inset:0; z-index:1000; background:rgba(5,8,15,0.75); backdrop-filter: blur(4px); align-items:center; justify-content:center; padding:1.5rem;">
+  <div style="background:var(--card); border:1px solid var(--border); border-radius:18px; padding:2rem; max-width:380px; width:100%; text-align:center; box-shadow: var(--glow);">
+    <p id="modal-message" style="font-size:1rem; color:var(--text); margin-bottom:1.75rem; line-height:1.5;"></p>
+    <div style="display:flex; gap:0.75rem; justify-content:center;">
+      <button class="btn-nav" id="modal-cancel" style="flex:1;">Cancel</button>
+      <button class="btn-nav primary" id="modal-confirm" style="flex:1;">Submit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// --- MASTER QUESTION BANK (100+ questions) ---
+const rawQuizData = [
+  // UNIT 1: MEANING, NATURE, BRANCHES, SCOPE OF PHILOSOPHY
+  { text: "Which of the following best defines philosophy?", options: ["The study of past events", "The love of wisdom", "The practice of law", "The study of numbers"], answer: 1, explanation: "Philosophy comes from the Greek philos (love) and sophia (wisdom) — literally 'the love of wisdom.'" },
+  { text: "The word 'philosophy' is derived from which language?", options: ["Latin", "Greek", "French", "Arabic"], answer: 1, explanation: "'Philosophy' derives from the Greek philosophia." },
+  { text: "Which philosopher is traditionally credited with coining the term 'philosophy'?", options: ["Aristotle", "Socrates", "Pythagoras", "Plato"], answer: 2, explanation: "Pythagoras reportedly described himself as a philosophos (lover of wisdom) rather than a sophos (wise man)." },
+  { text: "Philosophy primarily seeks to understand the fundamental nature of:", options: ["Reality, knowledge, and existence", "Business and management", "Scientific experiments", "Computer programming"], answer: 0, explanation: "Philosophy investigates the fundamental nature of reality, knowledge, and existence." },
+  { text: "Philosophy is often characterized as a discipline that emphasizes:", options: ["Faith and revelation", "Critical thinking and rational inquiry", "Superstition and myths", "Political propaganda"], answer: 1, explanation: "Philosophy is defined by critical thinking and rational inquiry rather than faith alone." },
+  { text: "Which of the following is NOT a characteristic of philosophy?", options: ["Logical reasoning", "Dogmatism", "Critical analysis", "Systematic thinking"], answer: 1, explanation: "Dogmatism (accepting claims without question) runs counter to philosophy's critical, questioning nature." },
+  { text: "Philosophy differs from science in that:", options: ["Science relies on experiments, while philosophy relies on reasoning", "Philosophy deals only with religion", "Science does not ask fundamental questions", "Philosophy is based on assumptions without logic"], answer: 0, explanation: "Science investigates via empirical experiment; philosophy investigates fundamental questions primarily through reasoning." },
+  { text: "Which of the following is NOT a major branch of philosophy?", options: ["Metaphysics", "Ethics", "Economics", "Epistemology"], answer: 2, explanation: "Economics is a social science, not one of philosophy's core branches." },
+  { text: "The branch of philosophy that deals with the nature of reality is called:", options: ["Aesthetics", "Metaphysics", "Logic", "Epistemology"], answer: 1, explanation: "Metaphysics studies the fundamental nature of reality and being." },
+  { text: "Epistemology is concerned with:", options: ["The study of knowledge", "The study of ethics", "The study of government", "The study of history"], answer: 0, explanation: "Epistemology is the branch of philosophy studying the nature, sources, and limits of knowledge." },
+  { text: "Which branch of philosophy focuses on moral principles and values?", options: ["Aesthetics", "Logic", "Ethics", "Metaphysics"], answer: 2, explanation: "Ethics is the branch of philosophy concerned with moral principles and values." },
+  { text: "Aesthetics is the philosophical study of:", options: ["Justice and law", "Art and beauty", "Political institutions", "Logical reasoning"], answer: 1, explanation: "Aesthetics studies the nature of beauty, art, and taste." },
+  { text: "Logic as a branch of philosophy is primarily concerned with:", options: ["Religious beliefs", "Beauty and art", "Principles of correct reasoning", "Social structures"], answer: 2, explanation: "Logic studies the principles of correct/valid reasoning." },
+  { text: "The scope of philosophy includes the study of:", options: ["Science, ethics, and politics", "Only ethics", "Only religious beliefs", "Only abstract thoughts"], answer: 0, explanation: "Philosophy's scope is broad, engaging with science, ethics, politics, religion, and more." },
+
+  // UNIT 2: HISTORY OF PHILOSOPHY
+  { text: "Who is traditionally regarded as the first philosopher of Western thought, credited with proposing water as the first principle of all things?", options: ["Pythagoras", "Thales", "Heraclitus", "Parmenides"], answer: 1, explanation: "Thales of Miletus is often called the first Western philosopher, proposing water as the arche (first principle)." },
+  { text: "Which pre-Socratic philosopher famously argued that 'you cannot step into the same river twice,' emphasizing constant change?", options: ["Parmenides", "Heraclitus", "Thales", "Anaximander"], answer: 1, explanation: "Heraclitus emphasized that reality is in a constant state of flux/change." },
+  { text: "Which pre-Socratic philosopher argued that true being is unchanging and unified, contrary to the appearance of change?", options: ["Heraclitus", "Parmenides", "Pythagoras", "Democritus"], answer: 1, explanation: "Parmenides argued that genuine being is unchanging and unified, opposing Heraclitus's flux." },
+  { text: "Which philosopher developed the method of questioning known as the Socratic method?", options: ["Plato", "Aristotle", "Socrates", "Pythagoras"], answer: 2, explanation: "Socrates developed his namesake method of probing questions to expose contradictions in beliefs." },
+  { text: "Which philosopher developed the Theory of Forms, illustrated by the Allegory of the Cave?", options: ["Aristotle", "Plato", "Socrates", "Epicurus"], answer: 1, explanation: "Plato developed the Theory of Forms and used the Allegory of the Cave to illustrate it." },
+  { text: "Which philosopher, a student of Plato, developed formal logic (the syllogism) and grounded knowledge in empirical observation?", options: ["Aristotle", "Zeno", "Epicurus", "Pyrrho"], answer: 0, explanation: "Aristotle, Plato's student, developed syllogistic logic and emphasized empirical observation." },
+  { text: "Socrates is famous for the maxim:", options: ["'Man is the measure of all things'", "'Know thyself'", "'I think, therefore I am'", "'God is dead'"], answer: 1, explanation: "'Know thyself' is closely associated with Socrates's philosophy of self-examination." },
+  { text: "What Socratic teaching method involves probing questions to expose contradictions in a person's beliefs?", options: ["The Socratic method", "The Cartesian method", "The dialectical proof", "The empirical method"], answer: 0, explanation: "The Socratic method uses systematic questioning to test and refine beliefs." },
+  { text: "Which Church Father blended Platonism with Christian theology, describing philosophy as 'faith seeking understanding'?", options: ["Thomas Aquinas", "Augustine of Hippo", "Anselm of Canterbury", "Duns Scotus"], answer: 1, explanation: "Augustine of Hippo integrated Platonic thought with Christian theology." },
+  { text: "Which medieval philosopher formulated the ontological argument for God's existence based on the concept of 'that than which nothing greater can be conceived'?", options: ["Augustine", "Aquinas", "Anselm", "Boethius"], answer: 2, explanation: "Anselm of Canterbury formulated the ontological argument." },
+  { text: "Which medieval philosopher, central to Scholasticism, synthesized Aristotelian philosophy with Christian doctrine and offered the 'Five Ways'?", options: ["Anselm", "Thomas Aquinas", "Augustine", "William of Ockham"], answer: 1, explanation: "Thomas Aquinas synthesized Aristotle with Christian theology and offered five cosmological proofs of God." },
+  { text: "Which Islamic philosopher, known as 'The Commentator,' wrote extensive commentaries on Aristotle?", options: ["Avicenna", "Al-Farabi", "Averroes", "Al-Ghazali"], answer: 2, explanation: "Averroes (Ibn Rushd) earned the title 'The Commentator' for his work on Aristotle." },
+  { text: "Which Islamic philosopher's name is associated with the medical/philosophical synthesis and is also known as Ibn Sina?", options: ["Averroes", "Avicenna", "Al-Ghazali", "Al-Kindi"], answer: 1, explanation: "Avicenna (Ibn Sina) is renowned for his contributions to both philosophy and medicine." },
+  { text: "Which philosopher is credited with the principle of parsimony often called 'Ockham's Razor'?", options: ["Duns Scotus", "William of Ockham", "Thomas Aquinas", "Anselm"], answer: 1, explanation: "William of Ockham is credited with the parsimony principle bearing his name." },
+  { text: "Who is often called the father of modern philosophy, famous for 'Cogito, ergo sum'?", options: ["John Locke", "René Descartes", "Immanuel Kant", "David Hume"], answer: 1, explanation: "René Descartes is widely regarded as the father of modern philosophy." },
+  { text: "Descartes' philosophical position that mind and body are two distinct kinds of substance is known as:", options: ["Monism", "Dualism", "Idealism", "Materialism"], answer: 1, explanation: "Descartes' dualism holds mind and body are two distinct substances." },
+  { text: "Which philosopher argued that the mind at birth is a 'tabula rasa' (blank slate)?", options: ["David Hume", "John Locke", "George Berkeley", "Thomas Hobbes"], answer: 1, explanation: "John Locke described the mind at birth as a blank slate filled in by experience." },
+  { text: "Which empiricist philosopher argued 'esse est percipi' ('to be is to be perceived')?", options: ["Locke", "Hume", "Berkeley", "Bacon"], answer: 2, explanation: "George Berkeley argued that to exist is to be perceived." },
+  { text: "Which philosopher's rigorous empiricism led him to deep skepticism about causation and induction?", options: ["John Locke", "David Hume", "George Berkeley", "Francis Bacon"], answer: 1, explanation: "David Hume's empiricism led to skepticism about our justification for believing in cause and effect." },
+  { text: "Which philosopher sought to reconcile rationalism and empiricism, arguing knowledge requires both experience and innate mental structures?", options: ["Immanuel Kant", "Baruch Spinoza", "Gottfried Leibniz", "John Locke"], answer: 0, explanation: "Immanuel Kant synthesized rationalism and empiricism in his critical philosophy." },
+  { text: "Which philosopher argued for monism, holding there is only a single substance identified with both God and Nature?", options: ["Descartes", "Spinoza", "Leibniz", "Locke"], answer: 1, explanation: "Baruch Spinoza's monism identifies a single substance as both God and Nature." },
+  { text: "Which social contract theorist argued that without government, life in the state of nature would be 'solitary, poor, nasty, brutish, and short'?", options: ["John Locke", "Thomas Hobbes", "Jean-Jacques Rousseau", "Immanuel Kant"], answer: 1, explanation: "Thomas Hobbes described the state of nature this way in Leviathan." },
+  { text: "Which philosopher is considered the father of existentialism?", options: ["Friedrich Nietzsche", "Jean-Paul Sartre", "Søren Kierkegaard", "Albert Camus"], answer: 2, explanation: "Søren Kierkegaard is widely regarded as the father of existentialism." },
+  { text: "Which philosopher is known for the proclamation 'God is dead' and the concept of the will to power?", options: ["Kierkegaard", "Nietzsche", "Sartre", "Camus"], answer: 1, explanation: "Friedrich Nietzsche proclaimed 'God is dead' and developed the will to power." },
+  { text: "Which philosopher developed phenomenology, closely studying the structures of conscious experience, and influenced Heidegger?", options: ["Bertrand Russell", "Edmund Husserl", "Karl Popper", "Ludwig Wittgenstein"], answer: 1, explanation: "Edmund Husserl founded phenomenology, which strongly influenced Heidegger." },
+  { text: "Which 20th-century philosopher developed the criterion of falsifiability as central to distinguishing science from non-science?", options: ["Karl Popper", "Bertrand Russell", "Michel Foucault", "Ludwig Wittgenstein"], answer: 0, explanation: "Karl Popper proposed falsifiability as the demarcation criterion for science." },
+
+  // UNIT 3: KEY THEMES IN PHILOSOPHY
+  { text: "Which theory holds that reason, not sensory experience, is the primary source of genuine knowledge?", options: ["Empiricism", "Rationalism", "Pragmatism", "Positivism"], answer: 1, explanation: "Rationalism holds reason is the primary source of knowledge." },
+  { text: "Which theory holds that sensory experience is the primary source of knowledge?", options: ["Rationalism", "Empiricism", "Idealism", "Existentialism"], answer: 1, explanation: "Empiricism holds sensory experience is the primary source of knowledge." },
+  { text: "Which philosophical position holds that reality is fundamentally mental or mind-dependent?", options: ["Materialism", "Idealism", "Dualism", "Realism"], answer: 1, explanation: "Idealism holds that reality is fundamentally mental/mind-dependent." },
+  { text: "Which movement holds that only empirically verifiable claims are meaningful?", options: ["Pragmatism", "Existentialism", "Positivism", "Rationalism"], answer: 2, explanation: "Positivism holds that only empirically verifiable claims are meaningful." },
+  { text: "Who is considered the founder of positivism?", options: ["John Stuart Mill", "Auguste Comte", "Karl Popper", "David Hume"], answer: 1, explanation: "Auguste Comte is credited as the founder of positivism." },
+  { text: "Which philosophical school held that a statement is meaningful only if it can be empirically verified, associated with the Vienna Circle?", options: ["Existentialism", "Logical Positivism", "Pragmatism", "Idealism"], answer: 1, explanation: "Logical Positivism, developed by the Vienna Circle, held this verification standard." },
+  { text: "Which theory holds that the truth or meaning of an idea is determined by its practical consequences?", options: ["Rationalism", "Pragmatism", "Idealism", "Positivism"], answer: 1, explanation: "Pragmatism ties truth/meaning to practical consequences." },
+  { text: "Which American philosopher is most associated with pragmatism, alongside Charles Peirce and John Dewey?", options: ["William James", "Bertrand Russell", "Immanuel Kant", "David Hume"], answer: 0, explanation: "William James was a founding figure of American pragmatism." },
+  { text: "The philosophical position that every event, including human choices, is the necessary result of prior causes is called:", options: ["Free will", "Determinism", "Fatalism only", "Existentialism"], answer: 1, explanation: "Determinism holds all events, including choices, are necessitated by prior causes." },
+  { text: "What philosophical position holds that at least some human actions are freely and genuinely chosen, not fully determined by prior causes?", options: ["Hard determinism", "Libertarian free will", "Compatibilism strictly denies freedom", "Fatalism"], answer: 1, explanation: "Libertarian free will holds that at least some choices are genuinely free." },
+  { text: "Which 18th/19th century philosophical movement developed in Germany and emphasized that reality is shaped by mind, associated with Hegel?", options: ["British Empiricism", "German Idealism", "French Existentialism", "American Pragmatism"], answer: 1, explanation: "German Idealism, associated with Hegel, held that mind fundamentally shapes reality." },
+  { text: "What is 'the verification principle' most closely associated with?", options: ["Existentialism", "Logical Positivism", "Virtue Ethics", "Scholasticism"], answer: 1, explanation: "The verification principle is a hallmark of Logical Positivism." },
+  { text: "Which theme in philosophy questions whether abstract categories like 'beauty' exist independently of the mind?", options: ["The problem of universals", "The problem of evil", "The mind-body problem", "The is-ought problem"], answer: 0, explanation: "The problem of universals asks whether abstract categories exist independently of particular things." },
+  { text: "Descartes' rationalism and Locke's empiricism represent two competing answers to which broader philosophical question?", options: ["What is the source of knowledge?", "What is the nature of political authority?", "What is beauty?", "What is justice?"], answer: 0, explanation: "Rationalism vs empiricism is fundamentally a debate about the source of knowledge." },
+  { text: "Which philosophical position denies that human free will exists at all, holding that all events are strictly caused?", options: ["Compatibilism", "Hard determinism", "Libertarianism", "Indeterminism"], answer: 1, explanation: "Hard determinism denies free will exists, holding all events are strictly caused." },
+  { text: "Which position attempts to reconcile free will and determinism by arguing they are not actually incompatible?", options: ["Hard determinism", "Compatibilism", "Fatalism", "Indeterminism"], answer: 1, explanation: "Compatibilism argues free will and determinism can coexist." },
+  { text: "According to positivism, claims that cannot be empirically tested (such as many metaphysical claims) are considered:", options: ["Automatically true", "Meaningless or unverifiable", "The most important truths", "Scientific facts"], answer: 1, explanation: "Positivism treats empirically untestable claims as meaningless or unverifiable." },
+  { text: "Which philosophical theme is most concerned with whether the mind and body are the same substance or different substances?", options: ["The mind-body problem", "The problem of universals", "The problem of evil", "The is-ought problem"], answer: 0, explanation: "The mind-body problem concerns the relationship between mind and body." },
+  { text: "William James argued that a belief could be considered 'true' primarily because:", options: ["It corresponds to an unchanging external Form", "It has practical, useful consequences in experience", "It cannot be empirically tested", "It was believed by ancient philosophers"], answer: 1, explanation: "James's pragmatism ties truth to practical, useful consequences." },
+  { text: "Which key theme in philosophy asks whether values can be objectively grounded or are merely subjective/relative?", options: ["The is-ought problem / moral objectivity debate", "The problem of universals", "The mind-body problem", "The verification principle"], answer: 0, explanation: "This debate concerns whether moral values are objective or relative." },
+
+  // UNIT 4: METAPHYSICS - BEING, SUBSTANCE, UNIVERSALS
+  { text: "What is the branch of philosophy that studies being and existence as such, often treated as metaphysics' core subfield?", options: ["Epistemology", "Ontology", "Aesthetics", "Axiology"], answer: 1, explanation: "Ontology is the study of being and existence, metaphysics' core subfield." },
+  { text: "In philosophy, a 'substance' refers to:", options: ["A chemical compound", "That which exists independently and underlies the properties a thing has", "A moral value", "A logical fallacy"], answer: 1, explanation: "Substance is that which exists independently and underlies a thing's properties." },
+  { text: "Which philosopher treated substance as the primary category of being in his metaphysics?", options: ["Plato", "Aristotle", "Descartes", "Hume"], answer: 1, explanation: "Aristotle treated substance as the primary category of being." },
+  { text: "Descartes' metaphysical position that reality consists of two distinct substances (mind and body) is called:", options: ["Monism", "Dualism", "Pluralism", "Nominalism"], answer: 1, explanation: "Descartes' dualism holds mind and body are distinct substances." },
+  { text: "Spinoza's metaphysical position, which holds there is only one substance identified with God and Nature, is called:", options: ["Dualism", "Monism", "Pluralism", "Idealism"], answer: 1, explanation: "Spinoza's monism holds there is only one substance." },
+  { text: "Leibniz proposed that reality is composed of simple, indivisible substances he called:", options: ["Atoms", "Forms", "Monads", "Universals"], answer: 2, explanation: "Leibniz called these simple, indivisible substances monads." },
+  { text: "What does the Problem of Universals ask?", options: ["Whether general properties exist independently of particular things", "Whether God exists", "Whether knowledge is possible", "Whether free will exists"], answer: 0, explanation: "The Problem of Universals asks whether general properties exist independently of particulars." },
+  { text: "Which position on the Problem of Universals holds that universals exist independently, as with Plato's Forms?", options: ["Nominalism", "Realism", "Conceptualism", "Materialism"], answer: 1, explanation: "Realism holds universals exist independently, as with Plato's Forms." },
+  { text: "Which position on the Problem of Universals holds that universals are merely names/labels, with only particular things truly existing?", options: ["Realism", "Nominalism", "Idealism", "Rationalism"], answer: 1, explanation: "Nominalism holds universals are merely names, with only particulars truly existing." },
+  { text: "William of Ockham is most closely associated with which position on universals?", options: ["Realism", "Nominalism", "Conceptualism", "Monism"], answer: 1, explanation: "William of Ockham is closely associated with nominalism." },
+  { text: "Which position on universals holds that they exist only as concepts within the mind, not independently in the external world?", options: ["Realism", "Nominalism", "Conceptualism", "Idealism"], answer: 2, explanation: "Conceptualism holds universals exist only as mental concepts." },
+  { text: "What is 'non-being' typically contrasted with in metaphysical discussions?", options: ["Knowledge", "Being/existence", "Morality", "Beauty"], answer: 1, explanation: "Non-being is contrasted with being/existence." },
+  { text: "Plato's Theory of Forms is an example of which position regarding universals?", options: ["Nominalism", "Realism", "Conceptualism", "Empiricism"], answer: 1, explanation: "Plato's Forms are a classic example of realism about universals." },
+  { text: "Which term describes a thing's essential, defining nature as opposed to its accidental properties?", options: ["Essence", "Universal", "Predicate", "Proposition"], answer: 0, explanation: "Essence refers to a thing's essential, defining nature." },
+  { text: "What metaphysical question is raised by asking whether an object remains 'the same' after all its parts are gradually replaced (e.g. the Ship of Theseus)?", options: ["The problem of personal identity/identity over time", "The problem of evil", "The verification principle", "The is-ought problem"], answer: 0, explanation: "This classic puzzle raises the problem of identity over time." },
+  { text: "Which metaphysical theory holds that only physical/material substance ultimately exists?", options: ["Idealism", "Materialism", "Dualism", "Nominalism"], answer: 1, explanation: "Materialism holds only physical/material substance ultimately exists." },
+  { text: "Aristotle's metaphysics distinguishes between a thing's 'substance' and its:", options: ["Accidents (non-essential properties)", "Government", "Aesthetics", "Justification"], answer: 0, explanation: "Aristotle distinguished a thing's substance from its accidents (non-essential properties)." },
+  { text: "Which branch is 'metaphysics' most directly a foundation for, since it establishes what exists before we ask what we can know about it?", options: ["Political philosophy", "Epistemology", "Aesthetics", "Rhetoric"], answer: 1, explanation: "Metaphysics establishes what exists, which grounds epistemology's questions about what we can know." },
+  { text: "Which metaphysical view is most compatible with the claim that 'redness' exists as an abstract entity separate from red objects?", options: ["Nominalism", "Realism about universals", "Conceptualism only", "Empiricism"], answer: 1, explanation: "Realism about universals holds abstract properties exist independently of particular objects." },
+  { text: "What term is used for a philosophical position holding that reality consists of many distinct substances (rather than one, per monism, or two, per dualism)?", options: ["Pluralism", "Nihilism", "Fatalism", "Relativism"], answer: 0, explanation: "Pluralism holds reality consists of many distinct substances." },
+
+  // UNIT 5: EPISTEMOLOGY
+  { text: "What is the traditional definition of knowledge, often abbreviated JTB?", options: ["Justified True Belief", "Judged True Belief", "Justified Total Belief", "Just True Belief"], answer: 0, explanation: "JTB stands for Justified True Belief, the traditional definition of knowledge." },
+  { text: "Which philosopher famously challenged the JTB definition of knowledge with counterexamples now known as the 'Gettier Problem'?", options: ["Bertrand Russell", "Edmund Gettier", "Karl Popper", "René Descartes"], answer: 1, explanation: "Edmund Gettier's counterexamples challenged the JTB account of knowledge." },
+  { text: "Which theory of justification holds that some beliefs are 'basic,' self-justifying, and all others are justified by resting on them?", options: ["Coherentism", "Foundationalism", "Reliabilism", "Skepticism"], answer: 1, explanation: "Foundationalism holds some beliefs are basic and self-justifying." },
+  { text: "Which theory of justification holds that a belief is justified by fitting coherently within a larger web of mutually supporting beliefs?", options: ["Foundationalism", "Coherentism", "Reliabilism", "Fallibilism"], answer: 1, explanation: "Coherentism justifies beliefs by their coherence within a larger web of beliefs." },
+  { text: "Which theory of justification holds that a belief is justified if produced by a reliable cognitive process (like perception or valid reasoning)?", options: ["Foundationalism", "Coherentism", "Reliabilism", "Rationalism"], answer: 2, explanation: "Reliabilism justifies belief based on the reliability of the process that produced it." },
+  { text: "What is fallibilism?", options: ["The view that no beliefs can ever be justified", "The view that even well-justified beliefs could in principle turn out to be mistaken", "The view that knowledge requires absolute certainty", "The view that only sensory experience counts as knowledge"], answer: 1, explanation: "Fallibilism holds that justified beliefs could still, in principle, be mistaken." },
+  { text: "What is philosophical skepticism?", options: ["The view that questions whether genuine knowledge is possible at all (in some or all domains)", "The belief that all knowledge is certain", "A branch of ethics", "A theory of political authority"], answer: 0, explanation: "Skepticism questions whether genuine knowledge is possible." },
+  { text: "Descartes used a method of systematic doubt to arrive at which foundational certainty?", options: ["'Cogito, ergo sum'", "'Man is the measure of all things'", "'Knowledge is power'", "'The unexamined life is not worth living'"], answer: 0, explanation: "Descartes' doubt led him to the certainty of 'Cogito, ergo sum.'" },
+  { text: "Which epistemological source of knowledge did the rationalists prioritize?", options: ["Sensory experience", "Reason", "Testimony", "Revelation"], answer: 1, explanation: "Rationalists prioritized reason as the primary source of knowledge." },
+  { text: "Which epistemological source of knowledge did the empiricists prioritize?", options: ["Reason alone", "Sensory experience", "Intuition alone", "Faith"], answer: 1, explanation: "Empiricists prioritized sensory experience as the primary source of knowledge." },
+  { text: "What term describes accepting a claim as knowledge because a trusted source told you, rather than through direct experience or reasoning?", options: ["Testimony", "Coherentism", "Rationalism", "Empiricism"], answer: 0, explanation: "Testimony refers to accepting a claim based on a trusted source's word." },
+  { text: "What is the epistemological problem raised by David Hume regarding our belief that the future will resemble the past?", options: ["The problem of induction", "The problem of universals", "The problem of evil", "The mind-body problem"], answer: 0, explanation: "Hume raised the problem of induction, questioning our justification for expecting the future to resemble the past." },
+  { text: "Which of the following best distinguishes knowledge from mere true belief, according to the traditional JTB account?", options: ["Nothing distinguishes them", "Justification", "Emotion", "Popularity"], answer: 1, explanation: "Justification is the element that (traditionally) distinguishes knowledge from mere true belief." },
+  { text: "What does 'epistemic justification' refer to?", options: ["The legal defense of an action", "The reasons or evidential support that make a belief rational to hold", "A type of syllogism", "A branch of ethics"], answer: 1, explanation: "Epistemic justification refers to the reasons/evidence supporting a belief." },
+  { text: "Which theory of justification is most vulnerable to the criticism that it risks circular reasoning, since beliefs are justified by other beliefs within the same system?", options: ["Foundationalism", "Coherentism", "Reliabilism", "Fallibilism"], answer: 1, explanation: "Coherentism is often criticized for risking circularity, since beliefs justify each other within a closed system." },
+  { text: "What is the primary criticism of Foundationalism?", options: ["It cannot explain why any belief is ever false", "Identifying genuinely 'basic,' self-justifying beliefs is difficult and contested", "It requires no evidence whatsoever", "It rejects the existence of knowledge entirely"], answer: 1, explanation: "A key criticism of foundationalism is the difficulty of identifying truly basic, self-justifying beliefs." },
+  { text: "Which of these is an example of a Gettier-style problem?", options: ["A person has a justified true belief that seems to be true merely by luck rather than by their justification actually tracking the truth", "A person believes something false", "A person has no beliefs at all", "A person's belief is unjustified but true"], answer: 0, explanation: "Gettier cases involve justified true belief that is true merely by luck, not genuine knowledge." },
+  { text: "What is the epistemological status of a belief that is true, but held for entirely the wrong (unjustified) reasons?", options: ["Knowledge", "Not knowledge, despite being true", "Certain", "Infallible"], answer: 1, explanation: "A true belief held for unjustified reasons does not count as knowledge under the traditional account." },
+  { text: "Descartes' skepticism in epistemology served primarily to:", options: ["Prove that knowledge is impossible", "Establish a secure, doubt-proof foundation from which certain knowledge could be rebuilt", "Reject the existence of the external world permanently", "Support empiricism over rationalism"], answer: 1, explanation: "Descartes used doubt methodologically, to find a certain foundation for knowledge." },
+  { text: "Which of the following best defines epistemology's central question?", options: ["What exists?", "What can we know, and how can we know it?", "What is beautiful?", "How should we govern society?"], answer: 1, explanation: "Epistemology's central question concerns what we can know and how." },
+
+  // UNIT 6: NATURE AND SCOPE OF LOGIC
+  { text: "What is logic best defined as?", options: ["The study of correct/valid reasoning", "The study of past events", "The study of beauty", "The study of government"], answer: 0, explanation: "Logic is the study of correct, valid reasoning." },
+  { text: "How does logic differ from psychology as a discipline?", options: ["Psychology studies how people actually think; logic studies how people ought to reason correctly", "They are identical disciplines", "Logic is a subfield of psychology", "Psychology has no relation to reasoning"], answer: 0, explanation: "Psychology is descriptive (how people think); logic is normative (how one ought to reason)." },
+  { text: "How does logic differ from rhetoric?", options: ["Rhetoric is the art of persuasion, which need not be logically valid; logic concerns the validity of reasoning itself", "They are the same discipline", "Rhetoric is more precise than logic", "Logic cannot be used in speeches"], answer: 0, explanation: "Rhetoric aims at persuasion; logic strictly concerns validity of reasoning." },
+  { text: "What kind of reasoning guarantees the truth of the conclusion if the premises are true and the argument is valid?", options: ["Inductive reasoning", "Deductive reasoning", "Abductive reasoning", "Analogical reasoning"], answer: 1, explanation: "Deductive reasoning guarantees the conclusion's truth given true premises and valid form." },
+  { text: "What kind of reasoning moves from specific observations to a probable, but not guaranteed, general conclusion?", options: ["Deductive reasoning", "Inductive reasoning", "Formal reasoning", "Symbolic reasoning"], answer: 1, explanation: "Inductive reasoning moves from specific observations to a probable general conclusion." },
+  { text: "What is formal logic primarily concerned with?", options: ["The structure/form of arguments, independent of their specific content", "Persuasive speech techniques", "Emotional appeals", "Historical events"], answer: 0, explanation: "Formal logic studies argument structure independent of specific content." },
+  { text: "What is informal logic primarily concerned with?", options: ["Only symbolic notation", "Reasoning as it occurs in natural language, including the analysis of fallacies", "Only mathematical proofs", "Only scientific experiments"], answer: 1, explanation: "Informal logic examines natural-language reasoning, including fallacies." },
+  { text: "Why is logic considered foundational to critical thinking?", options: ["It supplies the standards (validity, soundness) against which everyday reasoning can be evaluated", "It has no relevance to critical thinking", "It only applies to mathematics", "It replaces the need for evidence"], answer: 0, explanation: "Logic provides the standards used to evaluate the quality of everyday reasoning." },
+  { text: "What is the primary goal of studying logic?", options: ["To memorize historical facts", "To learn to distinguish valid from invalid reasoning", "To develop persuasive rhetoric regardless of validity", "To study religious doctrine"], answer: 1, explanation: "Logic's primary goal is distinguishing valid from invalid reasoning." },
+  { text: "Which of the following is a normative (rather than descriptive) claim, of the sort logic is concerned with?", options: ["'People often reason poorly under stress'", "'One ought to avoid contradicting oneself in an argument'", "'Most people believe in God'", "'Ancient Greeks invented logic'"], answer: 1, explanation: "Normative claims state what ought to be the case, which is logic's central concern." },
+  { text: "What does it mean for logic to be considered a 'formal' discipline?", options: ["It requires wearing formal attire", "It analyzes the structure of arguments abstractly, often using symbols, independent of their specific subject matter", "It only studies formal government structures", "It is only taught in formal educational settings"], answer: 1, explanation: "'Formal' means logic analyzes argument structure abstractly, independent of subject matter." },
+  { text: "Aristotle is historically significant to the discipline of logic because he:", options: ["Invented the printing press", "Developed the theory of the syllogism, one of the first systematic treatments of deductive reasoning", "Founded modern science", "Wrote the first novel"], answer: 1, explanation: "Aristotle developed syllogistic logic, a foundational system of deductive reasoning." },
+  { text: "Which of these best distinguishes descriptive claims from the normative claims logic is centrally interested in?", options: ["Descriptive claims state what is the case; normative claims state what ought to be the case (reasoning-wise)", "They are identical", "Normative claims are always false", "Descriptive claims cannot be tested"], answer: 0, explanation: "Descriptive claims state facts; normative claims state what ought to be the case." },
+  { text: "What is the relationship between logic and mathematics?", options: ["They are entirely unrelated", "Logic and mathematics share deep structural connections, and formal/symbolic logic borrows heavily from mathematical notation", "Mathematics is a subset of ethics", "Logic replaced mathematics entirely"], answer: 1, explanation: "Logic and mathematics are deeply connected, with symbolic logic borrowing mathematical notation." },
+  { text: "Why might a valid argument still fail to be useful or convincing?", options: ["Validity alone does not guarantee the premises are true; the argument could still be unsound", "Valid arguments are always sound", "Validity guarantees truth of premises", "Validity is irrelevant to usefulness"], answer: 0, explanation: "A valid argument can still have false premises, making it unsound and unconvincing." },
+  { text: "What is the scope of logic primarily limited to?", options: ["Only religious arguments", "The relationships between premises and conclusions in any domain of reasoning", "Only scientific experiments", "Only political debates"], answer: 1, explanation: "Logic's scope covers premise-conclusion relationships across any domain of reasoning." },
+  { text: "Which term describes an argument that persuades an audience through emotional or rhetorical appeal, even if it is not logically valid?", options: ["A sound argument", "A rhetorically effective but logically weak argument", "A valid deductive argument", "A tautology"], answer: 1, explanation: "Such an argument may be persuasive rhetorically while being logically weak." },
+  { text: "What does the study of logic help develop in critical thinking education?", options: ["The ability to identify well-reasoned arguments and detect flawed reasoning", "The ability to memorize historical dates", "Artistic skill", "Physical fitness"], answer: 0, explanation: "Studying logic develops the ability to identify good reasoning and detect flaws." },
+  { text: "Logic, as a normative discipline, differs from purely empirical/descriptive sciences chiefly because:", options: ["It prescribes how reasoning ought to proceed rather than merely describing how people do reason", "It relies solely on observation", "It cannot be studied formally", "It has no connection to argumentation"], answer: 0, explanation: "Logic prescribes correct reasoning rather than merely describing actual reasoning patterns." },
+  { text: "Which of the following best summarizes logic's role within philosophy as a whole?", options: ["It supplies the standards of correct reasoning used across every other branch of philosophy", "It is entirely separate from all other branches", "It only concerns religious doctrine", "It replaces the need for metaphysics"], answer: 0, explanation: "Logic supplies the reasoning standards that underpin every other branch of philosophy." },
+
+  // UNIT 7: CRITICAL THINKING
+  { text: "What is a proposition (or statement) in logic?", options: ["A question", "A declarative sentence that is either true or false", "A command", "An exclamation"], answer: 1, explanation: "A proposition is a declarative sentence with a truth value (true or false)." },
+  { text: "What is an argument, in the logical sense?", options: ["A heated disagreement", "A set of propositions where premises are offered as support for a conclusion", "A single unsupported claim", "A question with no answer"], answer: 1, explanation: "An argument consists of premises offered in support of a conclusion." },
+  { text: "What does it mean for a deductive argument to be 'valid'?", options: ["All its premises are true", "If the premises were true, the conclusion could not be false", "The conclusion is popular", "The argument uses emotional language"], answer: 1, explanation: "Validity means the conclusion necessarily follows if the premises are true." },
+  { text: "What does it mean for a deductive argument to be 'sound'?", options: ["It is valid and has all true premises", "It merely sounds persuasive", "It is valid regardless of premise truth", "It has a false conclusion"], answer: 0, explanation: "Soundness requires both validity and true premises." },
+  { text: "Can a valid argument have a false conclusion?", options: ["Never, under any circumstances", "Yes, if at least one premise is false", "Only in inductive arguments", "Only if it uses fallacies"], answer: 1, explanation: "A valid argument can have a false conclusion if one of its premises is false." },
+  { text: "What is abductive reasoning (inference to the best explanation)?", options: ["Reasoning that concludes with certainty from any premises", "Inferring the explanation that would, if true, best account for an observation", "A synonym for deductive reasoning", "Reasoning used only in mathematics"], answer: 1, explanation: "Abductive reasoning infers the best explanation for an observation." },
+  { text: "What is the ad hominem fallacy?", options: ["Attacking the person making an argument rather than the argument itself", "Presenting only two options when more exist", "Restating the conclusion as a premise", "Generalizing from a small sample"], answer: 0, explanation: "Ad hominem attacks the arguer rather than addressing the argument." },
+  { text: "What is the straw man fallacy?", options: ["Misrepresenting an opponent's argument in a weaker form, then refuting that weaker version", "Appealing to popularity", "Assuming the conclusion in a premise", "Slippery slope reasoning"], answer: 0, explanation: "Straw man misrepresents an argument to make it easier to refute." },
+  { text: "What is the false dilemma fallacy?", options: ["Presenting only two options as the only possibilities when more actually exist", "Attacking a person's character", "Restating a premise as the conclusion", "Drawing broad conclusions from a small sample"], answer: 0, explanation: "False dilemma wrongly limits options to only two when more actually exist." },
+  { text: "What is the slippery slope fallacy?", options: ["Arguing a small first step will inevitably lead to extreme outcomes, without justifying that chain", "Attacking the person, not the argument", "Assuming what one is trying to prove", "Appealing to an irrelevant authority"], answer: 0, explanation: "Slippery slope claims an inevitable chain of consequences without justification." },
+  { text: "What is circular reasoning?", options: ["An argument whose conclusion is simply restated as (or assumed by) one of its own premises", "An argument with two equally weak options", "An argument based on a small sample", "An argument that shifts topic mid-discussion"], answer: 0, explanation: "Circular reasoning assumes its conclusion within its own premises." },
+  { text: "What is the hasty generalization fallacy?", options: ["Drawing a broad conclusion from a sample that is too small or unrepresentative", "Attacking a person's character", "Assuming the conclusion in a premise", "Presenting a false choice"], answer: 0, explanation: "Hasty generalization draws broad conclusions from insufficient evidence." },
+  { text: "What is the appeal to authority fallacy?", options: ["Treating a claim as true solely because an authority figure asserts it, without independent support", "Misrepresenting an opponent's position", "Assuming a small first step leads to disaster", "Restating the conclusion as a premise"], answer: 0, explanation: "Appeal to authority accepts a claim based solely on an authority's assertion." },
+  { text: "Which of these best describes 'canons of construction' in the context of building sound arguments?", options: ["Rules or standards guiding how a valid, well-constructed argument should be built", "Religious commandments", "Historical events", "Artistic techniques"], answer: 0, explanation: "Canons of construction are standards guiding well-built, valid arguments." },
+  { text: "Why is reasoning about values (e.g. moral claims) often considered more contested than reasoning about empirical facts?", options: ["Values cannot always be settled by observation alone and often involve deeper normative disagreement", "Values are always false", "Values are identical to facts", "There is no such thing as reasoning about values"], answer: 0, explanation: "Value claims often involve normative disagreement that observation alone cannot resolve." },
+  { text: "What distinguishes a strong inductive argument from a weak one?", options: ["A strong inductive argument makes its conclusion highly probable given the premises, though not certain", "A strong inductive argument guarantees its conclusion with certainty", "Strength is irrelevant to inductive arguments", "A strong inductive argument must be deductively valid"], answer: 0, explanation: "A strong inductive argument makes its conclusion highly probable, not certain." },
+  { text: "Which of the following is an example of a fallacy of relevance, where the premise doesn't actually logically support the conclusion?", options: ["Ad hominem", "A valid modus ponens", "A sound argument", "A true premise"], answer: 0, explanation: "Ad hominem is a fallacy of relevance — the attack on the person is irrelevant to the argument's truth." },
+  { text: "What makes an argument's premises 'relevant' to its conclusion?", options: ["The premises provide actual logical or evidential support for accepting the conclusion", "The premises are stated loudly", "The premises are popular opinions", "The premises are emotionally persuasive"], answer: 0, explanation: "Relevant premises genuinely support the conclusion logically or evidentially." },
+  { text: "Critical thinking about propositions requires distinguishing which two properties of a statement?", options: ["Its truth value and its logical role (premise or conclusion) in an argument", "Its length and its font", "Its popularity and its age", "Its author and its publication date"], answer: 0, explanation: "Critical evaluation requires noting a statement's truth value and its logical role." },
+  { text: "Why is identifying fallacies considered an essential critical thinking skill?", options: ["It allows one to recognize and resist flawed but persuasive reasoning", "It has no practical benefit", "It only matters in formal debates", "It replaces the need for evidence entirely"], answer: 0, explanation: "Identifying fallacies helps resist persuasive but logically flawed reasoning." },
+
+  // UNIT 8: ARGUMENT, FORMS AND SYLLOGISMS
+  { text: "In traditional (Aristotelian) logic, what does the 'A' categorical proposition form represent?", options: ["Universal Affirmative: All S are P", "Universal Negative: No S are P", "Particular Affirmative: Some S are P", "Particular Negative: Some S are not P"], answer: 0, explanation: "'A' represents the Universal Affirmative: All S are P." },
+  { text: "What does the 'E' categorical proposition form represent?", options: ["All S are P", "No S are P", "Some S are P", "Some S are not P"], answer: 1, explanation: "'E' represents the Universal Negative: No S are P." },
+  { text: "What does the 'I' categorical proposition form represent?", options: ["All S are P", "No S are P", "Some S are P", "Some S are not P"], answer: 2, explanation: "'I' represents the Particular Affirmative: Some S are P." },
+  { text: "What does the 'O' categorical proposition form represent?", options: ["All S are P", "No S are P", "Some S are P", "Some S are not P"], answer: 3, explanation: "'O' represents the Particular Negative: Some S are not P." },
+  { text: "What are the three propositions of a categorical syllogism called?", options: ["Major premise, minor premise, and conclusion", "Opening, body, and closing", "Thesis, antithesis, synthesis", "Subject, predicate, and copula"], answer: 0, explanation: "A categorical syllogism consists of a major premise, minor premise, and conclusion." },
+  { text: "What is the 'middle term' in a categorical syllogism?", options: ["The term that appears in both premises but not in the conclusion, connecting the major and minor terms", "The conclusion itself", "The first word of the syllogism", "A term that never appears in the syllogism"], answer: 0, explanation: "The middle term links the major and minor terms across the two premises." },
+  { text: "Can a categorical syllogism be logically valid while containing a false premise?", options: ["No, never", "Yes — validity concerns the argument's form, not whether its premises are actually true", "Only in inductive logic", "Only if the conclusion is also false"], answer: 1, explanation: "Validity concerns logical form, independent of whether premises are actually true." },
+  { text: "What visual method is commonly used to test whether a categorical syllogism is valid?", options: ["Truth tables", "Venn diagrams", "Bar charts", "Flowcharts"], answer: 1, explanation: "Venn diagrams are the standard visual method for testing categorical syllogism validity." },
+  { text: "In a valid syllogism, what must be true about the middle term's distribution across the premises?", options: ["It must be distributed at least once", "It must never appear", "It must appear in the conclusion", "It has no distribution requirements"], answer: 0, explanation: "A valid syllogism requires the middle term to be distributed at least once." },
+  { text: "What is the 'major term' in a categorical syllogism?", options: ["The predicate term of the conclusion, which appears in the major premise", "The subject of the conclusion", "The middle term", "A term that never appears anywhere"], answer: 0, explanation: "The major term is the predicate of the conclusion, appearing in the major premise." },
+  { text: "What is the 'minor term' in a categorical syllogism?", options: ["The subject term of the conclusion, which appears in the minor premise", "The predicate of the conclusion", "The middle term", "A term that appears in neither premise"], answer: 0, explanation: "The minor term is the subject of the conclusion, appearing in the minor premise." },
+  { text: "Which of the following is an example of a valid categorical syllogism form?", options: ["All men are mortal; Socrates is a man; therefore Socrates is mortal", "Some men are tall; some tall things are buildings; therefore some men are buildings", "All cats are animals; all dogs are animals; therefore all cats are dogs", "No fish are mammals; no mammals are reptiles; therefore no fish are reptiles"], answer: 0, explanation: "This is the classic valid syllogism (Barbara form)." },
+  { text: "What term describes an argument's overall logical structure, independent of the specific words used?", options: ["Its form", "Its content", "Its length", "Its author"], answer: 0, explanation: "An argument's 'form' is its logical structure, independent of specific content." },
+  { text: "Which of these correctly identifies why a syllogism with true premises and a true conclusion might still be logically invalid?", options: ["Validity depends on logical form, and a coincidentally true conclusion doesn't guarantee the reasoning connecting the premises was actually valid", "This situation is impossible", "All arguments with true conclusions are automatically valid", "Truth of the conclusion is irrelevant to logic entirely"], answer: 0, explanation: "A true conclusion can occur by coincidence even with invalid reasoning." },
+  { text: "How many terms does a standard categorical syllogism contain in total?", options: ["Two", "Three", "Four", "Five"], answer: 1, explanation: "A standard categorical syllogism contains exactly three terms." },
+  { text: "Which categorical proposition form is considered the negation of the 'A' form?", options: ["E", "I", "O", "A negates itself"], answer: 2, explanation: "'O' (Some S are not P) is the contradictory negation of 'A' (All S are P)." },
+  { text: "Which categorical proposition form is considered the negation of the 'E' form?", options: ["A", "I", "O", "E negates itself"], answer: 1, explanation: "'I' (Some S are P) is the contradictory negation of 'E' (No S are P)." },
+  { text: "What is an 'enthymeme'?", options: ["A syllogism with one premise left unstated/implied rather than explicitly stated", "A type of fallacy only", "A valid mathematical proof", "A form of poetry"], answer: 0, explanation: "An enthymeme is a syllogism with an unstated, implied premise." },
+  { text: "If a syllogism has two true premises but is structured invalidly, what can be said about its conclusion?", options: ["The conclusion may be true or false; validity doesn't guarantee it, since the invalid form doesn't reliably preserve truth", "The conclusion is always false", "The conclusion is always true", "The syllogism cannot exist"], answer: 0, explanation: "An invalidly structured syllogism does not reliably preserve truth from premises to conclusion." },
+  { text: "Why does traditional logic insist a categorical syllogism have exactly three terms, no more and no fewer?", options: ["Because the whole structure relies on the middle term logically connecting exactly two other terms across two premises", "It's an arbitrary rule with no logical basis", "Four terms would make the argument automatically true", "There is no such requirement"], answer: 0, explanation: "The three-term structure is essential to how the middle term connects major and minor terms." },
+
+  // UNIT 9: SYMBOLIC LOGIC AND RULES OF INFERENCE
+  { text: "What does the symbol ¬ (or ~) represent in symbolic logic?", options: ["Conjunction", "Negation", "Disjunction", "Implication"], answer: 1, explanation: "¬ (or ~) represents negation (NOT)." },
+  { text: "What does the symbol ∧ represent in symbolic logic?", options: ["Negation", "Conjunction (AND)", "Disjunction (OR)", "Biconditional"], answer: 1, explanation: "∧ represents conjunction (AND)." },
+  { text: "What does the symbol ∨ represent in symbolic logic?", options: ["Negation", "Conjunction", "Disjunction (OR)", "Implication"], answer: 2, explanation: "∨ represents disjunction (OR)." },
+  { text: "What does the symbol → represent in symbolic logic?", options: ["Biconditional", "Conjunction", "Implication (IF...THEN)", "Negation"], answer: 2, explanation: "→ represents implication (IF...THEN)." },
+  { text: "What does the symbol ↔ represent in symbolic logic?", options: ["Implication only", "Biconditional (IF AND ONLY IF)", "Negation", "Disjunction only"], answer: 1, explanation: "↔ represents the biconditional (IF AND ONLY IF)." },
+  { text: "A conditional statement (P → Q) is false only when:", options: ["P is true and Q is true", "P is true and Q is false", "P is false and Q is true", "P is false and Q is false"], answer: 1, explanation: "A conditional is false only when the antecedent (P) is true and the consequent (Q) is false." },
+  { text: "What inference rule allows one to conclude Q from 'If P then Q' and 'P'?", options: ["Modus Tollens", "Modus Ponens", "Disjunctive Syllogism", "Hypothetical Syllogism"], answer: 1, explanation: "Modus Ponens: from P→Q and P, infer Q." },
+  { text: "What inference rule allows one to conclude 'not P' from 'If P then Q' and 'not Q'?", options: ["Modus Ponens", "Modus Tollens", "Simplification", "Addition"], answer: 1, explanation: "Modus Tollens: from P→Q and ¬Q, infer ¬P." },
+  { text: "What inference rule allows one to conclude Q from 'P or Q' and 'not P'?", options: ["Disjunctive Syllogism", "Modus Ponens", "Conjunction", "Simplification"], answer: 0, explanation: "Disjunctive Syllogism: from P∨Q and ¬P, infer Q." },
+  { text: "What inference rule allows one to conclude 'If P then R' from 'If P then Q' and 'If Q then R'?", options: ["Modus Tollens", "Hypothetical Syllogism", "Disjunctive Syllogism", "Addition"], answer: 1, explanation: "Hypothetical Syllogism chains two conditionals together." },
+  { text: "What inference rule allows one to conclude 'P and Q' from 'P' and 'Q' stated separately?", options: ["Simplification", "Addition", "Conjunction", "Modus Ponens"], answer: 2, explanation: "Conjunction combines two separately established statements into P∧Q." },
+  { text: "What inference rule allows one to conclude 'P' alone from 'P and Q'?", options: ["Conjunction", "Simplification", "Addition", "Modus Tollens"], answer: 1, explanation: "Simplification extracts one conjunct from a conjunction." },
+  { text: "What inference rule allows one to conclude 'P or Q' from just 'P' alone?", options: ["Simplification", "Conjunction", "Addition", "Disjunctive Syllogism"], answer: 2, explanation: "Addition allows inferring P∨Q from P alone." },
+  { text: "Which logical laws state that ¬(P ∧ Q) is equivalent to (¬P ∨ ¬Q), and ¬(P ∨ Q) is equivalent to (¬P ∧ ¬Q)?", options: ["De Morgan's Laws", "Modus Ponens", "Hypothetical Syllogism", "The Law of Identity"], answer: 0, explanation: "These equivalences are De Morgan's Laws." },
+  { text: "What is a truth table used for in symbolic logic?", options: ["Listing every possible combination of truth values for a statement's variables, and the resulting truth value of the whole statement", "Recording historical events", "Listing syllogism terms only", "Measuring argument length"], answer: 0, explanation: "A truth table lists all input combinations and the resulting output truth value." },
+  { text: "A biconditional (P ↔ Q) is true exactly when:", options: ["P and Q have the same truth value (both true or both false)", "P is true and Q is false", "P is false and Q is true", "Only when both are true"], answer: 0, explanation: "A biconditional is true when both sides share the same truth value." },
+  { text: "What is a 'constructive dilemma,' as a rule of inference?", options: ["A valid form of reasoning across two conditional statements joined by a disjunction of their antecedents, concluding a disjunction of their consequents", "An informal fallacy", "A type of categorical syllogism only", "A rule that only applies to negation"], answer: 0, explanation: "Constructive dilemma reasons validly across two conditionals joined by a disjunction." },
+  { text: "Symbolic logic primarily improves on natural-language argument analysis by:", options: ["Making the logical structure of an argument explicit and unambiguous through formal notation", "Making arguments more persuasive emotionally", "Removing the need for valid reasoning", "Replacing all natural language entirely"], answer: 0, explanation: "Symbolic notation makes logical structure explicit and unambiguous." },
+  { text: "Which of these logical connectives requires only one of the two statements to be true for the whole statement to be true?", options: ["Conjunction (∧)", "Disjunction (∨)", "Negation (¬)", "Biconditional (↔)"], answer: 1, explanation: "Disjunction (OR) is true if at least one disjunct is true." },
+  { text: "Why are the classical rules of inference (Modus Ponens, Modus Tollens, etc.) considered reliable methods of proof?", options: ["They are truth-preserving: if applied to true premises, they are guaranteed to yield a true conclusion", "They are simply popular conventions with no guarantee", "They only work in mathematics", "They were invented recently and are unproven"], answer: 0, explanation: "Classical inference rules are truth-preserving by their logical structure." },
+
+  // UNIT 10: MORAL PHILOSOPHY (ETHICS)
+  { text: "What is metaethics concerned with?", options: ["The nature and meaning of moral language itself, e.g. what 'good' means", "Specific practical ethical dilemmas", "The history of philosophy", "Formal logic"], answer: 0, explanation: "Metaethics examines the nature and meaning of moral language and concepts." },
+  { text: "What is normative ethics concerned with?", options: ["Developing and evaluating theories/standards for determining right action", "The meaning of moral terms only", "Practical case-by-case dilemmas only", "Formal symbolic logic"], answer: 0, explanation: "Normative ethics develops and evaluates standards for right action." },
+  { text: "What is applied ethics concerned with?", options: ["Applying ethical theory to specific practical issues like bioethics or business ethics", "The meaning of moral language", "Formal logic", "Ancient history"], answer: 0, explanation: "Applied ethics applies theory to concrete practical issues." },
+  { text: "Which ethical theory holds that actions are right or wrong based on adherence to moral duties/rules, regardless of consequences?", options: ["Consequentialism", "Deontology", "Virtue Ethics", "Egoism"], answer: 1, explanation: "Deontology judges actions by adherence to duty/rules, not consequences." },
+  { text: "Which philosopher is most closely associated with deontological ethics and the Categorical Imperative?", options: ["John Stuart Mill", "Immanuel Kant", "Aristotle", "Jeremy Bentham"], answer: 1, explanation: "Immanuel Kant developed deontological ethics and the Categorical Imperative." },
+  { text: "Which ethical theory holds that the rightness of an action depends primarily on its consequences?", options: ["Deontology", "Consequentialism", "Virtue Ethics", "Natural Law Theory"], answer: 1, explanation: "Consequentialism judges an action's rightness by its consequences." },
+  { text: "Which specific form of consequentialism holds that the right action maximizes overall happiness/well-being?", options: ["Deontology", "Utilitarianism", "Virtue Ethics", "Relativism"], answer: 1, explanation: "Utilitarianism holds the right action maximizes overall happiness." },
+  { text: "Which philosophers are most associated with founding utilitarianism?", options: ["Jeremy Bentham and John Stuart Mill", "Kant and Hegel", "Plato and Aristotle", "Locke and Hume"], answer: 0, explanation: "Jeremy Bentham and John Stuart Mill are utilitarianism's founding figures." },
+  { text: "Which ethical theory holds that right action flows from good character (virtues) rather than rules or outcomes alone?", options: ["Deontology", "Consequentialism", "Virtue Ethics", "Relativism"], answer: 2, explanation: "Virtue Ethics grounds right action in good character." },
+  { text: "Which ancient philosopher is most closely associated with virtue ethics?", options: ["Aristotle", "Kant", "Mill", "Bentham"], answer: 0, explanation: "Aristotle is the central figure associated with virtue ethics." },
+  { text: "Which ethical theory grounds morality in a rational order inherent in nature/human nature, associated with Thomas Aquinas?", options: ["Utilitarianism", "Natural Law Theory", "Emotivism", "Existentialist ethics"], answer: 1, explanation: "Natural Law Theory, associated with Aquinas, grounds morality in nature's rational order." },
+  { text: "What is ethical relativism?", options: ["The view that moral standards vary and are not universally binding across all cultures/individuals", "The view that morality is always absolute", "A branch of formal logic", "A theory of political sovereignty"], answer: 0, explanation: "Ethical relativism holds moral standards vary across cultures/individuals." },
+  { text: "What is ethical absolutism/objectivism, as contrasted with relativism?", options: ["The view that some moral truths hold universally, regardless of individual or cultural belief", "The view that morality is entirely subjective", "The view that ethics has no relation to reasoning", "The view that only consequences matter"], answer: 0, explanation: "Ethical absolutism holds some moral truths are universally binding." },
+  { text: "Which branch of applied ethics deals specifically with moral issues in medicine and biological research?", options: ["Business ethics", "Bioethics", "Environmental ethics", "Political ethics"], answer: 1, explanation: "Bioethics addresses moral issues in medicine and biological research." },
+  { text: "Which branch of applied ethics deals specifically with moral issues in commerce and corporate conduct?", options: ["Bioethics", "Business ethics", "Environmental ethics", "Metaethics"], answer: 1, explanation: "Business ethics addresses moral issues in commerce and corporate conduct." },
+  { text: "Which branch of applied ethics deals specifically with humanity's moral obligations toward nature?", options: ["Bioethics", "Business ethics", "Environmental ethics", "Political ethics"], answer: 2, explanation: "Environmental ethics addresses humanity's moral obligations toward nature." },
+  { text: "Kant's Categorical Imperative can be summarized as which principle?", options: ["Act only according to a rule you could will to become a universal law", "Always maximize pleasure", "Follow whatever your culture dictates", "Act only for personal gain"], answer: 0, explanation: "Kant's Categorical Imperative requires acting only on universalizable maxims." },
+  { text: "How does philosophy contribute practically to character molding, according to this course's framing?", options: ["By training habits of critical self-reflection and careful reasoning through moral dilemmas", "By enforcing legal punishments", "By replacing personal judgment with religious doctrine", "By discouraging any reflection on values"], answer: 0, explanation: "Philosophy shapes character by training critical self-reflection and careful moral reasoning." },
+  { text: "Which of these best distinguishes deontology from consequentialism?", options: ["Deontology judges actions by duty/rules; consequentialism judges actions by their outcomes", "They are identical theories", "Deontology only concerns political philosophy", "Consequentialism ignores outcomes entirely"], answer: 0, explanation: "Deontology focuses on duty/rules; consequentialism focuses on outcomes." },
+  { text: "Which ethical theory would most likely judge an action's rightness by asking 'what would a person of excellent character do here?'", options: ["Utilitarianism", "Deontology", "Virtue Ethics", "Relativism"], answer: 2, explanation: "Virtue Ethics evaluates actions by reference to virtuous character." },
+
+  // UNIT 11: PHILOSOPHY OF RELIGION
+  { text: "What distinguishes philosophy of religion from theology?", options: ["Philosophy of religion uses reason and argument to critically examine religious claims rather than presupposing their truth", "They are identical disciplines", "Theology never uses reasoning", "Philosophy of religion only studies atheism"], answer: 0, explanation: "Philosophy of religion critically examines religious claims through reason, without presupposing their truth." },
+  { text: "Which argument for God's existence reasons a priori from the very concept of God as the greatest conceivable being?", options: ["Cosmological Argument", "Ontological Argument", "Teleological Argument", "Moral Argument"], answer: 1, explanation: "The Ontological Argument reasons a priori from the concept of God." },
+  { text: "Which medieval philosopher is most associated with the Ontological Argument?", options: ["Thomas Aquinas", "Anselm of Canterbury", "Augustine", "Duns Scotus"], answer: 1, explanation: "Anselm of Canterbury formulated the Ontological Argument." },
+  { text: "Which argument for God's existence reasons from the existence of the universe/causation back to a First Cause?", options: ["Ontological Argument", "Cosmological Argument", "Moral Argument", "Argument from religious experience"], answer: 1, explanation: "The Cosmological Argument reasons from causation to a First Cause." },
+  { text: "Which medieval philosopher is most associated with the Cosmological Argument (the 'Five Ways')?", options: ["Anselm", "Thomas Aquinas", "Augustine", "Averroes"], answer: 1, explanation: "Thomas Aquinas's Five Ways are cosmological arguments." },
+  { text: "Which argument for God's existence reasons from the order, complexity, and apparent purposefulness of the universe to an intelligent designer?", options: ["Ontological Argument", "Cosmological Argument", "Teleological (Design) Argument", "Moral Argument"], answer: 2, explanation: "The Teleological/Design Argument reasons from apparent order to an intelligent designer." },
+  { text: "Which argument for God's existence reasons from the existence of objective moral values to a moral lawgiver?", options: ["Teleological Argument", "Cosmological Argument", "Moral Argument", "Ontological Argument"], answer: 2, explanation: "The Moral Argument reasons from objective moral values to a moral lawgiver." },
+  { text: "What is the 'Problem of Evil' in philosophy of religion?", options: ["The challenge of reconciling an all-powerful, all-knowing, perfectly good God with the existence of suffering and evil", "A logical proof that God exists", "A branch of political philosophy", "A theory of knowledge"], answer: 0, explanation: "The Problem of Evil challenges reconciling God's attributes with the existence of evil." },
+  { text: "What term describes a philosophical defense attempting to reconcile God's existence with the reality of evil?", options: ["A theodicy", "An ontological proof", "A syllogism", "A dialectic"], answer: 0, explanation: "A theodicy is a defense reconciling God's existence with evil." },
+  { text: "What does 'immortality of the soul' refer to in philosophy of religion?", options: ["The question of whether the soul or personal identity survives bodily death", "The question of whether God is finite", "A branch of political philosophy", "A type of logical fallacy"], answer: 0, explanation: "Immortality of the soul concerns whether personal identity survives death." },
+  { text: "What is a key difference between philosophical and purely scriptural/religious arguments for God's existence?", options: ["Philosophical arguments rely on reason and logical argument rather than solely on scriptural authority", "They are identical", "Philosophical arguments always reject God's existence", "Scriptural arguments never mention God"], answer: 0, explanation: "Philosophical arguments rely on reason rather than solely scriptural authority." },
+  { text: "Which of the following best describes agnosticism?", options: ["The belief that it is impossible to know for certain whether God exists", "Certainty that God exists", "Certainty that God does not exist", "A branch of ethics"], answer: 0, explanation: "Agnosticism holds that certainty about God's existence is unattainable." },
+  { text: "Which of the following best describes atheism?", options: ["The belief or lack of belief that God does not exist", "The certainty that God exists", "The suspension of judgment about God's existence", "A form of pantheism"], answer: 0, explanation: "Atheism is the belief/lack of belief that God does not exist." },
+  { text: "Which of the following best describes theism?", options: ["The belief that God (or gods) exists", "The denial of God's existence", "The claim that knowledge of God is impossible", "A synonym for atheism"], answer: 0, explanation: "Theism is the belief that God (or gods) exists." },
+  { text: "What is pantheism?", options: ["The belief that God is identical with the universe/nature itself", "The belief in many separate gods", "The denial of any divine reality", "The belief that God is unknowable"], answer: 0, explanation: "Pantheism identifies God with the universe/nature itself." },
+  { text: "What is polytheism?", options: ["Belief in a single God", "Belief in multiple gods", "Denial of all gods", "The philosophical study of miracles"], answer: 1, explanation: "Polytheism is the belief in multiple gods." },
+  { text: "What role does 'religious experience' play as evidence in philosophy of religion?", options: ["Some philosophers treat direct religious/mystical experience as a form of evidence for religious belief, though its reliability is debated", "It plays no role whatsoever", "It is universally accepted as conclusive proof", "It is a formal logical fallacy"], answer: 0, explanation: "Religious experience is treated by some as evidence, though its reliability is debated." },
+  { text: "Which of the following questions falls squarely within the scope of philosophy of religion?", options: ["What is the origin of the universe, and does it point to a creator?", "What is the boiling point of water?", "What is the capital of France?", "How many legs does a spider have?"], answer: 0, explanation: "Questions about the universe's origin and a creator fall within philosophy of religion." },
+  { text: "What does 'man's place in the universe,' as a philosophy of religion theme, typically explore?", options: ["Humanity's purpose, significance, and relationship to the divine or cosmos", "Only geographic location on Earth", "Political borders", "Economic systems"], answer: 0, explanation: "This theme explores humanity's purpose and relationship to the divine/cosmos." },
+  { text: "Why is the Problem of Evil considered such a central challenge in philosophy of religion?", options: ["Because it directly tests the logical coherence of theism's core claims about God's nature", "It has no real philosophical significance", "It only concerns atheists", "It was resolved definitively centuries ago with no ongoing debate"], answer: 0, explanation: "The Problem of Evil tests the logical coherence of theism's core claims." },
+
+  // UNIT 12: POLITICAL PHILOSOPHY
+  { text: "What is the central problem political philosophy examines?", options: ["The legitimacy of political authority and obligation", "The chemical composition of matter", "The rules of formal logic", "The nature of beauty"], answer: 0, explanation: "Political philosophy centrally examines the legitimacy of political authority/obligation." },
+  { text: "What is social contract theory?", options: ["The view that political authority/obligation arises from an agreement among individuals to form and submit to government", "The view that all political authority is illegitimate", "A theory of formal logic", "A theory of aesthetics"], answer: 0, explanation: "Social contract theory grounds political authority in an agreement among individuals." },
+  { text: "Which philosopher described the state of nature as a 'war of all against all,' making life 'solitary, poor, nasty, brutish, and short'?", options: ["John Locke", "Thomas Hobbes", "Jean-Jacques Rousseau", "Immanuel Kant"], answer: 1, explanation: "Thomas Hobbes described the state of nature this way in Leviathan." },
+  { text: "According to Hobbes, why do individuals consent to an absolute sovereign?", options: ["To escape the dangerous state of nature and secure peace/order", "To maximize personal pleasure only", "To eliminate all forms of government", "To establish direct democracy exclusively"], answer: 0, explanation: "Hobbes argued individuals consent to a sovereign to escape the state of nature." },
+  { text: "Which philosopher argued individuals possess natural rights (life, liberty, property) even in the state of nature, and that government exists by consent to protect these rights?", options: ["Thomas Hobbes", "John Locke", "Jean-Jacques Rousseau", "Karl Marx"], answer: 1, explanation: "John Locke argued for natural rights and government by consent to protect them." },
+  { text: "According to Locke, what may legitimately happen if a government fails to protect citizens' natural rights?", options: ["Citizens may be justified in resisting or replacing that government", "Nothing can be done", "The government becomes more legitimate", "Citizens must simply obey forever"], answer: 0, explanation: "Locke argued citizens may justifiably resist a government that fails its purpose." },
+  { text: "Which philosopher argued that legitimate political authority arises from the 'general will' of the people collectively?", options: ["Thomas Hobbes", "John Locke", "Jean-Jacques Rousseau", "Aristotle"], answer: 2, explanation: "Rousseau grounded legitimate authority in the collective 'general will.'" },
+  { text: "What is 'the state,' in political philosophy?", options: ["A political organization with a monopoly on legitimate authority over a defined territory and population", "A purely cultural community with no political structure", "A branch of ethics", "A type of syllogism"], answer: 0, explanation: "The state is a political organization with authority over a territory/population." },
+  { text: "What is 'the nation,' as distinguished from 'the state'?", options: ["A community bound by shared identity (culture, language, history), which may or may not align with a single state's borders", "Identical in meaning to 'the state'", "A type of government only", "A branch of formal logic"], answer: 0, explanation: "A nation is a shared-identity community, distinct from the political entity of a state." },
+  { text: "What is 'sovereignty'?", options: ["The supreme, independent authority of a state to govern itself without external interference", "A type of religious belief", "A branch of aesthetics", "A logical fallacy"], answer: 0, explanation: "Sovereignty is a state's supreme, independent authority to self-govern." },
+  { text: "What is 'justice,' broadly understood in political philosophy?", options: ["The fair and equitable distribution of rights, duties, and resources within a political community", "The strict enforcement of all laws regardless of fairness", "A synonym for sovereignty", "A branch of epistemology"], answer: 0, explanation: "Justice concerns the fair distribution of rights, duties, and resources." },
+  { text: "What is 'civil disobedience'?", options: ["The deliberate, public, and typically non-violent violation of a law to protest its injustice or effect political change", "Violent revolution", "Strict obedience to all laws", "A form of religious worship"], answer: 0, explanation: "Civil disobedience is deliberate, public, non-violent law-breaking to protest injustice." },
+  { text: "What does 'political obligation' refer to?", options: ["The moral duty (if any) of citizens to obey the laws and authority of their state", "A legal requirement to vote", "A branch of aesthetics", "A form of civil disobedience"], answer: 0, explanation: "Political obligation is citizens' moral duty (if any) to obey their state's authority." },
+  { text: "Which of the following best describes the difference between Hobbes' and Locke's views of the state of nature?", options: ["Hobbes saw it as inherently violent and dangerous, requiring absolute authority; Locke saw it as governed by natural rights and reason, requiring only limited government", "They held identical views", "Locke argued for absolute monarchy; Hobbes argued for democracy", "Neither discussed the state of nature"], answer: 0, explanation: "Hobbes and Locke held starkly different views of the state of nature and the government it justifies." },
+  { text: "What does Rousseau's concept of 'the general will' refer to?", options: ["The collective will of the people as a whole, aimed at the common good, which legitimate law should express", "The personal will of a monarch", "A branch of formal logic", "A type of civil disobedience"], answer: 0, explanation: "The 'general will' is the collective will of the people aimed at the common good." },
+  { text: "Which of the following is an example of a question within the scope of political philosophy?", options: ["Why should citizens obey the law?", "What is the boiling point of water?", "What is the structure of a syllogism?", "What is the nature of beauty?"], answer: 0, explanation: "Political obligation — why citizens should obey the law — is a core political philosophy question." },
+  { text: "What philosophical justification is often given for civil disobedience?", options: ["That unjust laws lack full moral legitimacy, so public, non-violent resistance can be justified to correct them", "That all laws must always be obeyed without exception", "That civil disobedience is never justified under any theory", "That it is required by all political systems"], answer: 0, explanation: "Civil disobedience is often justified on the grounds that unjust laws lack full moral legitimacy." },
+  { text: "Why is the concept of 'consent' central to social contract theories like Locke's?", options: ["Legitimate political authority is grounded in the agreement (explicit or implicit) of the governed", "Consent is irrelevant to political legitimacy", "Consent only matters in religious contexts", "Consent replaces the need for laws entirely"], answer: 0, explanation: "Consent of the governed is the basis of legitimate authority in social contract theory." },
+  { text: "Which of the following best distinguishes 'nation' from 'state' when the two do not align (e.g. a nation without its own state)?", options: ["A nation is a cultural/identity-based community, while a state is a political/territorial organization with authority", "They are always identical", "A nation always has its own government", "A state cannot exist without a nation"], answer: 0, explanation: "Nation is identity-based; state is a political/territorial organization." },
+  { text: "What core question unites social contract theorists like Hobbes, Locke, and Rousseau, despite their differing conclusions?", options: ["What justifies political authority and obligates individuals to obey it?", "What is the chemical structure of the atom?", "What is the correct syllogistic form?", "What is the nature of beauty?"], answer: 0, explanation: "All three theorists address what justifies political authority and obligation." },
+
+  // UNIT 13: PHILOSOPHY AND HUMAN EXISTENCE (EXISTENTIALISM)
+  { text: "What does Sartre's phrase 'existence precedes essence' mean?", options: ["Humans are not born with a fixed nature/purpose but must freely create their own meaning through their choices", "Humans are born with a predetermined essence that dictates their choices", "Essence and existence are identical concepts", "Only essence matters, not existence"], answer: 0, explanation: "Sartre held humans create their own meaning, rather than being born with a fixed essence." },
+  { text: "Why did Sartre describe human beings as 'condemned to be free'?", options: ["Because freedom is inescapable, and with it comes full, unavoidable responsibility for one's choices", "Because humans have no freedom at all", "Because freedom is a punishment imposed only on criminals", "Because Sartre denied that humans can choose anything"], answer: 0, explanation: "For Sartre, freedom is inescapable and brings inescapable responsibility." },
+  { text: "What does 'authenticity' mean in existentialist philosophy?", options: ["Living in accordance with one's own true values and freely-chosen commitments, rather than conforming to external expectations", "Strictly obeying all social norms", "Avoiding all personal responsibility", "Denying one's own existence"], answer: 0, explanation: "Authenticity means living according to one's own freely-chosen values, not external conformity." },
+  { text: "What is 'bad faith,' according to Sartre?", options: ["The act of denying one's own freedom and responsibility by pretending one's choices are forced or predetermined", "A religious sin", "A form of logical fallacy", "A type of valid syllogism"], answer: 0, explanation: "Bad faith is denying one's own freedom/responsibility by pretending choices are forced." },
+  { text: "How do Kierkegaard and Heidegger describe 'anxiety' (Angst) in existentialist terms?", options: ["As arising specifically from confronting the weight of one's own freedom and the undetermined possibilities of existence", "As identical to ordinary fear of a specific object", "As irrelevant to human existence", "As a purely physical, non-philosophical sensation"], answer: 0, explanation: "Existentialist anxiety arises from confronting the weight of one's own freedom." },
+  { text: "What does 'alienation' refer to in existentialist and social philosophy?", options: ["The feeling of isolation or estrangement from oneself, others, or a meaningless world", "A feeling of complete belonging and connection", "A formal logical fallacy", "A branch of political philosophy only"], answer: 0, explanation: "Alienation is the feeling of estrangement from self, others, or a meaningless world." },
+  { text: "What is 'the Absurd,' according to Albert Camus?", options: ["The fundamental conflict between humanity's search for inherent meaning and the universe's silent indifference to that search", "A synonym for happiness", "A logical fallacy", "A branch of epistemology"], answer: 0, explanation: "Camus's Absurd is the conflict between humanity's search for meaning and the universe's silence." },
+  { text: "How did Camus argue we should respond to the Absurd?", options: ["By embracing life fully despite the lack of inherent meaning, without illusory consolation", "By committing suicide as the only rational response", "By ignoring the problem entirely", "By seeking only religious answers"], answer: 0, explanation: "Camus argued for embracing life fully despite the Absurd, without illusory consolation." },
+  { text: "How did Martin Heidegger describe authentic existence in relation to death?", options: ["As living with full awareness of one's own inevitable 'being-toward-death'", "As avoiding all thought of death entirely", "As believing death has no philosophical significance", "As identical to religious immortality doctrines"], answer: 0, explanation: "Heidegger's authentic existence involves full awareness of one's 'being-toward-death.'" },
+  { text: "What is 'Thanatology'?", options: ["The philosophical and scientific study of death and its meaning for human life", "The study of political philosophy", "The study of formal logic", "The study of aesthetics"], answer: 0, explanation: "Thanatology is the study of death and its meaning for human life." },
+  { text: "What does Sartre mean by 'the Other'?", options: ["Another person who, through their own perspective/gaze, affects and helps constitute one's own self-identity", "An imaginary being with no real existence", "A synonym for God", "A logical fallacy"], answer: 0, explanation: "Sartre's 'Other' is another person whose gaze/perspective helps constitute one's identity." },
+  { text: "Why do interpersonal relationships matter in existentialist philosophy?", options: ["Because encountering 'the Other' is treated as a central, unavoidable part of authentic existence, requiring mutual recognition and responsibility", "Because existentialists deny other people exist", "Because relationships are considered philosophically irrelevant", "Because existentialism only concerns isolated individuals"], answer: 0, explanation: "Interpersonal encounters with 'the Other' are central to authentic existentialist existence." },
+  { text: "What is anthropocentrism, as discussed in environmental philosophy?", options: ["The human-centered view that only humans possess inherent moral worth", "The view that all species have exactly equal rights", "A branch of formal logic", "A theory of political sovereignty"], answer: 0, explanation: "Anthropocentrism is the human-centered view that only humans have inherent moral worth." },
+  { text: "How does philosophy contribute to contemporary debates on human rights, according to this course's framing?", options: ["By offering rational justification and critical reflection, rather than relying solely on religious backing", "By replacing all legal systems", "By ignoring the topic entirely", "By asserting rights exist purely by religious decree"], answer: 0, explanation: "Philosophy offers rational justification and critical reflection for human rights debates." },
+  { text: "What existentialist theme is most directly illustrated by feeling cut off from meaningful connection in a world that seems indifferent?", options: ["Alienation", "Determinism", "Rationalism", "Utilitarianism"], answer: 0, explanation: "This describes alienation — estrangement in a seemingly indifferent world." },
+  { text: "According to existentialist philosophy, why does death give urgency and meaning to life, rather than being something to simply avoid thinking about?", options: ["Confronting our finitude pushes us to live more authentically and take our choices seriously", "Death has no philosophical relevance whatsoever", "Existentialists deny that death occurs", "Death is considered purely a religious topic outside philosophy's scope"], answer: 0, explanation: "Confronting finitude/death pushes existentialists toward more authentic, urgent living." },
+  { text: "What is the opposite of living 'authentically,' in existentialist terms?", options: ["Living in 'bad faith,' conforming to external roles while denying one's own freedom", "Living with excessive freedom", "Living without any social interaction", "Living scientifically"], answer: 0, explanation: "The opposite of authenticity is 'bad faith' — denying one's freedom by conforming to external roles." },
+  { text: "How does philosophy engage with environmental protection, according to this unit's themes?", options: ["By advocating ethical responsibility toward nature and questioning purely human-centered viewpoints", "By opposing all scientific research", "By ignoring environmental issues", "By treating nature as having no philosophical relevance"], answer: 0, explanation: "Philosophy engages environmental protection by questioning anthropocentrism and advocating ethical responsibility toward nature." },
+  { text: "Which existentialist concept best captures the idea that one's choices are never truly free because 'society made me do it'?", options: ["Bad faith", "Authenticity", "The Absurd", "Sovereignty"], answer: 0, explanation: "Blaming society entirely for one's choices is a classic example of Sartrean 'bad faith.'" },
+  { text: "What overarching question does Unit Thirteen's material on human existence ultimately explore?", options: ["What does it mean to exist freely, authentically, and responsibly as a finite human being among others?", "What is the boiling point of water?", "What is a valid syllogism?", "What is the structure of a categorical proposition?"], answer: 0, explanation: "This unit explores what it means to exist freely, authentically, and responsibly." }
+];
+
+// --- CONFIG ---
+const QUIZ_SIZE = 50;
+const TIME_LIMIT = 30 * 60;
+const MARKS_PER_Q = 1.4;
+const TOTAL_MARKS = Math.round(QUIZ_SIZE * MARKS_PER_Q * 10) / 10;
+
+document.getElementById('bank-size-line').textContent =
+  QUIZ_SIZE + " random questions selected from a master bank of " + rawQuizData.length + ".";
+
+// --- STATE ---
+let quizQuestions = [];
+let currentIndex = 0;
+let userAnswers = [];
+let timerInterval = null;
+let secondsLeft = TIME_LIMIT;
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildQuiz() {
+  const pool = shuffle(rawQuizData);
+  const chosen = pool.slice(0, Math.min(QUIZ_SIZE, rawQuizData.length));
+  quizQuestions = chosen.map(q => {
+    const optIdx = q.options.map((opt, i) => ({ opt, isCorrect: i === q.answer }));
+    const shuffled = shuffle(optIdx);
+    return {
+      text: q.text,
+      explanation: q.explanation,
+      options: shuffled.map(o => o.opt),
+      answer: shuffled.findIndex(o => o.isCorrect)
+    };
+  });
+  userAnswers = new Array(quizQuestions.length).fill(null);
+  currentIndex = 0;
+  secondsLeft = TIME_LIMIT;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startQuiz() {
+  buildQuiz();
+  document.getElementById('q-total').textContent = '/ ' + quizQuestions.length;
+  showScreen('quiz');
+  startTimer();
+  renderQuestion();
+  renderMap();
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    updateTimerDisplay();
+    if (secondsLeft <= 0) {
+      clearInterval(timerInterval);
+      finishQuiz();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(secondsLeft / 60);
+  const s = secondsLeft % 60;
+  const disp = document.getElementById('timer-display');
+  disp.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  disp.classList.remove('warning', 'danger');
+  if (secondsLeft <= 60) disp.classList.add('danger');
+  else if (secondsLeft <= 300) disp.classList.add('warning');
+}
+
+function renderQuestion() {
+  const q = quizQuestions[currentIndex];
+  const n = quizQuestions.length;
+  document.getElementById('q-counter').textContent = 'Q' + (currentIndex + 1);
+  document.getElementById('progress-fill').style.width = (currentIndex / (n - 1)) * 100 + '%';
+  document.getElementById('q-badge').textContent = 'QUESTION ' + String(currentIndex + 1).padStart(2, '0');
+  document.getElementById('question-text').textContent = q.text;
+
+  const card = document.getElementById('question-card');
+  card.classList.remove('slide-in');
+  void card.offsetWidth;
+  card.classList.add('slide-in');
+
+  const list = document.getElementById('options-list');
+  list.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.options.forEach((optText, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn' + (userAnswers[currentIndex] === i ? ' selected' : '');
+    btn.innerHTML = '<span class="option-letter">' + letters[i] + '</span><span>' + optText + '</span>';
+    btn.onclick = () => {
+      userAnswers[currentIndex] = i;
+      renderQuestion();
+      renderMap();
+    };
+    list.appendChild(btn);
+  });
+
+  document.getElementById('btn-prev').disabled = currentIndex === 0;
+  document.getElementById('btn-next').disabled = currentIndex === n - 1;
+}
+
+function renderMap() {
+  const map = document.getElementById('q-map');
+  map.innerHTML = '';
+  quizQuestions.forEach((q, i) => {
+    const dot = document.createElement('div');
+    let cls = 'q-dot';
+    if (i === currentIndex) cls += ' current';
+    else if (userAnswers[i] !== null) cls += ' answered';
+    dot.className = cls;
+    dot.textContent = i + 1;
+    dot.onclick = () => { currentIndex = i; renderQuestion(); renderMap(); };
+    map.appendChild(dot);
+  });
+}
+
+function navigate(dir) {
+  const newIndex = currentIndex + dir;
+  if (newIndex >= 0 && newIndex < quizQuestions.length) {
+    currentIndex = newIndex;
+    renderQuestion();
+    renderMap();
+  }
+}
+
+function showConfirmModal(message, onConfirm) {
+  const overlay = document.getElementById('modal-overlay');
+  document.getElementById('modal-message').textContent = message;
+  overlay.style.display = 'flex';
+
+  const confirmBtn = document.getElementById('modal-confirm');
+  const cancelBtn = document.getElementById('modal-cancel');
+
+  // Clone buttons to strip any previously attached one-time listeners
+  const newConfirm = confirmBtn.cloneNode(true);
+  const newCancel = cancelBtn.cloneNode(true);
+  confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
+  cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+
+  newConfirm.addEventListener('click', () => {
+    overlay.style.display = 'none';
+    onConfirm();
+  });
+  newCancel.addEventListener('click', () => {
+    overlay.style.display = 'none';
+  });
+}
+
+function confirmSubmit() {
+  const unanswered = userAnswers.filter(a => a === null).length;
+  const msg = unanswered > 0
+    ? 'You have ' + unanswered + ' unanswered question(s). Submit anyway?'
+    : 'Submit the exam now?';
+  showConfirmModal(msg, finishQuiz);
+}
+
+function finishQuiz() {
+  clearInterval(timerInterval);
+
+  let correct = 0, wrong = 0, skipped = 0;
+  quizQuestions.forEach((q, i) => {
+    if (userAnswers[i] === null) skipped++;
+    else if (userAnswers[i] === q.answer) correct++;
+    else wrong++;
+  });
+
+  const marks = Math.round(correct * MARKS_PER_Q * 10) / 10;
+  const pct = Math.round((correct / quizQuestions.length) * 100);
+
+  const scoreEl = document.getElementById('result-score');
+  scoreEl.textContent = marks + '/' + TOTAL_MARKS;
+  scoreEl.className = 'result-score ' + (pct >= 50 ? 'pass' : 'fail');
+
+  document.getElementById('result-emoji').textContent =
+    pct >= 85 ? '🏆' : pct >= 70 ? '🎯' : pct >= 50 ? '📚' : '💪';
+  document.getElementById('result-label').textContent =
+    correct + ' / ' + quizQuestions.length + ' correct (' + pct + '%)';
+
+  document.getElementById('stat-correct').textContent = correct;
+  document.getElementById('stat-wrong').textContent = wrong;
+  document.getElementById('stat-skip').textContent = skipped;
+
+  showScreen('result');
+}
+
+function showReview() {
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+
+  quizQuestions.forEach((q, i) => {
+    const chosen = userAnswers[i];
+    const status = chosen === null ? 'skipped' : (chosen === q.answer ? 'correct' : 'wrong');
+
+    const card = document.createElement('div');
+    card.className = 'review-card ' + status;
+
+    let yourAnsHtml = '';
+    if (chosen === null) {
+      yourAnsHtml = '<div class="review-ans">Your answer: <span class="ans-wrong">Skipped</span></div>';
+    } else {
+      yourAnsHtml = '<div class="review-ans">Your answer: <span class="' + (status === 'correct' ? 'ans-correct' : 'ans-wrong') + '">' +
+        letters[chosen] + '. ' + q.options[chosen] + '</span></div>';
+    }
+
+    let correctAnsHtml = '';
+    if (status !== 'correct') {
+      correctAnsHtml = '<div class="review-ans">Correct answer: <span class="ans-correct">' +
+        letters[q.answer] + '. ' + q.options[q.answer] + '</span></div>';
+    }
+
+    card.innerHTML =
+      '<div class="review-q">' + (i + 1) + '. ' + q.text + '</div>' +
+      yourAnsHtml + correctAnsHtml +
+      '<div class="review-exp">' + q.explanation + '</div>';
+
+    list.appendChild(card);
+  });
+
+  showScreen('review');
+}
+
+function backToResults() {
+  showScreen('result');
+}
+</script>
+</body>
+</html>

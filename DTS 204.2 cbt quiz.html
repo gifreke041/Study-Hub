@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DTS 204.2 Data Management CBT</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --surface: #111827;
+  --card: #1a2236;
+  --border: #1e3a5f;
+  --accent: #00d4ff;
+  --accent2: #237cae;
+  --green: #00ff88;
+  --red: #ff4466;
+  --yellow: #ffd700;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --glow: 0 0 20px rgba(0,212,255,0.3);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(0,212,255,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(124,58,237,0.06) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.screen { display: none; position: relative; z-index: 1; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ===== INTRO SCREEN ===== */
+#intro {
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0,212,255,0.08);
+  border: 1px solid var(--accent);
+  border-radius: 100px;
+  padding: 8px 20px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--accent);
+  letter-spacing: 2px;
+  margin-bottom: 2rem;
+  animation: fadeDown 0.6s ease;
+}
+
+.logo-badge::before { content: "▣"; animation: spin 3s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.intro-title {
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+  animation: fadeDown 0.7s ease;
+}
+
+.intro-title span {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.intro-sub { font-size: 1rem; color: var(--muted); margin-bottom: 3rem; animation: fadeDown 0.8s ease; }
+
+.info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; max-width: 600px; margin-bottom: 3rem; animation: fadeUp 0.9s ease; }
+
+.info-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1rem; text-align: center; }
+.info-card .val { font-size: 1.8rem; font-weight: 700; color: var(--accent); font-family: 'Share Tech Mono', monospace; display: block; }
+.info-card .lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+.rules { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem 2rem; max-width: 500px; text-align: left; margin-bottom: 2.5rem; animation: fadeUp 1s ease; }
+.rules h3 { color: var(--accent); font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem; font-family: 'Share Tech Mono', monospace; }
+.rules li { list-style: none; padding: 0.4rem 0; font-size: 0.9rem; color: var(--muted); padding-left: 1.2rem; position: relative; }
+.rules li::before { content: ">"; position: absolute; left: 0; color: var(--accent); }
+
+.btn-start {
+  background: linear-gradient(135deg, var(--accent), #0099cc);
+  color: #000; border: none; padding: 1rem 3rem; border-radius: 100px; font-family: 'Exo 2', sans-serif;
+  font-size: 1rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+  transition: all 0.3s; box-shadow: var(--glow); animation: fadeUp 1.1s ease;
+}
+.btn-start:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 0 40px rgba(0,212,255,0.5); }
+
+/* ===== QUIZ SCREEN ===== */
+#quiz { min-height: 100vh; }
+
+.quiz-header {
+  position: sticky; top: 0; z-index: 100; background: rgba(10,14,26,0.95); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); padding: 0.75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+
+.q-meta { display: flex; align-items: center; gap: 0.5rem; font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; }
+.q-counter { color: var(--accent); font-weight: 700; }
+.q-total { color: var(--muted); }
+
+.progress-bar-wrap { flex: 1; height: 4px; background: var(--border); border-radius: 10px; overflow: hidden; max-width: 300px; }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 10px; transition: width 0.4s ease; width: 0%; }
+
+.timer-wrap { display: flex; align-items: center; gap: 0.5rem; background: var(--card); border: 1px solid var(--border); border-radius: 100px; padding: 0.4rem 1rem; }
+#timer-display { font-family: 'Share Tech Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--accent); min-width: 52px; text-align: center; transition: color 0.3s; }
+#timer-display.warning { color: var(--yellow); }
+#timer-display.danger { color: var(--red); animation: pulse 0.5s infinite alternate; }
+
+@keyframes pulse { from { opacity: 1; } to { opacity: 0.4; } }
+
+/* QUESTION BODY */
+.quiz-body { flex: 1; display: flex; flex-direction: column; padding: 2rem 1.5rem; max-width: 780px; width: 100%; margin: 0 auto; }
+.question-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem; position: relative; overflow: hidden; }
+.question-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+.q-number-badge { display: inline-block; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); color: var(--accent); font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; padding: 3px 10px; border-radius: 100px; margin-bottom: 1rem; letter-spacing: 1px; }
+.question-text { font-size: 1.05rem; font-weight: 600; line-height: 1.6; color: var(--text); }
+
+.options-list { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
+.option-btn { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: all 0.2s; text-align: left; width: 100%; color: var(--text); font-family: 'Exo 2', sans-serif; font-size: 0.95rem; font-weight: 400; }
+.option-btn:hover { border-color: var(--accent); background: rgba(0,212,255,0.06); transform: translateX(4px); }
+.option-btn.selected { border-color: var(--accent); background: rgba(0,212,255,0.12); color: var(--accent); }
+.option-letter { width: 32px; height: 32px; border-radius: 8px; background: var(--border); display: flex; align-items: center; justify-content: center; font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; transition: background 0.2s; }
+.option-btn.selected .option-letter { background: var(--accent); color: #000; }
+
+.nav-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.btn-nav { padding: 0.75rem 1.75rem; border-radius: 100px; border: 1.5px solid var(--border); background: var(--card); color: var(--text); font-family: 'Exo 2', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; }
+.btn-nav:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.btn-nav:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-nav.primary { background: linear-gradient(135deg, var(--accent), #0099cc); border-color: transparent; color: #000; font-weight: 700; }
+.btn-nav.primary:hover { box-shadow: var(--glow); transform: scale(1.02); }
+.btn-nav.danger-btn { background: rgba(255,68,102,0.1); border-color: var(--red); color: var(--red); }
+
+/* ===== QUESTION MAP ===== */
+.q-map-wrap { padding: 0 1.5rem 2rem; max-width: 780px; width: 100%; margin: 0 auto; }
+.q-map-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.75rem; font-family: 'Share Tech Mono', monospace; }
+.q-map { display: flex; flex-wrap: wrap; gap: 6px; }
+.q-dot { width: 28px; height: 28px; border-radius: 6px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-family: 'Share Tech Mono', monospace; cursor: pointer; transition: all 0.15s; color: var(--muted); }
+.q-dot:hover { border-color: var(--accent); color: var(--accent); }
+.q-dot.answered { background: rgba(0,212,255,0.15); border-color: var(--accent); color: var(--accent); }
+.q-dot.current { background: var(--accent); color: #000; font-weight: 700; }
+
+/* ===== RESULT SCREEN ===== */
+#result { align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; text-align: center; }
+.result-badge { font-size: 4rem; margin-bottom: 1rem; animation: bounceIn 0.6s ease; }
+@keyframes bounceIn { 0% { transform: scale(0); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
+.result-score { font-size: clamp(3rem, 10vw, 5.5rem); font-weight: 900; font-family: 'Share Tech Mono', monospace; line-height: 1; margin-bottom: 0.5rem; }
+.result-score.pass { color: var(--green); text-shadow: 0 0 30px rgba(0,255,136,0.4); }
+.result-score.fail { color: var(--red); text-shadow: 0 0 30px rgba(255,68,102,0.4); }
+.result-label { font-size: 1rem; color: var(--muted); margin-bottom: 2.5rem; letter-spacing: 1px; text-transform: uppercase; }
+.result-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; max-width: 480px; margin-bottom: 2.5rem; }
+.stat-box { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.2rem; }
+.stat-box .sv { font-size: 1.8rem; font-weight: 700; font-family: 'Share Tech Mono', monospace; display: block; }
+.stat-box .sl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.stat-box.correct-stat .sv { color: var(--green); }
+.stat-box.wrong-stat .sv { color: var(--red); }
+.stat-box.skip-stat .sv { color: var(--yellow); }
+.result-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.btn-retry { background: linear-gradient(135deg, var(--accent2), #6d28d9); color: #fff; border: none; padding: 1rem 2.5rem; border-radius: 100px; font-family: 'Exo 2', sans-serif; font-size: 1rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; }
+.btn-retry:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(124,58,237,0.4); }
+.btn-review { background: transparent; color: var(--accent); border: 2px solid var(--accent); padding: 1rem 2.5rem; border-radius: 100px; font-family: 'Exo 2', sans-serif; font-size: 1rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; }
+.btn-review:hover { background: rgba(0,212,255,0.1); transform: translateY(-2px); }
+
+/* ===== REVIEW SCREEN ===== */
+#review { padding: 2rem 1.5rem; max-width: 800px; margin: 0 auto; width: 100%; }
+.review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+.review-title { font-size: 1.8rem; color: var(--accent); font-weight: 700; }
+.review-list { display: flex; flex-direction: column; gap: 1.5rem; }
+.review-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+.review-card.correct { border-left: 4px solid var(--green); }
+.review-card.wrong { border-left: 4px solid var(--red); }
+.review-card.skipped { border-left: 4px solid var(--yellow); }
+.review-q { font-size: 1.05rem; font-weight: 600; margin-bottom: 1rem; }
+.review-ans { font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--muted); }
+.review-ans span { font-weight: 700; }
+.ans-correct { color: var(--green); }
+.ans-wrong { color: var(--red); }
+.review-exp { margin-top: 1rem; background: rgba(0, 212, 255, 0.05); padding: 1rem; border-radius: 8px; font-size: 0.9rem; color: #a0aec0; border-left: 2px solid var(--accent); }
+
+@keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.slide-in { animation: slideIn 0.3s ease; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+@media (max-width: 500px) { .info-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; } .result-stats { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; } .quiz-header { padding: 0.6rem 1rem; } .quiz-body { padding: 1rem; } }
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="intro" class="screen active">
+  <div class="logo-badge">DTS 204.2 UNIPORT</div>
+  <h1 class="intro-title">Data Management<br><span>CBT Exam</span></h1>
+  <p class="intro-sub">Test your knowledge. Beat the clock.</p>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <span class="val">50</span>
+      <span class="lbl">Questions</span>
+    </div>
+    <div class="info-card">
+      <span class="val">30</span>
+      <span class="lbl">Minutes</span>
+    </div>
+    <div class="info-card">
+      <span class="val">1.4</span>
+      <span class="lbl">Marks/Q</span>
+    </div>
+    <div class="info-card">
+      <span class="val">70</span>
+      <span class="lbl">Total</span>
+    </div>
+  </div>
+
+  <div class="rules">
+    <h3>// Instructions</h3>
+    <ul>
+      <li>50 random questions selected from the master bank.</li>
+      <li>30-minute countdown timer.</li>
+      <li>Each correct answer = 1.4 marks (70 Max).</li>
+      <li>Navigate freely between questions using the map.</li>
+      <li>Quiz auto-submits when time runs out.</li>
+    </ul>
+  </div>
+  <button class="btn-start" onclick="startQuiz()">START EXAM &rarr;</button>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="screen">
+  <div class="quiz-header">
+    <div class="q-meta">
+      <span class="q-counter" id="q-counter">Q1</span>
+      <span class="q-total" id="q-total">/ 50</span>
+    </div>
+    
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    
+    <div class="timer-wrap">
+      <span class="timer-icon">⏱️</span>
+      <span id="timer-display">30:00</span>
+    </div>
+  </div>
+
+  <div class="quiz-body">
+    <div class="question-card slide-in" id="question-card">
+      <div class="q-number-badge" id="q-badge">QUESTION 01</div>
+      <p class="question-text" id="question-text"></p>
+    </div>
+    
+    <div class="options-list" id="options-list"></div>
+    
+    <div class="nav-row">
+      <button class="btn-nav" id="btn-prev" onclick="navigate(-1)">Prev</button>
+      <button class="btn-nav danger-btn" onclick="confirmSubmit()">Submit Exam</button>
+      <button class="btn-nav primary" id="btn-next" onclick="navigate(1)">Next &rarr;</button>
+    </div>
+  </div>
+
+  <div class="q-map-wrap">
+    <div class="q-map-label">// Question Map</div>
+    <div class="q-map" id="q-map"></div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result" class="screen">
+  <div class="result-badge" id="result-emoji">🎯</div>
+  <div class="result-score" id="result-score">0/70</div>
+  <div class="result-label" id="result-label">Total Score</div>
+  
+  <div class="result-stats">
+    <div class="stat-box correct-stat">
+      <span class="sv" id="stat-correct">0</span>
+      <span class="sl">Correct</span>
+    </div>
+    <div class="stat-box wrong-stat">
+      <span class="sv" id="stat-wrong">0</span>
+      <span class="sl">Wrong</span>
+    </div>
+    <div class="stat-box skip-stat">
+      <span class="sv" id="stat-skip">0</span>
+      <span class="sl">Skipped</span>
+    </div>
+  </div>
+  
+  <div class="result-actions">
+    <button class="btn-review" onclick="showReview()">Review Answers</button>
+    <button class="btn-retry" onclick="location.reload()">Take Another Random Test</button>
+  </div>
+</div>
+
+<!-- REVIEW -->
+<div id="review" class="screen">
+  <div class="review-header">
+    <div class="review-title">Exam Review</div>
+    <button class="btn-nav" onclick="backToResults()">Back to Results</button>
+  </div>
+  <div class="review-list" id="review-list"></div>
+</div>
+
+<script>
+// --- MASTER QUESTION BANK (You can add 100+ questions here) ---
+const rawQuizData = [
+  { text: "What term describes the subset extracted from a population because measuring the entirety is impossible?", options: ["Parameter", "Statistic", "Sample", "Cluster"], answer: 2, explanation: "A sample is a smaller, manageable version of a larger group (population)." },
+  { text: "Which sampling method involves splitting the population into naturally occurring groups and randomly picking a handful of whole groups?", options: ["Simple Random Sampling", "Stratified Sampling", "Cluster Sampling", "Systematic Sampling"], answer: 2, explanation: "Cluster sampling divides the population into separate groups, called clusters, then selects randomly from them." },
+  { text: "In statistical terms, a parameter describes the ________ while a statistic describes the ________.", options: ["Sample; Population", "Population; Sample", "Distribution; Mean", "Mean; Variance"], answer: 1, explanation: "A parameter describes the whole population; a statistic describes a sample." },
+  { text: "According to the Central Limit Theorem, the sampling distribution tends to look normal when the sample size is:", options: ["Exactly 30", "Less than 30", "Very small", "Large (typically n ≥ 30)"], answer: 3, explanation: "The CLT requires a sufficiently large sample size, generally accepted as n ≥ 30." },
+  { text: "Which test should be used when the sample size is less than 30 and the population standard deviation is unknown?", options: ["Z-test", "T-test", "Chi-Square test", "F-test"], answer: 1, explanation: "A T-test is appropriate for small sample sizes with unknown population standard deviations." },
+  { text: "Which component of a time series represents sudden, unpredictable fluctuations, such as unexpected flooding?", options: ["Trend", "Cyclical", "Seasonal", "Irregular"], answer: 3, explanation: "Irregular components are random, unpredictable events that affect the data." },
+  { text: "The fluctuating increase of candidates during registration periods every year is an example of which time series component?", options: ["Trend", "Cyclical", "Seasonal", "Irregular"], answer: 2, explanation: "Seasonal variations happen at specific, regular intervals (like yearly registration)." },
+  { text: "Which price index formula answers 'what would it cost today to buy what we bought back then' by weighting price changes using old quantities?", options: ["Consumer Price Index", "Export Value Index", "Paasche's Index", "Laspeyres Index"], answer: 3, explanation: "Laspeyres Index uses base-period quantities as weights." },
+  { text: "A limitation of the Consumer Price Index where it assumes people keep buying the exact same fixed basket of goods even when prices rise is called:", options: ["Quality change bias", "Substitution bias", "Paasche's error", "Index limitation"], answer: 1, explanation: "Substitution bias ignores consumer habit changes in response to price shifts." },
+  { text: "Population density is calculated as:", options: ["Total number of people divided by Land area", "Total land area divided by Total number of people", "Live births divided by Land area", "Growth rate divided by Total number of people"], answer: 0, explanation: "It is simply people per unit of area." },
+  { text: "A single value computed from sample data and used as the 'best guess' for an unknown population parameter is called a:", options: ["Interval estimate", "Point estimate", "Significance level", "Test statistic"], answer: 1, explanation: "A point estimate is a single numerical estimate of a parameter." },
+  { text: "When comparing categorical frequencies, which test is most appropriate?", options: ["Z-test", "T-test", "Chi-Square test", "Pearson correlation"], answer: 2, explanation: "Chi-Square tests analyze differences in categorical variables." },
+  { text: "What is the range of the Pearson Correlation Coefficient (r)?", options: ["0 to 1", "-1 to 1", "1 to 100", "-100 to 100"], answer: 1, explanation: "The coefficient ranges from -1 (perfect negative) to +1 (perfect positive)." },
+  { text: "True or False: Regression is symmetric (x -> y is the same as y -> x).", options: ["True, regression does not distinguish dependent variables.", "False, regression is non-symmetric because it designates dependent and independent variables.", "True, because correlation is symmetric.", "False, correlation is non-symmetric."], answer: 1, explanation: "Regression is non-symmetric because the choice of independent vs dependent variable changes the outcome line." },
+  { text: "In data step processing, what term describes creating new columns from existing ones?", options: ["Filtering", "Merging", "Transforming variables", "Aggregating"], answer: 2, explanation: "Transforming or deriving variables generates new data points from existing ones." },
+  { text: "Which measure of central tendency is most relevant for qualitative (categorical) data?", options: ["Mean", "Median", "Mode", "Variance"], answer: 2, explanation: "The mode identifies the most frequent category, making it suitable for qualitative data." },
+  { text: "When estimating a population proportion for sample size estimation and no prior estimate is available, what value is conventionally used for p?", options: ["0.05", "0.95", "1.0", "0.5"], answer: 3, explanation: "0.5 maximizes the variance, ensuring the calculated sample size is large enough." },
+  { text: "Monte Carlo methods rely on what mechanism to solve complex problems that are difficult to solve analytically?", options: ["Repeated random sampling", "Exact algebraic formulas", "Categorical frequency tables", "Laspeyres equations"], answer: 0, explanation: "Monte Carlo simulations use repeated random sampling to estimate results." },
+  { text: "In the design of experiments, grouping similar experimental units together before randomizing treatments is called:", options: ["Replication", "Blocking", "Aggregating", "Imputation"], answer: 1, explanation: "Blocking reduces known variability by grouping similar units." },
+  { text: "Which sampling method guarantees representation across important subgroups by splitting the population before random sampling?", options: ["Simple Random Sampling", "Cluster Sampling", "Stratified Sampling", "Quota Sampling"], answer: 2, explanation: "Stratified sampling ensures subgroups (strata) are represented proportionally." },
+  { text: "Economic policies affecting long-term growth correspond to which time series component?", options: ["Trend", "Cyclical", "Seasonal", "Irregular"], answer: 0, explanation: "The Trend component tracks long-term progression in data over extended periods." },
+  // Adding additional questions to reach 55 for demonstration of the slice/randomizer
+  { text: "Which of the following is considered a measure of dispersion?", options: ["Mean", "Standard Deviation", "Mode", "Median"], answer: 1, explanation: "Standard deviation measures how spread out the numbers are in a dataset." },
+  { text: "What is the primary purpose of a database primary key?", options: ["To encrypt data", "To link external databases", "To uniquely identify each record", "To sort data alphabetically"], answer: 2, explanation: "A primary key is a unique identifier for every record in a database table." },
+  { text: "Which SQL clause is used to filter records based on a specific condition?", options: ["ORDER BY", "GROUP BY", "WHERE", "SELECT"], answer: 2, explanation: "The WHERE clause is used to extract only those records that fulfill a specified condition." },
+  { text: "What type of data includes values like 'Red', 'Blue', and 'Green'?", options: ["Continuous Data", "Ordinal Data", "Nominal Data", "Discrete Data"], answer: 2, explanation: "Nominal data represents discrete units without any quantitative value or order." },
+  { text: "If a dataset is positively skewed, which relationship is generally true?", options: ["Mean < Median", "Mean = Median", "Mean > Median", "Mode > Mean"], answer: 2, explanation: "In a right (positively) skewed distribution, the mean is typically greater than the median." },
+  { text: "What does SQL stand for?", options: ["Structured Query Language", "Sequential Query Language", "Standard Question Language", "System Query Language"], answer: 0, explanation: "SQL stands for Structured Query Language." },
+  { text: "Which chart is best used to show the relationship or correlation between two numerical variables?", options: ["Pie Chart", "Bar Chart", "Scatter Plot", "Histogram"], answer: 2, explanation: "A scatter plot plots data points on a horizontal and vertical axis to show how much one variable is affected by another." },
+  { text: "What is data imputation?", options: ["Deleting invalid data", "Filling in missing data values", "Encrypting sensitive data", "Sorting data logically"], answer: 1, explanation: "Data imputation is the substitution of estimated values for missing data points." },
+  { text: "Which level of measurement has a true zero point?", options: ["Nominal", "Ordinal", "Interval", "Ratio"], answer: 3, explanation: "Ratio data has all properties of interval data, plus a clear definition of zero." },
+  { text: "A Type I error in hypothesis testing occurs when:", options: ["You fail to reject a false null hypothesis", "You reject a true null hypothesis", "You reject a false alternative hypothesis", "You fail to reject a true null hypothesis"], answer: 1, explanation: "A Type I error is a 'false positive'—rejecting the null hypothesis when it is actually true." },
+  { text: "In a normal distribution, approximately what percentage of data falls within one standard deviation of the mean?", options: ["50%", "68%", "95%", "99.7%"], answer: 1, explanation: "According to the empirical rule, ~68% of data falls within 1 standard deviation." },
+  { text: "Which operation combines rows from two or more tables based on a related column?", options: ["UNION", "JOIN", "MERGE", "CONCAT"], answer: 1, explanation: "A JOIN clause is used to combine rows from two or more tables based on a related column between them." },
+  { text: "What is an outlier in a dataset?", options: ["The most frequent value", "A data point that differs significantly from other observations", "The median value", "A missing value"], answer: 1, explanation: "An outlier is an observation that lies an abnormal distance from other values." },
+  { text: "Which statistical concept describes the probability of observing a test statistic as extreme as, or more extreme than, the one observed, assuming the null hypothesis is true?", options: ["Confidence Interval", "Critical Value", "p-value", "Z-score"], answer: 2, explanation: "This is the exact definition of a p-value." },
+  { text: "What does the 'R' in RDBMS stand for?", options: ["Rapid", "Relational", "Random", "Row"], answer: 1, explanation: "RDBMS stands for Relational Database Management System." },
+  { text: "Data that can take on any value within a range is known as:", options: ["Discrete data", "Categorical data", "Continuous data", "Nominal data"], answer: 2, explanation: "Continuous data can take any numerical value within a given interval." },
+  { text: "Which index measures the average change in prices over time that consumers pay for a basket of goods and services?", options: ["GDP Deflator", "Producer Price Index", "Consumer Price Index", "Wholesale Price Index"], answer: 2, explanation: "The CPI measures changes in the price level of a weighted average market basket of consumer goods and services." },
+  { text: "What is the process of normalizing a database primarily designed to do?", options: ["Increase data redundancy", "Reduce data redundancy and improve data integrity", "Encrypt the database", "Translate data to a different language"], answer: 1, explanation: "Normalization organizes database tables to minimize redundancy and dependency." },
+  { text: "Which function in SQL is used to count the number of rows?", options: ["SUM()", "MAX()", "TOTAL()", "COUNT()"], answer: 3, explanation: "The COUNT() function returns the number of rows that match a specified criterion." },
+  { text: "The difference between the highest and lowest values in a dataset is called the:", options: ["Variance", "Standard Deviation", "Range", "Interquartile Range"], answer: 2, explanation: "The range is calculated by subtracting the lowest value from the highest value." },
+  { text: "What is a 'foreign key' in a relational database?", options: ["A key used to encrypt the table", "A field that uniquely identifies a row in another table", "The primary key of the current table", "A key that cannot be null"], answer: 1, explanation: "A foreign key links two tables together by referencing the primary key of another table." },
+  { text: "In data visualization, what is a histogram primarily used for?", options: ["Showing geographic data", "Showing frequency distributions of continuous data", "Comparing proportions of a whole", "Showing relationships between categorical variables"], answer: 1, explanation: "Histograms represent the distribution of numerical data by grouping data into bins." },
+  { text: "Which command is used to remove a table entirely from a database in SQL?", options: ["DELETE TABLE", "REMOVE TABLE", "DROP TABLE", "CLEAR TABLE"], answer: 2, explanation: "The DROP TABLE statement is used to drop an existing table in a database." },
+  { text: "A sample selected in such a way that every element in the population has an equal chance of being selected is a:", options: ["Convenience sample", "Simple random sample", "Quota sample", "Purposive sample"], answer: 1, explanation: "This is the fundamental definition of simple random sampling." },
+  { text: "What does ETL stand for in data warehousing?", options: ["Extract, Transform, Load", "Execute, Test, Launch", "Evaluate, Transfer, Link", "Extract, Table, List"], answer: 0, explanation: "ETL refers to the three-step process used to blend data from multiple sources." },
+  { text: "Which of the following describes qualitative data?", options: ["Height in centimeters", "Number of students in a class", "Hair color", "Temperature in Celsius"], answer: 2, explanation: "Hair color is qualitative (categorical) because it describes attributes or labels." },
+  { text: "If the probability of an event is 0, what does this mean?", options: ["The event is certain to happen", "The event is unlikely to happen", "The event cannot happen", "The probability was calculated incorrectly"], answer: 2, explanation: "A probability of 0 means the event is impossible." },
+  { text: "What is the median of the following dataset: 3, 1, 4, 1, 5, 9, 2?", options: ["1", "3", "4", "5"], answer: 1, explanation: "Sorted: 1, 1, 2, 3, 4, 5, 9. The middle value is 3." },
+  { text: "Which SQL keyword is used to sort the result-set?", options: ["SORT BY", "ORDER BY", "ALIGN BY", "GROUP BY"], answer: 1, explanation: "ORDER BY is used to sort the results in ascending or descending order." },
+  { text: "What is cross-sectional data?", options: ["Data collected at multiple points in time", "Data collected by observing many subjects at the same point in time", "Data that cannot be quantified", "Data used strictly for biological research"], answer: 1, explanation: "Cross-sectional data captures a snapshot of a population at a single point in time." },
+  { text: "The measure of the asymmetry of the probability distribution of a real-valued random variable is called:", options: ["Kurtosis", "Variance", "Skewness", "Standard Error"], answer: 2, explanation: "Skewness measures the lack of symmetry in a data distribution." },
+  { text: "In a database, what is a 'View'?", options: ["A physical copy of a table", "A virtual table based on the result-set of an SQL statement", "A tool for visualizing data charts", "A user interface window"], answer: 1, explanation: "A view contains rows and columns, just like a real table, but is dynamically generated via a query." },
+  { text: "What is the formula for calculating Variance?", options: ["The square root of standard deviation", "The square of standard deviation", "Mean minus median", "Sum of all values divided by count"], answer: 1, explanation: "Variance is the standard deviation squared." },
+  { text: "Which of the following is NOT a NoSQL database?", options: ["MongoDB", "Cassandra", "PostgreSQL", "Redis"], answer: 2, explanation: "PostgreSQL is a classic relational (SQL) database." }
+];
+
+// --- APP STATE ---
+let quizData = []; // Will hold exactly 50 shuffled questions
+let currentQ = 0;
+let userAnswers = [];
+const TOTAL_QUESTIONS = 50; 
+const MARKS_PER_Q = 1.4;
+let timeRemaining = 30 * 60; // 30 minutes
+let timerInterval;
+
+// --- CORE FUNCTIONS ---
+function switchScreen(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+}
+
+function startQuiz() {
+  // 1. Shuffle the master question bank using Fisher-Yates
+  let shuffled = [...rawQuizData];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  
+  // 2. Select exactly 50 random questions (or max available if bank is < 50)
+  const qLimit = Math.min(TOTAL_QUESTIONS, shuffled.length);
+  quizData = shuffled.slice(0, qLimit);
+  
+  // 3. Initialize user answers array
+  userAnswers = new Array(quizData.length).fill(null);
+  
+  // 4. Update UI to match actual loaded questions
+  document.getElementById('q-total').innerText = `/ ${quizData.length}`;
+  
+  switchScreen('quiz');
+  buildMap();
+  loadQuestion(0);
+  
+  // Start Timer
+  timerInterval = setInterval(() => {
+    timeRemaining--;
+    updateTimerUI();
+    if (timeRemaining <= 0) {
+      clearInterval(timerInterval);
+      submitExam();
+    }
+  }, 1000);
+}
+
+function updateTimerUI() {
+  const min = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+  const sec = (timeRemaining % 60).toString().padStart(2, '0');
+  const display = document.getElementById('timer-display');
+  display.innerText = `${min}:${sec}`;
+
+  if (timeRemaining <= 300 && timeRemaining > 60) display.className = 'warning';
+  else if (timeRemaining <= 60) display.className = 'danger';
+}
+
+function buildMap() {
+  const mapContainer = document.getElementById('q-map');
+  mapContainer.innerHTML = '';
+  quizData.forEach((_, index) => {
+    const dot = document.createElement('div');
+    dot.className = 'q-dot';
+    dot.innerText = index + 1;
+    dot.onclick = () => loadQuestion(index);
+    dot.id = `dot-${index}`;
+    mapContainer.appendChild(dot);
+  });
+}
+
+function loadQuestion(index) {
+  currentQ = index;
+  const qData = quizData[index];
+  
+  // Update header text
+  document.getElementById('q-counter').innerText = `Q${index + 1}`;
+  document.getElementById('q-badge').innerText = `QUESTION ${String(index + 1).padStart(2, '0')}`;
+  document.getElementById('question-text').innerText = qData.text;
+  
+  // Progress Bar
+  const progress = ((index + 1) / quizData.length) * 100;
+  document.getElementById('progress-fill').style.width = `${progress}%`;
+
+  // Render Options
+  const optsContainer = document.getElementById('options-list');
+  optsContainer.innerHTML = '';
+  
+  const letters = ['A', 'B', 'C', 'D'];
+  qData.options.forEach((optText, optIndex) => {
+    const btn = document.createElement('button');
+    btn.className = `option-btn ${userAnswers[index] === optIndex ? 'selected' : ''}`;
+    btn.onclick = () => selectOption(optIndex);
+    
+    btn.innerHTML = `
+      <div class="option-letter">${letters[optIndex]}</div>
+      <div class="option-text">${optText}</div>
+    `;
+    optsContainer.appendChild(btn);
+  });
+
+  // Nav Buttons
+  document.getElementById('btn-prev').disabled = index === 0;
+  document.getElementById('btn-next').disabled = index === quizData.length - 1;
+
+  updateMapUI();
+  
+  // Re-trigger animation
+  const card = document.getElementById('question-card');
+  card.classList.remove('slide-in');
+  void card.offsetWidth; 
+  card.classList.add('slide-in');
+}
+
+function selectOption(optIndex) {
+  userAnswers[currentQ] = optIndex;
+  loadQuestion(currentQ); 
+}
+
+function navigate(direction) {
+  const newQ = currentQ + direction;
+  if (newQ >= 0 && newQ < quizData.length) {
+    loadQuestion(newQ);
+  }
+}
+
+function updateMapUI() {
+  quizData.forEach((_, index) => {
+    const dot = document.getElementById(`dot-${index}`);
+    dot.className = 'q-dot';
+    if (userAnswers[index] !== null) dot.classList.add('answered');
+    if (index === currentQ) dot.classList.add('current');
+  });
+}
+
+function confirmSubmit() {
+  const unan = userAnswers.filter(a => a === null).length;
+  let msg = unan > 0 
+    ? `You have ${unan} unanswered questions. Are you sure you want to submit?`
+    : `Are you sure you want to submit the exam?`;
+    
+  if (confirm(msg)) submitExam();
+}
+
+function submitExam() {
+  clearInterval(timerInterval);
+  switchScreen('result');
+
+  let correct = 0, wrong = 0, skipped = 0;
+
+  userAnswers.forEach((ans, index) => {
+    if (ans === null) skipped++;
+    else if (ans === quizData[index].answer) correct++;
+    else wrong++;
+  });
+
+  const totalScore = correct * MARKS_PER_Q;
+  const maxScore = quizData.length * MARKS_PER_Q;
+
+  const scoreEl = document.getElementById('result-score');
+  scoreEl.innerText = `${totalScore.toFixed(1)} / ${maxScore.toFixed(0)}`;
+  scoreEl.className = `result-score ${totalScore >= (maxScore/2) ? 'pass' : 'fail'}`;
+
+  document.getElementById('stat-correct').innerText = correct;
+  document.getElementById('stat-wrong').innerText = wrong;
+  document.getElementById('stat-skip').innerText = skipped;
+  document.getElementById('result-emoji').innerText = totalScore >= (maxScore/2) ? '🏆' : '💔';
+}
+
+function showReview() {
+  switchScreen('review');
+  const reviewContainer = document.getElementById('review-list');
+  reviewContainer.innerHTML = '';
+
+  const letters = ['A', 'B', 'C', 'D'];
+
+  quizData.forEach((q, index) => {
+    const userAnsIndex = userAnswers[index];
+    const isCorrect = userAnsIndex === q.answer;
+    const isSkipped = userAnsIndex === null;
+
+    let cardClass = 'review-card skipped';
+    if (!isSkipped) cardClass = isCorrect ? 'review-card correct' : 'review-card wrong';
+
+    let userAnsText = isSkipped 
+      ? '<span style="color:var(--yellow)">Skipped</span>' 
+      : `<span class="${isCorrect ? 'ans-correct' : 'ans-wrong'}">${letters[userAnsIndex]}. ${q.options[userAnsIndex]}</span>`;
+
+    const html = `
+      <div class="${cardClass}">
+        <div class="review-q">${index + 1}. ${q.text}</div>
+        <div class="review-ans">Your Answer: ${userAnsText}</div>
+        ${!isCorrect ? `<div class="review-ans">Correct Answer: <span class="ans-correct">${letters[q.answer]}. ${q.options[q.answer]}</span></div>` : ''}
+        <div class="review-exp"><strong>Explanation:</strong> ${q.explanation}</div>
+      </div>
+    `;
+    reviewContainer.innerHTML += html;
+  });
+}
+
+function backToResults() {
+  switchScreen('result');
+}
+</script>
+</body>
+</html>

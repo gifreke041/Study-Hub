@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IFT 212.2 — CBT Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+ :root{
+    --bg: #0b0f14;
+    --panel: #10161d;
+    --panel-2: #141c25;
+    --line: #223041;
+    --trace: #34e3b0;
+    --trace-dim: #1d7a5c;
+    --blue: #6ea8ff;
+    --amber: #f5b942;
+    --red: #ff6b6b;
+    --text: #e8eef4;
+    --text-dim: #8ca0b3;
+    --mono: 'SF Mono', 'Consolas', 'Menlo', monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background: var(--bg);
+    background-image:
+      linear-gradient(rgba(52,227,176,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(52,227,176,0.035) 1px, transparent 1px);
+    background-size: 28px 28px;
+    color: var(--text);
+    font-family: var(--sans);
+    min-height:100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap{ max-width: 820px; margin: 0 auto; padding: 18px 16px 50px; }
+
+  /* Top App Bar (exam screen only) */
+  .appbar{
+    display:flex; align-items:center; gap:14px;
+    padding-bottom:14px; margin-bottom: 14px; border-bottom: 1px solid var(--line);
+  }
+  .backbtn{
+    font-family: var(--mono); font-size:13px; color: var(--text-dim);
+    border:1px solid var(--line); border-radius:20px; padding:7px 14px; cursor:pointer;
+    background: var(--panel-2); flex-shrink:0;
+  }
+  .backbtn:hover{ color: var(--text); border-color: var(--trace-dim); }
+  .appbar-title{ font-size:16px; font-weight:700; }
+  .appbar-sub{ font-size:11.5px; color: var(--text-dim); }
+
+  /* ---------- HERO / LANDING ---------- */
+  .hero{ text-align:center; padding: 30px 6px 10px; }
+  .badge{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family: var(--mono); font-size:12px; letter-spacing:2px;
+    color: var(--trace); border:1px solid var(--trace-dim); border-radius:30px;
+    padding:8px 18px; margin-bottom: 26px; background: rgba(52,227,176,0.06);
+  }
+  .hero h1{
+    font-size: 40px; line-height:1.15; font-weight:800; letter-spacing:-1px;
+  }
+  .hero h1 .accent{
+    background: linear-gradient(90deg, var(--trace), var(--blue));
+    -webkit-background-clip: text; background-clip:text; color:transparent;
+  }
+  .hero .tagline{ color: var(--text-dim); font-size:15px; margin-top:14px; margin-bottom:30px; }
+
+  .stat-grid{
+    display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:26px;
+  }
+  .stat-box{
+    background: var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:18px 10px; text-align:center;
+  }
+  .stat-box .num{ font-family: var(--mono); font-size:26px; font-weight:800; color: var(--trace); }
+  .stat-box .lab{ font-size:10.5px; letter-spacing:1.5px; text-transform:uppercase; color: var(--text-dim); margin-top:4px; }
+
+  .instr-card{
+    background: var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:24px 22px; text-align:left; margin-bottom:24px;
+  }
+  .instr-card .hdr{
+    font-family: var(--mono); font-size:12px; letter-spacing:2px; color: var(--blue);
+    margin-bottom:16px;
+  }
+  .instr-list{ list-style:none; }
+  .instr-list li{
+    display:flex; gap:10px; align-items:flex-start;
+    font-size:14.5px; color: var(--text); padding: 9px 0;
+  }
+  .instr-list li .chev{ color: var(--trace); font-family: var(--mono); flex-shrink:0; }
+
+  .start-btn{
+    display:block; width:100%; text-align:center;
+    background: #fff; color:#0b0f14; font-weight:700; font-size:16px;
+    border:none; border-radius:30px; padding:16px 20px; cursor:pointer;
+    letter-spacing:0.5px;
+  }
+  .start-btn span{ color: var(--trace-dim); }
+  .start-btn:hover{ box-shadow: 0 0 0 4px rgba(255,255,255,0.08); }
+
+  /* ---------- EXAM SCREEN ---------- */
+  .exam-topline{ display:flex; align-items:center; gap:16px; margin-bottom: 22px; }
+  .qcount{ font-family: var(--mono); font-size:13px; color: var(--blue); flex-shrink:0; }
+  .progress-track{ flex:1; height:2px; background: var(--line); position:relative; border-radius:2px; }
+  .progress-dot{
+    position:absolute; top:50%; width:8px; height:8px; border-radius:50%;
+    background: var(--blue); transform: translate(-50%,-50%);
+  }
+  .progress-fill{ position:absolute; top:0; left:0; height:100%; background: var(--blue); border-radius:2px; }
+  .timer{
+    font-family: var(--mono); font-size:14px; font-weight:700; color: var(--amber);
+    border:1px solid var(--line); border-radius:8px; padding:5px 12px; flex-shrink:0;
+    display:flex; align-items:center; gap:6px;
+  }
+  .timer.low{ color: var(--red); border-color: rgba(255,107,107,0.4); }
+
+  .qcard{
+    background: var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:22px; margin-bottom:18px; border-top: 2px solid var(--blue);
+  }
+  .qbadge{
+    display:inline-block; font-family: var(--mono); font-size:11px; letter-spacing:1.5px;
+    color: var(--blue); border:1px solid rgba(110,168,255,0.3); border-radius:20px;
+    padding:4px 12px; margin-bottom:14px;
+  }
+  .qtext{ font-size:17px; font-weight:600; line-height:1.5; }
+
+  .options{ display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+  .option{
+    background: var(--panel-2); border:1px solid var(--line); border-radius:10px;
+    padding:14px 16px; cursor:pointer; font-size:14.5px; line-height:1.4;
+    display:flex; gap:12px; align-items:center;
+    transition: border-color .12s ease, background .12s ease;
+  }
+  .option:hover{ border-color: var(--trace-dim); }
+  .option .tag{
+    font-family: var(--mono); font-size:12px; color: var(--text-dim); flex-shrink:0;
+    width:22px; height:22px; border:1px solid var(--line); border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .option.selected{ border-color: var(--trace); background: rgba(52,227,176,0.08); }
+  .option.selected .tag{ border-color: var(--trace); background: var(--trace); color:#04140f; }
+
+  .nav-row{ display:flex; gap:10px; margin-bottom: 26px; }
+  .navbtn{
+    font-family: var(--sans); font-weight:700; font-size:14px;
+    border-radius:24px; padding:13px 18px; cursor:pointer; border:1px solid var(--line);
+    background: var(--panel-2); color: var(--text);
+  }
+  .navbtn:hover{ border-color: var(--trace-dim); }
+  .navbtn:disabled{ opacity:.35; pointer-events:none; }
+  .navbtn.prev{ flex:0 0 auto; }
+  .navbtn.next{ flex:0 0 auto; margin-left:auto; background:#fff; color:#0b0f14; border:none; }
+  .navbtn.submit{
+    flex:1; text-align:center; color: var(--red); border:1px solid rgba(255,107,107,0.5);
+    background: rgba(255,107,107,0.06);
+  }
+  .navbtn.submit:hover{ background: rgba(255,107,107,0.14); }
+
+  .qmap-hdr{ font-family: var(--mono); font-size:12px; letter-spacing:2px; color: var(--blue); margin-bottom:12px; }
+  .qmap{ display:grid; grid-template-columns: repeat(7, 1fr); gap:8px; }
+  .qmap-cell{
+    aspect-ratio: 1; display:flex; align-items:center; justify-content:center;
+    font-family: var(--mono); font-size:12.5px; border-radius:8px; cursor:pointer;
+    border:1px solid var(--line); background: var(--panel-2); color: var(--text-dim);
+  }
+  .qmap-cell.answered{ border-color: var(--trace-dim); color: var(--trace); background: rgba(52,227,176,0.08); }
+  .qmap-cell.current{ background:#fff; color:#0b0f14; border-color:#fff; font-weight:700; }
+
+  /* ---------- RESULTS ---------- */
+  .results-card{
+    background: var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:26px 22px; margin-bottom:18px; text-align:center;
+  }
+  .score-ring{ width:160px; height:160px; margin: 6px auto 10px; position:relative; display:flex; align-items:center; justify-content:center; }
+  .score-ring svg{ transform: rotate(-90deg); }
+  .score-ring .pct{ position:absolute; font-family:var(--mono); font-size:30px; font-weight:800; }
+  .score-marks{ font-family: var(--mono); font-size:15px; color: var(--text-dim); margin-bottom:4px; }
+  .score-msg{ color: var(--text-dim); font-size:14px; }
+
+  .breakdown{ text-align:left; margin-top:10px; }
+  .breakdown-row{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line); font-size:13.5px; }
+  .breakdown-row:last-child{ border-bottom:none; }
+  .breakdown-row .bar{ flex:1; height:6px; background: var(--line); border-radius:3px; margin:0 12px; overflow:hidden; }
+  .breakdown-row .bar-fill{ height:100%; background: var(--trace); }
+  .breakdown-row .frac{ font-family: var(--mono); font-size:12px; color: var(--text-dim); width:38px; text-align:right; }
+
+  .btn-row{ display:flex; gap:10px; margin-bottom:18px; }
+  .btn-row .navbtn{ flex:1; text-align:center; }
+
+  .review-item{ padding:14px 0; border-bottom:1px solid var(--line); }
+  .review-item:last-child{ border-bottom:none; }
+  .review-q{ font-size:14px; font-weight:600; margin-bottom:8px; }
+  .review-ans{ font-size:13px; color: var(--text-dim); margin-bottom:4px; }
+  .review-ans.wrong{ color: var(--red); }
+  .review-ans.right{ color: var(--trace); }
+  .review-exp{ font-size:12.5px; color: var(--text-dim); margin-top:6px; line-height:1.5; }
+
+  .hidden{ display:none !important; }
+  footer{ text-align:center; color: var(--text-dim); font-size:11px; margin-top: 30px; font-family: var(--mono); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- LANDING -->
+  <div id="landing">
+    <div class="hero">
+      <div class="badge">▣ IFT 212.2 — UNIPORT</div>
+      <h1>Computer Architecture<br><span class="accent">and Organization CBT</span></h1>
+      <div class="tagline">Test your knowledge. Beat the clock.</div>
+
+      <div class="stat-grid">
+        <div class="stat-box"><div class="num">50</div><div class="lab">Questions</div></div>
+        <div class="stat-box"><div class="num">30</div><div class="lab">Minutes</div></div>
+        <div class="stat-box"><div class="num">1.4</div><div class="lab">Marks/Q</div></div>
+        <div class="stat-box"><div class="num" style="color:var(--blue)">70</div><div class="lab">Total</div></div>
+      </div>
+
+      <div class="instr-card">
+        <div class="hdr">// INSTRUCTIONS</div>
+        <ul class="instr-list">
+          <li><span class="chev">›</span> 50 multiple choice questions</li>
+          <li><span class="chev">›</span> 30-minute countdown timer</li>
+          <li><span class="chev">›</span> Each correct answer = 1.4 marks (70 total)</li>
+          <li><span class="chev">›</span> Navigate freely between questions</li>
+          <li><span class="chev">›</span> Quiz auto-submits when time runs out</li>
+          <li><span class="chev">›</span> All 50 questions reviewed at the end</li>
+        </ul>
+      </div>
+
+      <button class="start-btn" id="startBtn">START EXAM →</button>
+    </div>
+  </div>
+
+  <!-- EXAM -->
+  <div id="quiz" class="hidden">
+    <div class="appbar">
+      <div class="backbtn" id="backBtn">← Back</div>
+      <div>
+        <div class="appbar-title">IFT 212.2 — CBT Quiz</div>
+        <div class="appbar-sub">Computer Architecture and Organization</div>
+      </div>
+    </div>
+
+    <div class="exam-topline">
+      <div class="qcount" id="qcount">Q1/50</div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="timer" id="timer">⏱ 30:00</div>
+    </div>
+
+    <div class="qcard">
+      <div class="qbadge" id="qbadge">QUESTION 01</div>
+      <div class="qtext" id="questionText">Question text</div>
+    </div>
+
+    <div class="options" id="optionsList"></div>
+
+    <div class="nav-row">
+      <button class="navbtn prev" id="prevBtn">← Prev</button>
+      <button class="navbtn submit" id="submitBtn">Submit Exam</button>
+      <button class="navbtn next" id="nextBtn">Next →</button>
+    </div>
+
+    <div class="qmap-hdr">// QUESTION MAP</div>
+    <div class="qmap" id="qmap"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results" class="hidden">
+    <div class="results-card">
+      <div class="score-ring">
+        <svg width="160" height="160">
+          <circle cx="80" cy="80" r="68" stroke="#223041" stroke-width="12" fill="none"/>
+          <circle id="scoreCircle" cx="80" cy="80" r="68" stroke="#34e3b0" stroke-width="12" fill="none" stroke-linecap="round"/>
+        </svg>
+        <div class="pct" id="scorePct">0%</div>
+      </div>
+      <div class="score-marks" id="scoreMarks">0.0 / 70 marks</div>
+      <div class="score-msg" id="scoreMsg">--</div>
+      <div class="breakdown" id="breakdown"></div>
+    </div>
+    <div class="btn-row">
+      <button class="navbtn" id="reviewBtn">Review answers</button>
+      <button class="navbtn" id="retryBtn" style="background:#fff;color:#0b0f14;border:none;">Retake</button>
+    </div>
+    <div class="qcard hidden" id="reviewCard">
+      <div id="reviewList"></div>
+    </div>
+  </div>
+
+  <footer>bossgoddy · study hub · IFT 212.2</footer>
+</div>
+
+<script>
+const QUESTIONS = [
+  // NUMBER SYSTEMS
+  {topic:"Number Systems", q:"Why is binary the native number system for digital hardware?", options:["Because it uses more symbols than decimal","Because each bit maps directly onto an electrical high/low or a flip-flop's two states","Because it's easier for humans to read","Because computers cannot process decimal at all"], correct:1, exp:"Digital hardware only has two reliable electrical states, so binary (0/1) maps directly onto that physical reality — decimal has no such direct mapping."},
+  {topic:"Number Systems", q:"How many binary bits does a single hexadecimal digit represent?", options:["2 bits","3 bits","4 bits","8 bits"], correct:2, exp:"Hexadecimal is base 16 = 2⁴, so each hex digit maps exactly to a 4-bit group (a nibble)."},
+  {topic:"Number Systems", q:"How many binary bits does a single octal digit represent?", options:["2 bits","3 bits","4 bits","6 bits"], correct:1, exp:"Octal is base 8 = 2³, so each octal digit maps exactly to a 3-bit group."},
+  {topic:"Number Systems", q:"To convert decimal to binary, what is the standard method?", options:["Multiply repeatedly by 2 and record overflow","Repeatedly divide by 2, recording remainders, then read them last to first","Convert to hexadecimal first, always","Subtract 1 until reaching zero"], correct:1, exp:"Repeated division by 2, reading the remainders from last to first, converts a decimal number into its binary equivalent."},
+  {topic:"Number Systems", q:"What is the decimal equivalent of 1010\u2082?", options:["8","9","12","10"], correct:3, exp:"1010\u2082 = (1×2³)+(0×2²)+(1×2¹)+(0×2⁰) = 8+0+2+0 = 10."},
+  {topic:"Number Systems", q:"What is binary 1011 in decimal?", options:["9","11","13","15"], correct:1, exp:"1011 = (1×2³)+(0×2²)+(1×2¹)+(1×2⁰) = 8+0+2+1 = 11."},
+  {topic:"Number Systems", q:"In binary addition, what does 1 + 1 produce?", options:["2, with no carry","0, with a carry of 1","1, with no carry","An undefined result"], correct:1, exp:"In binary, 1+1 = 0 with a carry of 1 into the next column — the same carry concept as decimal addition, just base 2."},
+  {topic:"Number Systems", q:"Why do most modern computers use two's complement rather than sign-magnitude for negative numbers?", options:["Two's complement has two representations of zero, which is preferred","Two's complement has a single representation of zero and allows addition/subtraction with the same adder circuit, without special-case logic","Sign-magnitude is faster in every case","Two's complement cannot represent negative numbers"], correct:1, exp:"Two's complement avoids the dual-zero problem of sign-magnitude and one's complement, and lets the same adder hardware handle both addition and subtraction."},
+  {topic:"Number Systems", q:"How is a negative number formed in two's complement?", options:["Invert every bit only","Invert every bit of the positive value, then add 1","Add 1 to the positive value directly","Swap the first and last bits"], correct:1, exp:"Two's complement negation = bitwise invert (one's complement) + 1."},
+  {topic:"Number Systems", q:"In IEEE 754 single precision (32-bit) floating point, how many bits are allocated to the exponent?", options:["1 bit","8 bits","11 bits","23 bits"], correct:1, exp:"IEEE 754 single precision uses 1 sign bit, 8 exponent bits, and 23 mantissa bits."},
+  {topic:"Number Systems", q:"What are the three fields a floating-point number is split into?", options:["Sign, exponent, and mantissa (significand)","Address, data, and control","Page, frame, and offset","Opcode, operand, and register"], correct:0, exp:"Floating-point representation stores a sign bit, an exponent field, and a mantissa (significand), similar in spirit to scientific notation."},
+  {topic:"Number Systems", q:"What is the key limitation of Fixed-Point representation compared to Floating-Point?", options:["It cannot represent negative numbers at all","It has a limited range and precision since a fixed number of bits is reserved for the fractional part","It requires more bits than any other scheme","It cannot be used in hardware"], correct:1, exp:"Fixed-point reserves a fixed number of bits for the fractional part, giving it a narrower range and precision compared to floating-point's scientific-notation-like flexibility."},
+
+  // DATA REPRESENTATION
+  {topic:"Data Representation", q:"In computing, which of these best describes the relationship implied by \"Int = Character, character ≠ Integer\"?", options:["A character can be a specific case of an integer-like code, but not every integer represents a character","Integers and characters are always interchangeable","Characters cannot be stored in binary","Integers are a subtype of characters"], correct:0, exp:"The note draws an analogy (like 'girl = human, human ≠ girl') to show that one is a specific case within a broader category, not a two-way equivalence."},
+  {topic:"Data Representation", q:"What does data representation primarily deal with?", options:["The color of computer screens","The definite arrangement of numbers so hardware can store and process them","The speed of the CPU clock","The design of keyboards"], correct:1, exp:"Data representation is about how numbers, characters, and values are arranged/encoded in binary for consistent storage and processing."},
+  {topic:"Data Representation", q:"Why is declaring the word length important in data representation?", options:["It determines the color scheme of the display","It defines how many bits are available, including precision after the decimal point for real numbers","It has no real effect on computation","It only matters for text files"], correct:1, exp:"Word length determines the range and precision available — including how many bits are reserved for the fractional part of real numbers."},
+  {topic:"Data Representation", q:"Under 'Processors', whole numbers map to which representation?", options:["Real","Integer","Character","Boolean only"], correct:1, exp:"Whole numbers map to Integer representation, while numbers with fractions map to Integer/Real (floating point)."},
+  {topic:"Data Representation", q:"Which pair correctly matches a number type to its representation in the notes?", options:["Numbers with fractions → Integer/Real","Whole numbers → Real only","Characters → Sign/Unsigned","Whole numbers → Boolean"], correct:0, exp:"Numbers with fractions are represented using Integer/Real (floating point), separate from pure whole-number integer representation."},
+  {topic:"Data Representation", q:"What is the difference between 'signed' and 'unsigned' representation?", options:["Signed can represent negative numbers, unsigned only represents non-negative numbers","Unsigned is always faster","Signed is only used for characters","There is no difference"], correct:0, exp:"Signed representation (e.g. two's complement) allows negative values; unsigned representation only allows zero and positive values, giving it a larger positive range for the same bit width."},
+
+  // INSTRUCTION SET ARCHITECTURE
+  {topic:"Instruction Set Architecture", q:"What is the Instruction Set Architecture (ISA)?", options:["The physical wiring layout of a motherboard","The interface between software and hardware — the full set of instructions a processor can execute and the rules for how they're formatted","A type of flip-flop","A brand of processor"], correct:1, exp:"The ISA is the programmer/compiler-facing contract: what instructions exist, how they're encoded, and how operands/addressing work — independent of how the hardware implements it underneath."},
+  {topic:"Instruction Set Architecture", q:"Which of these is NOT typically considered a core component of an ISA?", options:["Instruction format","Addressing modes","Register set","The physical color of the chip casing"], correct:3, exp:"ISA components include instruction format, addressing modes, register set, data types, and instruction types — physical casing color is irrelevant to the architecture."},
+  {topic:"Instruction Set Architecture", q:"An instruction is typically encoded as which two main parts?", options:["Opcode and operand(s)","Page and frame","Sign and mantissa","Address bus and data bus"], correct:0, exp:"An instruction format typically splits into an opcode (which operation to perform) and one or more operands (the data/addresses it acts on)."},
+  {topic:"Instruction Set Architecture", q:"What are addressing modes?", options:["The different ways an instruction can specify where its operand data is located","The physical size of the address bus only","A category of flip-flop","A type of DMA transfer"], correct:0, exp:"Addressing modes define how an instruction specifies its operand's location — e.g. immediate, register, direct, indirect, or indexed addressing."},
+  {topic:"Instruction Set Architecture", q:"When designing an ISA, what core trade-off must architects decide on?", options:["Whether to use a mouse or keyboard","How much work a single instruction should be responsible for, and how uniform or varied instructions should be","Whether to include a monitor","The brand name of the processor"], correct:1, exp:"This trade-off — instruction complexity/uniformity — is exactly what produced the two contrasting philosophies: CISC and RISC."},
+  {topic:"Instruction Set Architecture", q:"What does CISC stand for?", options:["Complex Instruction Set Computer","Common Integrated System Circuit","Central Instruction Storage Chip","Compact Interface System Controller"], correct:0, exp:"CISC = Complex Instruction Set Computer — an ISA design philosophy favoring fewer, more powerful (multi-step) instructions."},
+  {topic:"Instruction Set Architecture", q:"What does RISC stand for?", options:["Rapid Integrated System Circuit","Reduced Instruction Set Computer","Regulated Instruction Storage Chip","Reformed Interface System Controller"], correct:1, exp:"RISC = Reduced Instruction Set Computer — an ISA design philosophy favoring simple, fast, uniform instructions."},
+  {topic:"Instruction Set Architecture", q:"Which best describes CISC instruction length?", options:["Fixed-length only","Variable-length, depending on instruction complexity","Always exactly 8 bits","Instructions have no defined length"], correct:1, exp:"CISC instructions vary in length because they can encode complex, multi-step operations, unlike RISC's uniform fixed-length instructions."},
+  {topic:"Instruction Set Architecture", q:"Which best describes RISC instruction length?", options:["Variable and unpredictable","Fixed-length, making decoding fast and predictable","Only used for floating point","Always longer than CISC instructions"], correct:1, exp:"RISC uses fixed-length instructions, which simplifies and speeds up instruction decoding and enables efficient pipelining."},
+  {topic:"Instruction Set Architecture", q:"In RISC's Load/Store architecture, which instructions are allowed to access memory?", options:["All instructions can access memory directly","Only dedicated Load and Store instructions; all others operate on registers","Only arithmetic instructions","None — RISC cannot access memory"], correct:1, exp:"RISC restricts memory access to specific Load/Store instructions, keeping all other operations working purely on registers — this simplifies the hardware."},
+  {topic:"Instruction Set Architecture", q:"Why does CISC typically rely on microcode?", options:["Because microcode makes instructions shorter","Because complex instructions are broken down internally into smaller micro-operations, requiring more complex control logic","Because RISC does not allow microcode to exist","Microcode is unrelated to CISC"], correct:1, exp:"CISC's complex instructions are internally decomposed into simpler micro-operations via microcode, which needs more elaborate control circuitry to manage."},
+  {topic:"Instruction Set Architecture", q:"Which processor family is a classic example of the CISC design philosophy?", options:["ARM","RISC-V","Intel x86/x86-64","MIPS"], correct:2, exp:"Intel's x86/x86-64 family is the textbook example of a CISC-style ISA."},
+  {topic:"Instruction Set Architecture", q:"Which processor family is a classic example of the RISC design philosophy, and dominates smartphones?", options:["Intel x86","ARM","x86-64","None of these"], correct:1, exp:"ARM architecture, used in most smartphones, is a classic RISC-style ISA."},
+  {topic:"Instruction Set Architecture", q:"How does RISC generally achieve close to one clock cycle per instruction?", options:["By using microcode for every instruction","By using pipelining with simple, uniform instructions","By avoiding the use of registers","By increasing instruction length"], correct:1, exp:"RISC's simple, fixed-length instructions are well-suited to pipelining, letting most instructions complete in close to a single clock cycle."},
+  {topic:"Instruction Set Architecture", q:"What is a key modern-day blurring of the CISC vs RISC distinction?", options:["RISC chips now use variable-length instructions exclusively","Modern x86 (CISC) chips internally translate complex instructions into RISC-like micro-ops before execution","CISC chips no longer use a control unit","RISC chips have stopped using pipelining"], correct:1, exp:"Modern x86 CPUs internally decode complex CISC instructions into simpler, RISC-like micro-ops, borrowing pipelining efficiency from the RISC approach."},
+  {topic:"Instruction Set Architecture", q:"Why does a CISC control unit generally need more internal state (more flip-flops) than a RISC control unit?", options:["Because CISC has no control unit","Because it must track its progress while stepping through multi-step microcoded operations for complex instructions","Because CISC does not use clock signals","Because RISC instructions are longer"], correct:1, exp:"Since CISC instructions can require several internal micro-operations, the control unit needs more state (tracked via flip-flops) to know where it is in that multi-step process."},
+  {topic:"Instruction Set Architecture", q:"Between CISC and RISC, which generally results in smaller compiled code size?", options:["CISC, since fewer, more powerful instructions are needed per task","RISC, since instructions are fixed-length","They are always identical in size","Code size is unrelated to instruction set design"], correct:0, exp:"Because a single CISC instruction can do more work, fewer instructions are typically needed, resulting in smaller code size compared to RISC for the same task."},
+  {topic:"Instruction Set Architecture", q:"Why are CISC instruction decoders generally more complex than RISC decoders?", options:["Because CISC decoders don't exist","Because CISC decoders must recognize far more instruction patterns of varying length, while RISC instructions are fixed-length and uniform","Because RISC uses more addressing modes","Because CISC has no opcode field"], correct:1, exp:"Instruction decoding is itself a large-scale decoder circuit; the variable-length, pattern-rich nature of CISC instructions makes that decoder more complex than RISC's simpler, uniform decoder."},
+
+  // FLIP-FLOPS
+  {topic:"Flip-Flops", q:"What is the primary function of a flip-flop in a digital circuit?", options:["To perform arithmetic operations","To store 1 bit of binary information","To convert AC to DC","To generate clock signals only"], correct:1, exp:"Flip-flops are the basic binary storage elements in sequential logic — each one stores 1 bit of information."},
+  {topic:"Flip-Flops", q:"In an SR flip-flop, what happens when S = 1 and R = 1?", options:["Output resets to 0","Output sets to 1","The circuit enters an invalid/indeterminate (forbidden) state","No change occurs"], correct:2, exp:"S = 1, R = 1 is the forbidden/invalid state for the SR flip-flop — this is exactly the limitation the JK flip-flop was designed to fix."},
+  {topic:"Flip-Flops", q:"Which flip-flop type eliminates the SR flip-flop's invalid state by toggling output when both inputs are 1?", options:["D flip-flop","T flip-flop","JK flip-flop","None of these"], correct:2, exp:"The JK flip-flop resolves the SR ambiguity: when J=1 and K=1, it simply toggles the current output instead of entering an undefined state."},
+  {topic:"Flip-Flops", q:"Why is the JK flip-flop widely used in counters?", options:["Because it consumes no power","Because of its toggle property","Because it cannot store data","Because it does not need a clock signal"], correct:1, exp:"Its ability to toggle the output on J=K=1 makes it naturally suited for building binary counters."},
+  {topic:"Flip-Flops", q:"What is the key benefit of a D (Data/Delay) flip-flop?", options:["It has two data inputs","It simplifies input wiring with a single data input and avoids ambiguous states entirely","It cannot be used in registers","It only works asynchronously"], correct:1, exp:"The D flip-flop has just one data input, which removes the possibility of conflicting/ambiguous input combinations altogether."},
+  {topic:"Flip-Flops", q:"D flip-flops are described as the foundation for which two things?", options:["Power supplies and cooling fans","CPU registers and computer memory (RAM)","Monitors and keyboards","Buses and connectors"], correct:1, exp:"Because a D flip-flop reliably captures and holds one bit at the clock edge, chains of them form registers and RAM cells."},
+  {topic:"Flip-Flops", q:"In a T (Toggle) flip-flop, what happens when T = 0?", options:["The output toggles","The output holds its current state (no change)","The output resets to 0","The output is undefined"], correct:1, exp:"T = 0 means 'hold' — the flip-flop keeps its current output. T = 1 makes it toggle on every clock pulse."},
+  {topic:"Flip-Flops", q:"The T flip-flop is especially efficient for which application?", options:["Text encoding","Frequency division and ripple counters","Color rendering","Data compression"], correct:1, exp:"Because it toggles predictably every clock pulse, the T flip-flop is ideal for dividing frequency and building ripple counters."},
+  {topic:"Flip-Flops", q:"Which four flip-flop types were identified as the primary types in the notes?", options:["SR, JK, D, and T","AND, OR, NOT, XOR","RAM, ROM, Cache, Register","CISC, RISC, ALU, MMU"], correct:0, exp:"SR (Set-Reset), JK, D (Data/Delay), and T (Toggle) are the four primary flip-flop types covered."},
+
+  // ENCODERS/DECODERS
+  {topic:"Coders & Decoders", q:"Are basic encoders and decoders sequential or combinational logic circuits?", options:["Sequential — they depend on flip-flops for memory","Combinational — they depend only on current inputs, using basic logic gates","Neither — they use analog circuits","Both equally"], correct:1, exp:"Standard encoders/decoders are purely combinational; they have no memory and depend entirely on their current inputs (AND, OR, NOT gates)."},
+  {topic:"Coders & Decoders", q:"What does a decoder do?", options:["Compresses multiple inputs into a binary code","Takes a binary code and activates a specific output line","Stores one bit of data indefinitely","Divides the clock frequency"], correct:1, exp:"A decoder takes a binary code as input and activates the one specific output line that corresponds to it."},
+  {topic:"Coders & Decoders", q:"In CPU memory addressing, what typically holds the address before it's passed to a decoder?", options:["A register built from D flip-flops","A power supply unit","A cooling fan","An unsigned integer overflow buffer"], correct:0, exp:"A register (built from D flip-flops) holds the instruction or memory address, which is then passed into a decoder to select a memory row or control line."},
+  {topic:"Coders & Decoders", q:"What role do flip-flops play in a Priority Encoder setup for handling interrupts?", options:["They build the encoder's basic logic gates","Their outputs (status flags) are evaluated by the Priority Encoder to determine which request to handle first","They replace the encoder entirely","They have no relationship to encoders"], correct:1, exp:"Multiple hardware components store their interrupt requests in flip-flop-based status flags; the Priority Encoder evaluates these to decide which request the CPU should service first."},
+  {topic:"Coders & Decoders", q:"When are flip-flops introduced alongside encoder/decoder circuitry in communication systems?", options:["Never — flip-flops are unrelated to communication systems","When the encoding scheme depends on past data states (e.g. convolutional codes, state-machine line coding)","Only in analog radio systems","Only when using unsigned integers"], correct:1, exp:"Sequential encoding schemes need to track the system's current/past state, so flip-flops are added to hold that state alongside the encoder/decoder logic."},
+
+  // BUS SYSTEM
+  {topic:"Bus System", q:"What does the Address Bus carry?", options:["The actual data values being read or written","Information about where data is stored or should go in memory","Only clock signals","Power to peripheral devices"], correct:1, exp:"The Address Bus is unidirectional and carries the location (address) information — not the data itself."},
+  {topic:"Bus System", q:"Why is the Data Bus described as bidirectional?", options:["Because it only sends data one way, from CPU to memory","Because data can be read from memory to the CPU and written from the CPU to memory","Because it carries two clock signals","Because it never carries actual values"], correct:1, exp:"Unlike the Address Bus, the Data Bus needs to move data in both directions — reads bring data in, writes send data out."},
+  {topic:"Bus System", q:"What kind of signals does the Control Bus carry?", options:["Only the data being processed","Command signals such as read, write, and clock signals","Only memory addresses","Only interrupt priorities"], correct:1, exp:"The Control Bus carries the command/coordination signals — like read, write, and clock — that tell components what to do and when."},
+  {topic:"Bus System", q:"What does the width of a bus determine?", options:["Only its physical color","How many parallel wires it has, which determines how much information it can carry at once","The clock speed only","Nothing significant"], correct:1, exp:"Bus width is the number of parallel wires — a wider address bus can address more locations (2ⁿ for n bits), and a wider data bus moves more bits per transfer."},
+  {topic:"Bus System", q:"In a synchronous bus, how are data transfers coordinated?", options:["By a shared clock signal, with events at fixed, predictable intervals","By random timing with no coordination","By a handshaking protocol only","By ignoring all timing"], correct:0, exp:"A synchronous bus ties all transfers to a shared clock, which is simpler to design but requires every device to fit within the same timing constraints."},
+  {topic:"Bus System", q:"How does an asynchronous bus coordinate transfers between devices operating at different speeds?", options:["It cannot support devices of different speeds","Using a handshaking protocol (e.g. request then acknowledge signals) instead of a shared clock","By doubling the clock frequency","By disabling the control bus"], correct:1, exp:"Asynchronous buses use handshaking (request/acknowledge) rather than a shared clock, letting devices of different speeds communicate without being locked to one timing standard."},
+  {topic:"Bus System", q:"Why is bus arbitration necessary?", options:["Because only one device can control a shared bus at any given moment, so a scheme is needed to decide who gets access","Because buses never have more than one device","To make the bus run at a fixed color","Arbitration is not necessary in real systems"], correct:0, exp:"Since multiple devices may want to use a shared bus, arbitration decides which device gets control and when — this connects directly to DMA's bus request/grant process."},
+
+  // DMA
+  {topic:"DMA", q:"What does DMA (Direct Memory Access) allow?", options:["The CPU to run faster by overclocking","An I/O device to transfer data straight to main memory by taking over the system bus","Two CPUs to share one memory address","Memory to bypass the operating system entirely"], correct:1, exp:"DMA lets an I/O device transfer data directly to/from main memory, taking control of the system bus, without CPU involvement in the transfer itself."},
+  {topic:"DMA", q:"Why does DMA matter for CPU performance?", options:["It frees the CPU from doing repetitive/boring data transfer tasks","It slows down memory access intentionally","It replaces the need for a control bus","It eliminates the need for RAM"], correct:0, exp:"By letting devices transfer data directly, the CPU is freed from micromanaging routine data movement and can do other work."},
+  {topic:"DMA", q:"What is the correct order of steps a device typically follows to use DMA with the bus system?", options:["Interrupt Signal → Bus Grant → Bus Request","Bus Request → Bus Grant → Interrupt Signal (on completion)","Bus Grant → Interrupt Signal → Bus Request","There is no defined order"], correct:1, exp:"The device first requests the bus, the DMA controller/CPU grants it, the transfer happens, and an interrupt signal marks completion."},
+  {topic:"DMA", q:"In Burst Mode DMA transfer, what happens?", options:["The DMA controller transfers an entire block of data at once before releasing the bus","Only one word is transferred before releasing the bus","The bus is never used","Data is transferred only when the CPU is idle"], correct:0, exp:"Burst Mode transfers a full block in one go — fastest for bulk data, but it locks out the CPU from the bus during that burst."},
+  {topic:"DMA", q:"Which DMA mode transfers data only during clock cycles the CPU isn't using, avoiding any CPU interruption?", options:["Burst Mode","Cycle Stealing Mode","Transparent Mode","Priority Mode"], correct:2, exp:"Transparent Mode keeps the bus until the system task is completed by only using cycles the CPU isn't using — it's the slowest but causes zero interruption to the CPU."},
+  {topic:"DMA", q:"Cycle Stealing Mode is best described as:", options:["Transferring the entire dataset in one uninterrupted burst","Transferring one word at a time, releasing the bus back to the CPU between transfers","Never using the system bus","Only usable with unsigned integers"], correct:1, exp:"Cycle Stealing Mode alternates: transfer one word, release the bus, repeat — balancing speed with CPU access."},
+  {topic:"DMA", q:"What is a DMA Controller?", options:["A software-only algorithm with no hardware component","A special chip/hardware module that manages the data transfer","A type of flip-flop","A category of encoder"], correct:1, exp:"The DMA Controller is dedicated hardware responsible for managing and coordinating the direct memory transfer."},
+
+  // MMU
+  {topic:"Memory Management", q:"What does Virtual Memory create the illusion of?", options:["Unlimited CPU speed","A larger main memory space by combining physical RAM and secondary (disk) storage","A second CPU","Infinite bus bandwidth"], correct:1, exp:"Virtual Memory combines physical RAM with secondary storage to make it appear as though there's more main memory available than physically exists."},
+  {topic:"Memory Management", q:"What is a 'Page' in the context of the Memory Management Unit?", options:["A fixed-size block of virtual memory","A fixed-size block of physical memory","A type of bus","A flip-flop state"], correct:0, exp:"Pages are fixed-size blocks of virtual memory; their physical-memory counterparts are called Frames."},
+  {topic:"Memory Management", q:"What is a 'Frame' in the context of the Memory Management Unit?", options:["A fixed-size block of virtual memory","A fixed-size block of physical memory","A section of the control bus","A type of DMA mode"], correct:1, exp:"Frames are the fixed-size blocks of physical memory that Pages (virtual memory blocks) get mapped into."},
+  {topic:"Memory Management", q:"What is the Virtual Address Space?", options:["The set of physical addresses in RAM","The set of logical addresses generated by the CPU","A type of system bus","A DMA transfer mode"], correct:1, exp:"Virtual Address Space is the set of logical addresses the CPU generates, which the MMU translates into physical addresses."},
+  {topic:"Memory Management", q:"What is the System Bus described as, physically?", options:["A software protocol only","A physical group of wires or connections","A single flip-flop","A type of encoder"], correct:1, exp:"The System Bus is the physical group of wires/connections that lets components communicate."},
+  {topic:"Memory Management", q:"What is a Page Table used for?", options:["Storing DMA transfer modes","Recording which virtual page maps to which physical frame","Storing bus arbitration priorities","Holding CISC microcode"], correct:1, exp:"The MMU consults the Page Table to translate a virtual (logical) address into its corresponding physical address/frame."},
+  {topic:"Memory Management", q:"What is a Translation Lookaside Buffer (TLB)?", options:["A type of DMA controller","A small, fast cache of recent virtual-to-physical page translations, avoiding the need to consult the full page table every time","A flip-flop used only in RISC processors","A bus arbitration scheme"], correct:1, exp:"The TLB speeds up address translation by caching recently used page-to-frame mappings, so the CPU doesn't need to walk the full page table on every memory access."},
+  {topic:"Memory Management", q:"What triggers a page fault?", options:["The CPU clock stopping","A program tries to access a page that isn't currently loaded into physical memory","A DMA burst transfer completing","A bus arbitration conflict"], correct:1, exp:"A page fault occurs when the requested virtual page isn't currently resident in a physical frame, prompting the OS to load it in (often after swapping out another page)."},
+  {topic:"Memory Management", q:"What is 'thrashing' in the context of virtual memory?", options:["A hardware fault in the address bus","Excessive swapping between RAM and disk that significantly slows the system down","A type of DMA mode","A flip-flop malfunction"], correct:1, exp:"Thrashing happens when the system spends more time swapping pages in and out than doing useful work, since disk access is far slower than RAM access."},
+  {topic:"Memory Management", q:"How does segmentation differ from paging?", options:["Segmentation uses fixed-size blocks like paging","Segmentation divides memory into variable-sized, logically meaningful blocks (like code, data, and stack segments) rather than fixed-size pages","Segmentation cannot be used with virtual memory","Segmentation and paging are identical concepts"], correct:1, exp:"Unlike paging's fixed-size blocks, segmentation organizes memory into variable-sized, logically meaningful units — some systems combine both approaches."}
+];
+
+// ---------- Config ----------
+const TOTAL_QUESTIONS = 50;
+const TIME_LIMIT_SECONDS = 30 * 60;
+const MARKS_PER_Q = 1.4;
+const TOTAL_MARKS = Math.round(TOTAL_QUESTIONS * MARKS_PER_Q * 10) / 10;
+
+// ---------- State ----------
+let activeQuestions = [];
+let currentIndex = 0;
+let userAnswers = [];
+let timerInterval = null;
+let secondsLeft = TIME_LIMIT_SECONDS;
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildQuiz(){
+  const pool = shuffle(QUESTIONS);
+  const chosen = pool.slice(0, Math.min(TOTAL_QUESTIONS, QUESTIONS.length));
+  activeQuestions = chosen.map(q => {
+    const optIdx = q.options.map((opt, i) => ({opt, isCorrect: i === q.correct}));
+    const shuffledOpts = shuffle(optIdx);
+    return {
+      topic: q.topic,
+      question: q.q,
+      exp: q.exp,
+      options: shuffledOpts.map(o => o.opt),
+      correct: shuffledOpts.findIndex(o => o.isCorrect)
+    };
+  });
+  userAnswers = new Array(activeQuestions.length).fill(null);
+  currentIndex = 0;
+  secondsLeft = TIME_LIMIT_SECONDS;
+}
+
+// ---------- Navigation ----------
+const landing = document.getElementById('landing');
+const quizEl = document.getElementById('quiz');
+const resultsEl = document.getElementById('results');
+
+document.getElementById('startBtn').onclick = () => {
+  buildQuiz();
+  landing.classList.add('hidden');
+  quizEl.classList.remove('hidden');
+  resultsEl.classList.add('hidden');
+  startTimer();
+  renderQuestion();
+  renderQMap();
+};
+
+document.getElementById('backBtn').onclick = () => {
+  if(!confirm('Leave the exam? Your progress will be lost.')) return;
+  clearInterval(timerInterval);
+  quizEl.classList.add('hidden');
+  landing.classList.remove('hidden');
+};
+
+function startTimer(){
+  clearInterval(timerInterval);
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    updateTimerDisplay();
+    if(secondsLeft <= 0){
+      clearInterval(timerInterval);
+      finishQuiz();
+    }
+  }, 1000);
+}
+function updateTimerDisplay(){
+  const m = Math.floor(secondsLeft / 60);
+  const s = secondsLeft % 60;
+  const timerEl = document.getElementById('timer');
+  timerEl.textContent = '⏱ ' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  timerEl.classList.toggle('low', secondsLeft <= 60);
+}
+
+function renderQuestion(){
+  const q = activeQuestions[currentIndex];
+  const n = activeQuestions.length;
+  document.getElementById('qcount').textContent = `Q${currentIndex+1}/${n}`;
+  document.getElementById('progressFill').style.width = ((currentIndex) / (n-1) * 100) + '%';
+  document.getElementById('qbadge').textContent = 'QUESTION ' + String(currentIndex+1).padStart(2,'0');
+  document.getElementById('questionText').textContent = q.question;
+
+  const optsList = document.getElementById('optionsList');
+  optsList.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  const chosen = userAnswers[currentIndex];
+
+  q.options.forEach((optText, i) => {
+    const div = document.createElement('div');
+    div.className = 'option' + (chosen === i ? ' selected' : '');
+    div.innerHTML = `<span class="tag">${letters[i]}</span><span>${optText}</span>`;
+    div.onclick = () => {
+      userAnswers[currentIndex] = i;
+      renderQuestion();
+      renderQMap();
+    };
+    optsList.appendChild(div);
+  });
+
+  document.getElementById('prevBtn').disabled = currentIndex === 0;
+  document.getElementById('nextBtn').textContent = currentIndex === n - 1 ? 'Finish →' : 'Next →';
+}
+
+function renderQMap(){
+  const qmap = document.getElementById('qmap');
+  qmap.innerHTML = '';
+  activeQuestions.forEach((q, i) => {
+    const cell = document.createElement('div');
+    let cls = 'qmap-cell';
+    if(i === currentIndex) cls += ' current';
+    else if(userAnswers[i] !== null) cls += ' answered';
+    cell.className = cls;
+    cell.textContent = i + 1;
+    cell.onclick = () => { currentIndex = i; renderQuestion(); renderQMap(); };
+    qmap.appendChild(cell);
+  });
+}
+
+document.getElementById('prevBtn').onclick = () => {
+  if(currentIndex > 0){ currentIndex--; renderQuestion(); renderQMap(); }
+};
+document.getElementById('nextBtn').onclick = () => {
+  if(currentIndex < activeQuestions.length - 1){ currentIndex++; renderQuestion(); renderQMap(); }
+  else { finishQuiz(); }
+};
+document.getElementById('submitBtn').onclick = () => {
+  const unanswered = userAnswers.filter(a => a === null).length;
+  const msg = unanswered > 0
+    ? `You have ${unanswered} unanswered question(s). Submit anyway?`
+    : 'Submit the exam now?';
+  if(confirm(msg)) finishQuiz();
+};
+
+function finishQuiz(){
+  clearInterval(timerInterval);
+  quizEl.classList.add('hidden');
+  resultsEl.classList.remove('hidden');
+  document.getElementById('reviewCard').classList.add('hidden');
+  document.getElementById('reviewBtn').textContent = 'Review answers';
+  renderResults();
+}
+
+function renderResults(){
+  const total = activeQuestions.length;
+  const correctCount = userAnswers.filter((a, i) => a !== null && a === activeQuestions[i].correct).length;
+  const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+  const marks = Math.round(correctCount * MARKS_PER_Q * 10) / 10;
+
+  const circle = document.getElementById('scoreCircle');
+  const circumference = 2 * Math.PI * 68;
+  circle.style.strokeDasharray = circumference;
+  circle.style.strokeDashoffset = circumference - (pct/100) * circumference;
+  circle.style.stroke = pct >= 70 ? '#34e3b0' : pct >= 40 ? '#f5b942' : '#ff6b6b';
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('scorePct').style.color = circle.style.stroke;
+  document.getElementById('scoreMarks').textContent = `${marks} / ${TOTAL_MARKS} marks`;
+
+  let msg = '';
+  if(pct >= 85) msg = `Excellent — ${correctCount}/${total} correct. Strong grasp of the chapter.`;
+  else if(pct >= 70) msg = `Good work — ${correctCount}/${total} correct. Revisit the weak topics below.`;
+  else if(pct >= 40) msg = `${correctCount}/${total} correct. Worth another pass through the notes.`;
+  else msg = `${correctCount}/${total} correct. Recommend reviewing the full notes before retrying.`;
+  document.getElementById('scoreMsg').textContent = msg;
+
+  const topicStats = {};
+  activeQuestions.forEach((q, i) => {
+    if(!topicStats[q.topic]) topicStats[q.topic] = {correct:0, total:0};
+    topicStats[q.topic].total++;
+    if(userAnswers[i] === q.correct) topicStats[q.topic].correct++;
+  });
+  const breakdownEl = document.getElementById('breakdown');
+  breakdownEl.innerHTML = '';
+  Object.keys(topicStats).forEach(topic => {
+    const s = topicStats[topic];
+    const p = Math.round((s.correct / s.total) * 100);
+    const row = document.createElement('div');
+    row.className = 'breakdown-row';
+    row.innerHTML = `<span>${topic}</span><div class="bar"><div class="bar-fill" style="width:${p}%"></div></div><span class="frac">${s.correct}/${s.total}</span>`;
+    breakdownEl.appendChild(row);
+  });
+
+  const reviewList = document.getElementById('reviewList');
+  reviewList.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  activeQuestions.forEach((q, i) => {
+    const chosen = userAnswers[i];
+    const div = document.createElement('div');
+    div.className = 'review-item';
+    const yourAns = chosen !== null ? `${letters[chosen]}. ${q.options[chosen]}` : 'Skipped';
+    const isCorrect = chosen === q.correct;
+    div.innerHTML = `
+      <div class="review-q">${i+1}. ${q.question}</div>
+      <div class="review-ans ${isCorrect ? 'right' : 'wrong'}">Your answer: ${yourAns}</div>
+      ${!isCorrect ? `<div class="review-ans right">Correct answer: ${letters[q.correct]}. ${q.options[q.correct]}</div>` : ''}
+      <div class="review-exp">${q.exp}</div>
+    `;
+    reviewList.appendChild(div);
+  });
+}
+
+document.getElementById('reviewBtn').onclick = () => {
+  const card = document.getElementById('reviewCard');
+  card.classList.toggle('hidden');
+  document.getElementById('reviewBtn').textContent = card.classList.contains('hidden') ? 'Review answers' : 'Hide review';
+};
+
+document.getElementById('retryBtn').onclick = () => {
+  resultsEl.classList.add('hidden');
+  landing.classList.remove('hidden');
+};
+</script>
+</body>
+</html>
