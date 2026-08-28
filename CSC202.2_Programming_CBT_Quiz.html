@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSC 202.2 Programming CBT</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e1a;
+  --surface: #111827;
+  --card: #1a2236;
+  --border: #1e3a5f;
+  --accent: #00d4ff;
+  --accent2: #237cae;
+  --green: #00ff88;
+  --red: #ff4466;
+  --yellow: #ffd700;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --glow: 0 0 20px rgba(0,212,255,0.3);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(0,212,255,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(124,58,237,0.06) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.screen { display: none; position: relative; z-index: 1; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ===== INTRO SCREEN ===== */
+#intro {
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0,212,255,0.08);
+  border: 1px solid var(--accent);
+  border-radius: 100px;
+  padding: 8px 20px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--accent);
+  letter-spacing: 2px;
+  margin-bottom: 2rem;
+  animation: fadeDown 0.6s ease;
+}
+
+.logo-badge::before { content: "▣"; animation: spin 3s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.intro-title {
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+  animation: fadeDown 0.7s ease;
+}
+
+.intro-title span {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.intro-sub { font-size: 1rem; color: var(--muted); margin-bottom: 3rem; animation: fadeDown 0.8s ease; }
+
+.info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; max-width: 600px; margin-bottom: 3rem; animation: fadeUp 0.9s ease; }
+
+.info-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1rem; text-align: center; }
+.info-card .val { font-size: 1.8rem; font-weight: 700; color: var(--accent); font-family: 'Share Tech Mono', monospace; display: block; }
+.info-card .lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+.rules { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem 2rem; max-width: 500px; text-align: left; margin-bottom: 2.5rem; animation: fadeUp 1s ease; }
+.rules h3 { color: var(--accent); font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem; font-family: 'Share Tech Mono', monospace; }
+.rules li { list-style: none; padding: 0.4rem 0; font-size: 0.9rem; color: var(--muted); padding-left: 1.2rem; position: relative; }
+.rules li::before { content: ">"; position: absolute; left: 0; color: var(--accent); }
+
+.btn-start {
+  background: linear-gradient(135deg, var(--accent), #0099cc);
+  color: #000; border: none; padding: 1rem 3rem; border-radius: 100px; font-family: 'Exo 2', sans-serif;
+  font-size: 1rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+  transition: all 0.3s; box-shadow: var(--glow); animation: fadeUp 1.1s ease;
+}
+.btn-start:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 0 40px rgba(0,212,255,0.5); }
+
+/* ===== QUIZ SCREEN ===== */
+#quiz { min-height: 100vh; }
+
+.quiz-header {
+  position: sticky; top: 0; z-index: 100; background: rgba(10,14,26,0.95); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); padding: 0.75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+
+.q-meta { display: flex; align-items: center; gap: 0.5rem; font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; }
+.q-counter { color: var(--accent); font-weight: 700; }
+.q-total { color: var(--muted); }
+
+.progress-bar-wrap { flex: 1; height: 4px; background: var(--border); border-radius: 10px; overflow: hidden; max-width: 300px; }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 10px; transition: width 0.4s ease; width: 0%; }
+
+.timer-wrap { display: flex; align-items: center; gap: 0.5rem; background: var(--card); border: 1px solid var(--border); border-radius: 100px; padding: 0.4rem 1rem; }
+#timer-display { font-family: 'Share Tech Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--accent); min-width: 52px; text-align: center; transition: color 0.3s; }
+#timer-display.warning { color: var(--yellow); }
+#timer-display.danger { color: var(--red); animation: pulse 0.5s infinite alternate; }
+
+@keyframes pulse { from { opacity: 1; } to { opacity: 0.4; } }
+
+/* QUESTION BODY */
+.quiz-body { flex: 1; display: flex; flex-direction: column; padding: 2rem 1.5rem; max-width: 780px; width: 100%; margin: 0 auto; }
+.question-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem; position: relative; overflow: hidden; }
+.question-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+.q-number-badge { display: inline-block; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); color: var(--accent); font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; padding: 3px 10px; border-radius: 100px; margin-bottom: 1rem; letter-spacing: 1px; }
+.question-text { font-size: 1.05rem; font-weight: 600; line-height: 1.6; color: var(--text); }
+
+.options-list { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
+.option-btn { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: all 0.2s; text-align: left; width: 100%; color: var(--text); font-family: 'Exo 2', sans-serif; font-size: 0.95rem; font-weight: 400; }
+.option-btn:hover { border-color: var(--accent); background: rgba(0,212,255,0.06); transform: translateX(4px); }
+.option-btn.selected { border-color: var(--accent); background: rgba(0,212,255,0.12); color: var(--accent); }
+.option-letter { width: 32px; height: 32px; border-radius: 8px; background: var(--border); display: flex; align-items: center; justify-content: center; font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; transition: background 0.2s; }
+.option-btn.selected .option-letter { background: var(--accent); color: #000; }
+
+.nav-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.btn-nav { padding: 0.75rem 1.75rem; border-radius: 100px; border: 1.5px solid var(--border); background: var(--card); color: var(--text); font-family: 'Exo 2', sans-serif; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; }
+.btn-nav:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.btn-nav:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-nav.primary { background: linear-gradient(135deg, var(--accent), #0099cc); border-color: transparent; color: #000; font-weight: 700; }
+.btn-nav.primary:hover { box-shadow: var(--glow); transform: scale(1.02); }
+.btn-nav.danger-btn { background: rgba(255,68,102,0.1); border-color: var(--red); color: var(--red); }
+
+/* ===== QUESTION MAP ===== */
+.q-map-wrap { padding: 0 1.5rem 2rem; max-width: 780px; width: 100%; margin: 0 auto; }
+.q-map-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.75rem; font-family: 'Share Tech Mono', monospace; }
+.q-map { display: flex; flex-wrap: wrap; gap: 6px; }
+.q-dot { width: 28px; height: 28px; border-radius: 6px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-family: 'Share Tech Mono', monospace; cursor: pointer; transition: all 0.15s; color: var(--muted); }
+.q-dot:hover { border-color: var(--accent); color: var(--accent); }
+.q-dot.answered { background: rgba(0,212,255,0.15); border-color: var(--accent); color: var(--accent); }
+.q-dot.current { background: var(--accent); color: #000; font-weight: 700; }
+
+/* ===== RESULT SCREEN ===== */
+#result { align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; text-align: center; }
+.result-badge { font-size: 4rem; margin-bottom: 1rem; animation: bounceIn 0.6s ease; }
+@keyframes bounceIn { 0% { transform: scale(0); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
+.result-score { font-size: clamp(3rem, 10vw, 5.5rem); font-weight: 900; font-family: 'Share Tech Mono', monospace; line-height: 1; margin-bottom: 0.5rem; }
+.result-score.pass { color: var(--green); text-shadow: 0 0 30px rgba(0,255,136,0.4); }
+.result-score.fail { color: var(--red); text-shadow: 0 0 30px rgba(255,68,102,0.4); }
+.result-label { font-size: 1rem; color: var(--muted); margin-bottom: 2.5rem; letter-spacing: 1px; text-transform: uppercase; }
+.result-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; max-width: 480px; margin-bottom: 2.5rem; }
+.stat-box { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.2rem; }
+.stat-box .sv { font-size: 1.8rem; font-weight: 700; font-family: 'Share Tech Mono', monospace; display: block; }
+.stat-box .sl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.stat-box.correct-stat .sv { color: var(--green); }
+.stat-box.wrong-stat .sv { color: var(--red); }
+.stat-box.skip-stat .sv { color: var(--yellow); }
+.result-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.btn-retry { background: linear-gradient(135deg, var(--accent2), #6d28d9); color: #fff; border: none; padding: 1rem 2.5rem; border-radius: 100px; font-family: 'Exo 2', sans-serif; font-size: 1rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; }
+.btn-retry:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(124,58,237,0.4); }
+.btn-review { background: transparent; color: var(--accent); border: 2px solid var(--accent); padding: 1rem 2.5rem; border-radius: 100px; font-family: 'Exo 2', sans-serif; font-size: 1rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; }
+.btn-review:hover { background: rgba(0,212,255,0.1); transform: translateY(-2px); }
+
+/* ===== REVIEW SCREEN ===== */
+#review { padding: 2rem 1.5rem; max-width: 800px; margin: 0 auto; width: 100%; }
+.review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+.review-title { font-size: 1.8rem; color: var(--accent); font-weight: 700; }
+.review-list { display: flex; flex-direction: column; gap: 1.5rem; }
+.review-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+.review-card.correct { border-left: 4px solid var(--green); }
+.review-card.wrong { border-left: 4px solid var(--red); }
+.review-card.skipped { border-left: 4px solid var(--yellow); }
+.review-q { font-size: 1.05rem; font-weight: 600; margin-bottom: 1rem; }
+.review-ans { font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--muted); }
+.review-ans span { font-weight: 700; }
+.ans-correct { color: var(--green); }
+.ans-wrong { color: var(--red); }
+.review-exp { margin-top: 1rem; background: rgba(0, 212, 255, 0.05); padding: 1rem; border-radius: 8px; font-size: 0.9rem; color: #a0aec0; border-left: 2px solid var(--accent); }
+
+@keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.slide-in { animation: slideIn 0.3s ease; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+@media (max-width: 500px) { .info-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; } .result-stats { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; } .quiz-header { padding: 0.6rem 1rem; } .quiz-body { padding: 1rem; } }
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="intro" class="screen active">
+  <div class="logo-badge">CSC 202.2 UNIPORT</div>
+  <h1 class="intro-title">Computer<br><span>Programming CBT</span></h1>
+  <p class="intro-sub">Test your knowledge. Beat the clock.</p>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <span class="val">50</span>
+      <span class="lbl">Questions</span>
+    </div>
+    <div class="info-card">
+      <span class="val">30</span>
+      <span class="lbl">Minutes</span>
+    </div>
+    <div class="info-card">
+      <span class="val">1.4</span>
+      <span class="lbl">Marks/Q</span>
+    </div>
+    <div class="info-card">
+      <span class="val">70</span>
+      <span class="lbl">Total</span>
+    </div>
+  </div>
+
+  <div class="rules">
+    <h3>// Instructions</h3>
+    <ul>
+      <li id="bank-size-line">50 random questions selected from the master bank.</li>
+      <li>30-minute countdown timer.</li>
+      <li>Each correct answer = 1.4 marks (70 Max).</li>
+      <li>Navigate freely between questions using the map.</li>
+      <li>Quiz auto-submits when time runs out.</li>
+    </ul>
+  </div>
+  <button class="btn-start" onclick="startQuiz()">START EXAM &rarr;</button>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="screen">
+  <div class="quiz-header">
+    <div class="q-meta">
+      <span class="q-counter" id="q-counter">Q1</span>
+      <span class="q-total" id="q-total">/ 50</span>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+
+    <div class="timer-wrap">
+      <span class="timer-icon">⏱️</span>
+      <span id="timer-display">30:00</span>
+    </div>
+  </div>
+
+  <div class="quiz-body">
+    <div class="question-card slide-in" id="question-card">
+      <div class="q-number-badge" id="q-badge">QUESTION 01</div>
+      <p class="question-text" id="question-text"></p>
+    </div>
+
+    <div class="options-list" id="options-list"></div>
+
+    <div class="nav-row">
+      <button class="btn-nav" id="btn-prev" onclick="navigate(-1)">Prev</button>
+      <button class="btn-nav danger-btn" onclick="confirmSubmit()">Submit Exam</button>
+      <button class="btn-nav primary" id="btn-next" onclick="navigate(1)">Next &rarr;</button>
+    </div>
+  </div>
+
+  <div class="q-map-wrap">
+    <div class="q-map-label">// Question Map</div>
+    <div class="q-map" id="q-map"></div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result" class="screen">
+  <div class="result-badge" id="result-emoji">🎯</div>
+  <div class="result-score" id="result-score">0/70</div>
+  <div class="result-label" id="result-label">Total Score</div>
+
+  <div class="result-stats">
+    <div class="stat-box correct-stat">
+      <span class="sv" id="stat-correct">0</span>
+      <span class="sl">Correct</span>
+    </div>
+    <div class="stat-box wrong-stat">
+      <span class="sv" id="stat-wrong">0</span>
+      <span class="sl">Wrong</span>
+    </div>
+    <div class="stat-box skip-stat">
+      <span class="sv" id="stat-skip">0</span>
+      <span class="sl">Skipped</span>
+    </div>
+  </div>
+
+  <div class="result-actions">
+    <button class="btn-review" onclick="showReview()">Review Answers</button>
+    <button class="btn-retry" onclick="location.reload()">Take Another Random Test</button>
+  </div>
+</div>
+
+<!-- REVIEW -->
+<div id="review" class="screen">
+  <div class="review-header">
+    <div class="review-title">Exam Review</div>
+    <button class="btn-nav" onclick="backToResults()">Back to Results</button>
+  </div>
+  <div class="review-list" id="review-list"></div>
+</div>
+
+<!-- CUSTOM CONFIRM MODAL (replaces native confirm(), which browsers/embedded viewers can block) -->
+<div id="modal-overlay" style="display:none; position:fixed; inset:0; z-index:1000; background:rgba(5,8,15,0.75); backdrop-filter: blur(4px); align-items:center; justify-content:center; padding:1.5rem;">
+  <div style="background:var(--card); border:1px solid var(--border); border-radius:18px; padding:2rem; max-width:380px; width:100%; text-align:center; box-shadow: var(--glow);">
+    <p id="modal-message" style="font-size:1rem; color:var(--text); margin-bottom:1.75rem; line-height:1.5;"></p>
+    <div style="display:flex; gap:0.75rem; justify-content:center;">
+      <button class="btn-nav" id="modal-cancel" style="flex:1;">Cancel</button>
+      <button class="btn-nav primary" id="modal-confirm" style="flex:1;">Submit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// --- MASTER QUESTION BANK (100+ questions) ---
+const rawQuizData = [
+  // SECTION 1: OOP FUNDAMENTALS
+  { text: "What is Object-Oriented Programming (OOP) based on?", options: ["The real world, structured around 'objects' that contain data in the form of fields or records", "Only mathematical equations", "A sequence of procedures with no data structures", "Only text-based menus"], answer: 0, explanation: "OOP is based on the real world, structured around objects containing data as fields/records." },
+  { text: "What programming paradigm did OOP grow out of, and largely outgrow?", options: ["Procedural Programming", "Functional Programming only", "Assembly Programming", "Declarative Programming"], answer: 0, explanation: "OOP grew out of, and largely outgrew, Procedural Programming." },
+  { text: "In OOP, real-world entities are modeled as what?", options: ["Objects", "Only numbers", "Only strings", "Only files"], answer: 0, explanation: "Real-world entities are modeled as Objects in OOP." },
+  { text: "In OOP, what represents the functional part of an object?", options: ["Data (attributes) manipulated using functions/methods", "Only the object's name", "The object's file size", "The object's creation date only"], answer: 0, explanation: "The functional part of an object is data manipulated using functions (methods)." },
+  { text: "Which of these is a common example of a function/method used to manipulate an object's data?", options: ["Search, retrieve, edit, delete", "Only printing to paper", "Only file compression", "Only network routing"], answer: 0, explanation: "Common data-manipulating functions include search, retrieve, edit, and delete." },
+  { text: "What is a Class, in OOP terms?", options: ["A blueprint for objects of similar attributes", "A single instance of data", "A type of loop", "A network protocol"], answer: 0, explanation: "A class is a blueprint defining what attributes and behavior its objects will share." },
+  { text: "What is an individual object created from a class called?", options: ["An instance", "A package", "A namespace", "A pointer"], answer: 0, explanation: "An individual object created from a class is called an instance of that class." },
+  { text: "Which OOP pillar binds functions and data together within a class?", options: ["Encapsulation", "Abstraction", "Inheritance", "Polymorphism"], answer: 0, explanation: "Encapsulation binds functions and data together within a class." },
+  { text: "Which OOP pillar hides complex/unnecessary detail and only shows essential features?", options: ["Abstraction", "Encapsulation", "Inheritance", "Polymorphism"], answer: 0, explanation: "Abstraction hides complexity and shows only essential features." },
+  { text: "Which OOP pillar lets a sub/child class reuse properties and behavior from a parent class?", options: ["Inheritance", "Encapsulation", "Abstraction", "Polymorphism"], answer: 0, explanation: "Inheritance lets a subclass reuse a parent class's properties and behavior." },
+  { text: "Which OOP pillar lets objects of different classes be treated through a common interface, each providing its own specific behavior?", options: ["Polymorphism", "Encapsulation", "Abstraction", "Inheritance"], answer: 0, explanation: "Polymorphism lets different classes share a common interface with class-specific behavior." },
+  { text: "Which two forms can Inheritance take?", options: ["Single and Multiple", "Public and Private only", "Fast and Slow", "Static and Dynamic only"], answer: 0, explanation: "Inheritance can be Single (one parent) or Multiple (more than one parent)." },
+  { text: "What does Encapsulation typically restrict?", options: ["Direct outside access to some of an object's internal details", "The number of objects a class can create", "The size of the compiled program", "The speed of the CPU"], answer: 0, explanation: "Encapsulation typically restricts direct outside access to internal details." },
+  { text: "How many pillars of OOP are covered in this course?", options: ["Four: Encapsulation, Abstraction, Inheritance, Polymorphism", "Two", "Six", "Ten"], answer: 0, explanation: "The four pillars are Encapsulation, Abstraction, Inheritance, and Polymorphism." },
+  { text: "Why is OOP considered better suited to large, complex software than plain Procedural Programming?", options: ["Because organizing code around objects (with bundled data and behavior) improves structure, reuse, and maintainability", "Because OOP requires no planning at all", "Because OOP eliminates the need for functions entirely", "Because Procedural Programming cannot use variables"], answer: 0, explanation: "OOP's object-based structure improves organization, reuse, and maintainability for complex software." },
+
+  // SECTION 2: CLASS HIERARCHY AND PROGRAM ORGANIZATION
+  { text: "Why is class hierarchy (CH) essential in OOP?", options: ["It organizes code into manageable, modular, and re-usable components", "It has no real purpose in modern programming", "It only matters for very small programs", "It replaces the need for classes entirely"], answer: 0, explanation: "Class hierarchy organizes code into manageable, modular, and reusable components." },
+  { text: "What does understanding class hierarchy enable developers to do?", options: ["Write cleaner code, foster collaboration, and enhance maintainability", "Avoid using any functions", "Eliminate the need for testing", "Write code without any structure"], answer: 0, explanation: "Understanding CH enables cleaner code, better collaboration, and enhanced maintainability." },
+  { text: "What is class hierarchy, structurally?", options: ["A tree-like model where classes can inherit from one another", "A flat list with no relationships", "A single class with no subclasses", "A random collection of unrelated functions"], answer: 0, explanation: "Class hierarchy is a tree-like model where classes inherit from one another." },
+  { text: "What are classes at the top of a class hierarchy called?", options: ["The base/super class", "The derived class only", "The leaf class", "The interface class"], answer: 0, explanation: "Classes at the top of the hierarchy are called the base/super class." },
+  { text: "What are classes that inherit from the base class called?", options: ["Derived/sub classes", "Only interfaces", "Only packages", "Only namespaces"], answer: 0, explanation: "Classes inheriting from the base class are called derived/sub classes." },
+  { text: "What does the inheritance relationship allow a subclass to do?", options: ["Inherit attributes (data) and behaviours (functions/methods) from the superclass", "Only inherit the class name", "Delete the superclass automatically", "Prevent the superclass from being used"], answer: 0, explanation: "Inheritance lets a subclass inherit attributes and behaviours from its superclass." },
+  { text: "What does inheritance promote, according to the notes?", options: ["Code reuseability, and reducing redundant statements (lines of code)", "More redundant code", "Slower compilation only", "Larger file sizes with no benefit"], answer: 0, explanation: "Inheritance promotes code reuseability and reduces redundant statements." },
+  { text: "In Single Inheritance, how many parent classes does a subclass inherit attributes from?", options: ["One", "Two", "Three or more", "Zero"], answer: 0, explanation: "Single Inheritance means a subclass inherits attributes from just one parent class." },
+  { text: "In Multiple Inheritance, how many parent classes can a subclass inherit attributes and behaviour from?", options: ["More than one parent class", "Exactly one only", "Zero", "Only itself"], answer: 0, explanation: "Multiple Inheritance means a subclass inherits from more than one parent class." },
+  { text: "In the Person/Student example, which class is the superclass?", options: ["Person", "Student", "Both are superclasses", "Neither is a superclass"], answer: 0, explanation: "In this example, Person is the superclass and Student is the subclass." },
+  { text: "In the Person/Student example, what can Student do in addition to using inherited properties/methods?", options: ["Have its own additional features/behavior on top of what it inherits", "Nothing beyond what Person defines", "Only overwrite Person's name field", "Delete the Person class"], answer: 0, explanation: "A subclass like Student can add its own additional features beyond what it inherits." },
+  { text: "In the provided Java code example, which keyword is used for Student to inherit from Person?", options: ["extends", "implements", "inherits", "super"], answer: 0, explanation: "Java uses the 'extends' keyword for class inheritance." },
+  { text: "In the provided Java code example, what does s.introduce() demonstrate?", options: ["Calling an inherited method from the parent class Person", "Creating a new class", "Deleting the Student object", "A compilation error"], answer: 0, explanation: "s.introduce() calls the introduce() method inherited from Person." },
+  { text: "In the provided Java code example, what does s.study() demonstrate?", options: ["Calling Student's own method, not inherited from Person", "An inherited method from Person", "A syntax error", "A method that doesn't exist"], answer: 0, explanation: "study() is Student's own method, defined directly in the Student class." },
+  { text: "What is the relationship analogy used to describe how a subclass can both inherit from AND differ from its superclass?", options: ["Like a child inheriting properties from parents while still having their own distinct attitude/behavior", "Like two unrelated strangers", "Like a superclass being deleted by its subclass", "Like a subclass with no relationship to its parent at all"], answer: 0, explanation: "The analogy used is a child inheriting from parents while still developing their own distinct behavior." },
+
+  // SECTION 3: BENEFITS OF CLASS HIERARCHY
+  { text: "What is the first listed benefit of class hierarchy?", options: ["It enhances program organization", "It slows down all programs", "It removes the need for classes", "It prevents code reuse"], answer: 0, explanation: "Enhancing program organization is listed as a key benefit of class hierarchy." },
+  { text: "How does class hierarchy promote code reusability?", options: ["By allowing common properties and methods to be defined once in a base class, which subclasses inherit rather than redefine", "By requiring every subclass to rewrite all shared code", "By preventing any class from sharing code", "By deleting unused classes automatically"], answer: 0, explanation: "Common properties/methods defined once in a base class are inherited, not redefined, by subclasses." },
+  { text: "What does reducing code duplication via inheritance facilitate?", options: ["Easier updates", "More bugs", "Slower performance always", "Larger codebases with no benefit"], answer: 0, explanation: "Reducing code duplication facilitates easier updates to shared functionality." },
+  { text: "What is the third listed benefit of class hierarchy?", options: ["Improved maintenance", "Guaranteed zero bugs", "Elimination of all testing", "Automatic code generation"], answer: 0, explanation: "Improved maintenance is listed as a benefit of class hierarchy." },
+  { text: "How does a well-structured class hierarchy affect codebase readability?", options: ["It improves the overall readability of the codebase", "It has no effect on readability", "It always makes code harder to read", "It only affects readability for beginners"], answer: 0, explanation: "A well-structured class hierarchy improves overall codebase readability." },
+  { text: "What does enhanced readability enable developers to do more quickly?", options: ["Understand the relationships and functionalities of different components", "Delete all their code", "Avoid using version control", "Ignore all documentation"], answer: 0, explanation: "Enhanced readability helps developers quickly understand relationships between components." },
+  { text: "What does improved readability make easier on larger projects?", options: ["Navigating and collaborating with other developers", "Working alone with no communication", "Avoiding all planning", "Preventing any code review"], answer: 0, explanation: "It makes it easier to navigate and collaborate on larger projects." },
+  { text: "In the multiple-methods example (Professor class), what three methods does the Professor object call?", options: ["teach(), research(), and supervise()", "add(), subtract(), and multiply()", "open(), close(), and save()", "start(), stop(), and pause()"], answer: 0, explanation: "The Professor example calls teach(), research(), and supervise()." },
+  { text: "Why does improved maintenance result from good class hierarchy design?", options: ["Because changes to shared behavior can often be made in one place (the superclass) rather than in every subclass individually", "Because maintenance is never needed in OOP", "Because subclasses cannot be changed at all", "Because superclasses are deleted after compilation"], answer: 0, explanation: "Centralizing shared behavior in the superclass means changes need only be made in one place." },
+  { text: "Which of the following best summarizes the overall benefit of class hierarchy?", options: ["It creates more organized, reusable, and maintainable code through structured inheritance relationships", "It has no measurable benefit", "It only benefits very small, single-file programs", "It eliminates the need for any planning"], answer: 0, explanation: "Class hierarchy's overall benefit is more organized, reusable, maintainable code." },
+  { text: "Which benefit specifically addresses reducing redundant code across multiple classes?", options: ["Code reusability", "Program organization alone", "Readability alone", "None of these"], answer: 0, explanation: "Code reusability specifically addresses reducing redundant code across classes." },
+  { text: "According to the notes, what does class hierarchy foster among developers working on the same project?", options: ["Collaboration", "Isolation with no communication", "Conflict over class names", "Complete code duplication"], answer: 0, explanation: "Class hierarchy fosters collaboration among developers." },
+
+  // SECTION 4: MULTIPLE INHERITANCE VIA INTERFACES
+  { text: "Does Java support multiple class inheritance directly?", options: ["No, because it leads to ambiguity (confusion)", "Yes, without any restrictions", "Yes, but only for abstract classes", "Yes, but only for final classes"], answer: 0, explanation: "Java does not support multiple class inheritance directly, due to ambiguity concerns." },
+  { text: "What does Java allow instead of direct multiple class inheritance?", options: ["A class to implement multiple Interfaces", "A class to extend multiple classes freely", "Nothing — multiple behaviors are impossible in Java", "Only single-method classes"], answer: 0, explanation: "Java allows a class to implement multiple interfaces instead." },
+  { text: "What keyword/construct does Java use to achieve the effect of multiple inheritance?", options: ["Interface", "Extends (for multiple classes)", "Package", "Namespace"], answer: 0, explanation: "Java uses the Interface construct to achieve multiple-inheritance-like behavior." },
+  { text: "Why can't Java directly support multiple class inheritance without ambiguity issues?", options: ["If two parent classes defined the same method differently, the compiler wouldn't know which version a subclass should inherit", "Because Java doesn't support inheritance at all", "Because interfaces are illegal in Java", "Because classes cannot have methods"], answer: 0, explanation: "The ambiguity arises when two parent classes define the same method differently." },
+  { text: "In the Teacher/Researcher interface example, what method does the Teacher interface declare?", options: ["teach()", "research()", "supervise()", "study()"], answer: 0, explanation: "The Teacher interface declares the teach() method." },
+  { text: "In the Teacher/Researcher interface example, what method does the Researcher interface declare?", options: ["research()", "teach()", "supervise()", "introduce()"], answer: 0, explanation: "The Researcher interface declares the research() method." },
+  { text: "In the code example, which class implements both the Teacher and Researcher interfaces?", options: ["Professor", "Student", "Person", "Main"], answer: 0, explanation: "The Professor class implements both Teacher and Researcher." },
+  { text: "What Java keyword is used in the class declaration to implement multiple interfaces?", options: ["implements", "extends", "inherits", "uses"], answer: 0, explanation: "Java uses 'implements' to implement one or more interfaces." },
+  { text: "What annotation is used above a method that fulfills an interface's method contract?", options: ["@Override", "@Interface", "@Implements", "@Extends"], answer: 0, explanation: "@Override is the annotation used when implementing/overriding an interface method." },
+  { text: "In the Professor class example, besides teach() and research(), what additional method is defined directly on Professor (not from an interface)?", options: ["supervise()", "introduce()", "study()", "compute()"], answer: 0, explanation: "supervise() is defined directly on Professor, beyond the two interface methods." },
+  { text: "Can an interface in Java contain a method body by default (in the classic sense used in these notes)?", options: ["No — interfaces declare methods that implementing classes must define/override", "Yes, interfaces always require full method bodies", "Interfaces cannot declare any methods", "Interfaces are identical to classes in every way"], answer: 0, explanation: "Interfaces declare method signatures that implementing classes must provide the body for." },
+  { text: "Why is implementing multiple interfaces considered 'safer' than direct multiple class inheritance?", options: ["Because interfaces only declare method signatures, avoiding the ambiguity of inheriting conflicting concrete implementations from multiple classes", "Because interfaces are exactly the same as classes", "Because interfaces cannot be implemented by more than one class", "Because Java doesn't allow interfaces to have any methods"], answer: 0, explanation: "Interfaces avoid ambiguity since they don't provide conflicting concrete implementations." },
+  { text: "What does implementing the Teacher and Researcher interfaces in one Professor class effectively simulate?", options: ["Multiple inheritance — combining behavior from multiple sources", "Single inheritance only", "No inheritance at all", "Deletion of the interfaces"], answer: 0, explanation: "Implementing multiple interfaces effectively simulates multiple inheritance." },
+  { text: "Which of these could be declared as a Java interface method, according to the notes' pattern?", options: ["void teach();", "int x = 5;", "class Teacher {}", "package teacher;"], answer: 0, explanation: "Interface methods are declared with a signature and semicolon, like 'void teach();'." },
+  { text: "What would happen if a class implements an interface but fails to override one of its declared methods?", options: ["The class generally would not compile unless it is itself declared abstract", "Nothing — this is always allowed silently", "The interface would be deleted", "The method would run with default empty behavior automatically in all cases"], answer: 0, explanation: "A concrete class implementing an interface must override all its declared methods, or the code won't compile." },
+
+  // SECTION 5: DESIGNING EFFECTIVE CLASS HIERARCHY & PITFALLS
+  { text: "What does designing an effective class hierarchy require?", options: ["Careful planning to ensure proper organization and functionality", "No planning at all", "Randomly generated class names", "Avoiding all documentation"], answer: 0, explanation: "Effective class hierarchy design requires careful planning." },
+  { text: "Which three principles are listed as guiding effective class hierarchy design?", options: ["Abstraction, Encapsulation, and Polymorphism", "Speed, Size, and Color", "Only Inheritance", "Only Packages"], answer: 0, explanation: "Abstraction, Encapsulation, and Polymorphism guide effective class hierarchy design." },
+  { text: "What problem can excessively deep inheritance chains cause?", options: ["They can complicate the code and make it challenging to trace behaviour", "They always improve performance", "They eliminate the need for testing", "They automatically fix all bugs"], answer: 0, explanation: "Deep inheritance chains complicate code and make behavior harder to trace." },
+  { text: "What is advisable regarding the depth of a class hierarchy?", options: ["Keep it as shallow as possible while still reflecting real-world relationships", "Make it as deep as possible always", "Avoid any hierarchy at all", "Use exactly one level always regardless of the domain"], answer: 0, explanation: "It's advisable to keep the hierarchy as shallow as possible while still accurate." },
+  { text: "What is 'tight coupling' a risk of, according to the notes?", options: ["Classes that depend heavily on one another, making the system fragile and difficult to change", "Classes that never interact at all", "Interfaces with no methods", "Packages with too few classes"], answer: 0, explanation: "Tight coupling arises from classes depending heavily on one another." },
+  { text: "What effect does tight coupling have on a system?", options: ["It makes the system fragile and difficult to change", "It makes the system impossible to compile", "It has no negative effect at all", "It always improves flexibility"], answer: 0, explanation: "Tight coupling makes systems fragile and difficult to change." },
+  { text: "What common pitfall involves modeling every relationship with inheritance, even when it isn't appropriate?", options: ["Overusing Inheritance", "Underusing Interfaces", "Overusing Packages", "Underusing Namespaces"], answer: 0, explanation: "Overusing Inheritance is the pitfall of modeling every relationship with inheritance." },
+  { text: "What alternative to inheritance can sometimes provide better flexibility and organization?", options: ["Composition", "Deletion", "Duplication", "Randomization"], answer: 0, explanation: "Composition can sometimes provide better flexibility than inheritance." },
+  { text: "What should a developer assess when deciding whether to use inheritance for a given design?", options: ["Whether inheritance is the most suitable approach for the design at hand", "Whether the class name is short enough", "Whether the file size is small enough", "Whether the code compiles faster with inheritance"], answer: 0, explanation: "Developers should assess whether inheritance is truly the most suitable approach." },
+  { text: "According to the notes, what enables developers to quickly understand relationships between components in a large project?", options: ["Enhanced readability from a well-structured class hierarchy", "Randomly named variables", "Extremely long single files", "Avoiding all comments"], answer: 0, explanation: "Enhanced readability from good hierarchy design helps developers understand component relationships." },
+  { text: "Which of these is NOT listed as a common pitfall in class hierarchy design?", options: ["Using too many comments", "Deep inheritance chains", "Tight coupling", "Overusing inheritance"], answer: 0, explanation: "Using too many comments is not listed as a pitfall; the three listed are deep chains, tight coupling, and overusing inheritance." },
+  { text: "Why is it important to reflect real-world relationships even while keeping a hierarchy shallow?", options: ["So the class structure still accurately models the entities and their properties/behaviors it represents", "Because real-world accuracy is irrelevant to programming", "Because shallow hierarchies never need to reflect anything real", "Because deep hierarchies always reflect reality better"], answer: 0, explanation: "A shallow hierarchy should still accurately model real-world entity relationships." },
+  { text: "What does tight coupling make especially difficult when requirements change?", options: ["Modifying the system without affecting many interdependent classes", "Compiling the program at all", "Running the program on any operating system", "Naming new variables"], answer: 0, explanation: "Tight coupling makes it difficult to modify the system without a ripple effect across dependent classes." },
+  { text: "Which principle, if properly applied, helps hide unnecessary complexity when designing a class hierarchy?", options: ["Abstraction", "Deep inheritance chains", "Tight coupling", "Overusing inheritance"], answer: 0, explanation: "Abstraction is the principle that helps hide unnecessary complexity." },
+
+  // SECTION 6: PACKAGES
+  { text: "What is a package, in programming terms?", options: ["A collection of related classes and interfaces which are grouped together, for ease of use", "A single unrelated function", "A type of loop", "A hardware component"], answer: 0, explanation: "A package is a collection of related classes and interfaces grouped together." },
+  { text: "What does the concept of packages allow developers to do?", options: ["Cluster similar functionalities and promote organization in large codebases", "Prevent all code reuse", "Delete unused classes automatically", "Avoid using any classes"], answer: 0, explanation: "Packages let developers cluster similar functionalities, promoting organization." },
+  { text: "Which benefit of packages 'facilitates logical grouping which helps in managing and intuitively navigating' code?", options: ["Logical Grouping", "Access Control", "Namespace Management", "Modularization"], answer: 0, explanation: "Logical Grouping facilitates managing and intuitively navigating code." },
+  { text: "Which benefit of packages helps developers easily avoid naming conflicts?", options: ["Namespace Management", "Logical Grouping alone", "Access Control alone", "None of these"], answer: 0, explanation: "Namespace Management helps developers avoid naming conflicts by using packages." },
+  { text: "Which benefit of packages allows enforcing encapsulation by defining public, private, and protected access modifiers at the package level?", options: ["Access Control", "Logical Grouping alone", "Namespace Management alone", "None of these"], answer: 0, explanation: "Access Control allows enforcing encapsulation via access modifiers at the package level." },
+  { text: "What is the keyword for declaring packages?", options: ["package", "class", "interface", "namespace"], answer: 0, explanation: "The keyword for declaring packages is 'package'." },
+  { text: "In the code example 'package com.example.myclass;', what does this line declare?", options: ["That the following class belongs to the com.example.myclass package", "A variable declaration", "A comment", "A loop"], answer: 0, explanation: "This line declares the package that the following class(es) belong to." },
+  { text: "Why might packages be described using an 'Animal class' example in these notes?", options: ["To illustrate how related classes/interfaces can be grouped together for ease of use", "Because packages only work with animal-related code", "Because Animal is a reserved Java keyword", "Because packages cannot contain any other type of class"], answer: 0, explanation: "The Animal class example illustrates how related classes can be grouped as a package." },
+  { text: "What three access modifiers can packages help enforce at the package level?", options: ["Public, private, and protected", "Fast, medium, and slow", "Red, green, and blue", "Static, dynamic, and final only"], answer: 0, explanation: "Packages help enforce public, private, and protected access modifiers." },
+  { text: "How do packages contribute to promoting organization in a large codebase?", options: ["By letting developers cluster similar functionalities together rather than scattering related classes", "By deleting classes automatically once grouped", "By preventing any classes from being created", "By requiring every class to be in its own separate package"], answer: 0, explanation: "Packages promote organization by clustering similar functionalities together." },
+  { text: "What overall problem do packages help large software projects avoid?", options: ["Disorganized, hard-to-navigate codebases with scattered, unrelated classes", "Having any classes at all", "Using any functions", "Compiling too quickly"], answer: 0, explanation: "Packages help avoid disorganized, hard-to-navigate codebases." },
+  { text: "Which of the following best describes the relationship between packages and access control?", options: ["Packages can enforce encapsulation by defining access modifiers at the package level", "Packages have no relationship to access control at all", "Access control can only be applied outside of packages", "Packages always make all classes fully public"], answer: 0, explanation: "Packages can enforce encapsulation via access modifiers at the package level." },
+  { text: "Which is a benefit specifically tied to preventing naming collisions across a large project?", options: ["Namespace Management", "Access Control alone", "Logical Grouping alone", "None of these relate to naming collisions"], answer: 0, explanation: "Namespace Management is the benefit specifically tied to avoiding naming collisions." },
+
+  // SECTION 7: NAMESPACES
+  { text: "What is a namespace?", options: ["A concept that provides a scope for identifiers such as variable names to be defined", "A type of loop construct", "A hardware memory address", "A file compression format"], answer: 0, explanation: "A namespace provides a scope for identifiers like variable names." },
+  { text: "Which programming languages are mentioned as using the namespace concept?", options: ["C++, Python, and JavaScript", "Only assembly language", "Only machine code", "Only HTML"], answer: 0, explanation: "C++, Python, and JavaScript are mentioned as using namespaces." },
+  { text: "What are namespaces essential for managing in large software projects?", options: ["The names of various entities, ensuring name collisions do not occur", "The physical size of hard drives", "The color scheme of the IDE", "The number of monitors used by developers"], answer: 0, explanation: "Namespaces manage entity names to prevent collisions." },
+  { text: "Which benefit of namespaces allows developers to define functions, classes, and variables with the same name in different contexts?", options: ["Avoiding Conflicts", "Organizational Clarity alone", "Modular Development alone", "None of these"], answer: 0, explanation: "Avoiding Conflicts lets developers reuse names safely in different contexts." },
+  { text: "Which benefit of namespaces provides a clear structure to the codebase, making it easier to understand associations between components?", options: ["Organizational Clarity", "Avoiding Conflicts alone", "Modular Development alone", "None of these"], answer: 0, explanation: "Organizational Clarity provides a clear structure to understand component associations." },
+  { text: "Which benefit of namespaces can be leveraged so teams can build features independently?", options: ["Modular Development", "Avoiding Conflicts alone", "Organizational Clarity alone", "None of these"], answer: 0, explanation: "Modular Development lets teams build features independently using namespaces." },
+  { text: "In the variable assignment example (Dim A, C As Integer; A=5; B=4; C=A; A=B; B=C), what is the final value of B?", options: ["5", "4", "0", "9"], answer: 0, explanation: "After C=A (C=5), A=B (A=4), B=C (B=5) — so B ends up as 5." },
+  { text: "In the variable assignment example, what is the final value of A after A=B is executed?", options: ["4", "5", "0", "9"], answer: 0, explanation: "A=B assigns A the value of B, which was 4, so A becomes 4." },
+  { text: "In the variable assignment example, what is the value of C right after 'C = A' executes (given A=5)?", options: ["5", "4", "0", "9"], answer: 0, explanation: "C=A copies A's value (5) into C." },
+  { text: "How are packages and namespaces similar in purpose?", options: ["Both help organize code and prevent naming conflicts in large projects", "They are entirely unrelated concepts with no overlap", "Both eliminate the need for any classes", "Both are unique to a single programming language"], answer: 0, explanation: "Packages and namespaces serve a similar organizational, conflict-avoidance purpose." },
+  { text: "Why is scope an important concept tied to namespaces?", options: ["Because a namespace defines the boundary within which an identifier's name is valid/unique", "Because scope has nothing to do with identifiers", "Because namespaces eliminate the concept of scope entirely", "Because scope only applies to hardware, not software"], answer: 0, explanation: "A namespace defines the scope within which an identifier is valid/recognized." },
+  { text: "What might happen without namespaces in a large project with many contributors?", options: ["Increased risk of naming collisions between identifiers defined by different developers", "Guaranteed faster compilation always", "No possible way to write any code", "Automatic prevention of all bugs"], answer: 0, explanation: "Without namespaces, naming collisions become more likely in large collaborative projects." },
+
+  // SECTION 8: MODULARIZATION AND MODULARITY
+  { text: "What is modularization, broadly?", options: ["The practice of breaking a program down into separate, self-contained modules", "The practice of merging all code into a single file", "A type of hardware upgrade", "A method for deleting unused variables"], answer: 0, explanation: "Modularization breaks a program into separate, self-contained modules." },
+  { text: "What does modularization directly reduce among classes and components?", options: ["Interdependencies", "The number of available classes", "The total lines of code to zero", "The need for any testing"], answer: 0, explanation: "Modularization reduces interdependencies among classes/components." },
+  { text: "What question does 'how do we modularize?' address?", options: ["Deciding how to split code into sensible, cohesive modules", "Whether to use a specific font in the IDE", "Which color scheme to use", "How many monitors to use"], answer: 0, explanation: "'How do we modularize' addresses splitting code into cohesive modules." },
+  { text: "What question does 'why do we need to modularize?' address?", options: ["The benefits like reusability, easier maintenance, and independent team work", "Which programming language is fastest", "The physical location of the server", "The price of the software license"], answer: 0, explanation: "'Why modularize' addresses benefits like reusability and easier maintenance." },
+  { text: "What question does 'when do we need to modularize?' address?", options: ["Recognizing the point at which a growing codebase benefits from being split into modules", "The exact time of day to write code", "The version number of the compiler", "The screen resolution of the developer's monitor"], answer: 0, explanation: "'When to modularize' addresses recognizing when a codebase benefits from splitting." },
+  { text: "How does each module relate to its own namespace, according to the notes?", options: ["Each module effectively promotes its own namespace", "Modules cannot have namespaces at all", "All modules must share exactly one namespace", "Namespaces are unrelated to modularization"], answer: 0, explanation: "Each module effectively promotes its own namespace." },
+  { text: "What does modularization enable regarding development, testing, and reuse?", options: ["Letting components be developed, tested, and reused more independently", "Forcing all components to be tested together only", "Preventing any component from being reused", "Requiring a single developer to write all modules alone"], answer: 0, explanation: "Modularization enables independent development, testing, and reuse of components." },
+  { text: "Which is a key motivation for modularizing a growing codebase?", options: ["Avoiding a monolithic, hard-to-manage structure as the codebase grows", "Making the codebase impossible to compile", "Preventing any future updates", "Forcing all code into one giant file"], answer: 0, explanation: "Modularization avoids a monolithic, hard-to-manage structure as code grows." },
+  { text: "How does modularization relate to team collaboration on large projects?", options: ["It lets different teams build and work on separate modules with reduced risk of interference", "It requires all teams to edit the exact same file simultaneously", "It eliminates the need for any team communication ever", "It has no impact on collaboration"], answer: 0, explanation: "Modularization lets teams work on separate modules with reduced interference." },
+  { text: "Which of these best summarizes modularization's core purpose?", options: ["Breaking a program into independent, reusable, and more manageable components", "Combining all functionality into a single indivisible unit", "Removing the need for any classes or functions", "Slowing down the development process intentionally"], answer: 0, explanation: "Modularization's core purpose is breaking programs into independent, manageable components." },
+
+  // SECTION 9: ITERATORS VS ENUMERATORS
+  { text: "What does Java's Iterator interface allow you to do?", options: ["Traverse (move through) the elements of a collection", "Delete an entire package", "Compile source code", "Create a new namespace"], answer: 0, explanation: "The Iterator interface allows traversal through a collection's elements." },
+  { text: "When was the Iterator interface introduced in Java?", options: ["Java 1.2+ (the Collections Framework)", "Java 1.0 (the original legacy API)", "It has never been part of Java", "Java 20 exclusively"], answer: 0, explanation: "Iterator was introduced in the Java 1.2+ Collections Framework." },
+  { text: "When was the Enumeration interface introduced in Java?", options: ["Java 1.0 (the legacy API)", "Java 1.2+ (the Collections Framework)", "It was introduced after Iterator", "It has never existed in Java"], answer: 0, explanation: "Enumeration is from the older, legacy Java 1.0 API." },
+  { text: "Which package does Iterator belong to?", options: ["java.util.Iterator", "java.util.Enumeration", "java.lang.Iterator", "java.io.Iterator"], answer: 0, explanation: "Iterator belongs to the java.util package." },
+  { text: "Which package does Enumeration belong to?", options: ["java.util.Enumeration", "java.util.Iterator", "java.lang.Enumeration", "java.io.Enumeration"], answer: 0, explanation: "Enumeration belongs to the java.util package (as the legacy interface)." },
+  { text: "Which collections does Iterator work with?", options: ["All modern collections, like List, TreeSet, etc.", "Only Vector and Hashtable", "No collections at all", "Only arrays"], answer: 0, explanation: "Iterator works with all modern collections." },
+  { text: "Which collections does Enumeration work with?", options: ["Only legacy classes, like Vector and Hashtable", "All modern collections generally", "Only Lists", "Only Maps"], answer: 0, explanation: "Enumeration works only with legacy classes like Vector and Hashtable." },
+  { text: "What traversal direction do both Iterator and Enumeration support?", options: ["Forward traversal only", "Backward traversal only", "Both forward and backward", "Random access traversal"], answer: 0, explanation: "Both Iterator and Enumeration support forward traversal only." },
+  { text: "Which methods does Iterator use for element access?", options: ["next() and hasNext()", "nextElement() and hasMoreElements()", "get() and set()", "push() and pop()"], answer: 0, explanation: "Iterator uses next() and hasNext() for element access." },
+  { text: "Which methods does Enumeration use for element access?", options: ["nextElement() and hasMoreElements()", "next() and hasNext()", "peek() and poll()", "add() and remove()"], answer: 0, explanation: "Enumeration uses nextElement() and hasMoreElements()." },
+  { text: "Does Iterator support element removal during traversal?", options: ["Yes, via the remove() method", "No, Iterator cannot remove elements", "Only Enumeration can remove elements", "Neither can remove elements"], answer: 0, explanation: "Iterator supports removal via its remove() method." },
+  { text: "Does Enumeration support element removal during traversal?", options: ["No, it does not support removal", "Yes, fully supported", "Only for Lists", "Only for Sets"], answer: 0, explanation: "Enumeration does not support element removal." },
+  { text: "Which is generally considered more efficient: Iterator or Enumeration?", options: ["Iterator, which is slightly more efficient", "Enumeration, which is much faster", "They are exactly identical in performance", "Neither has any performance characteristics"], answer: 0, explanation: "Iterator is described as slightly more efficient than Enumeration." },
+
+  // SECTION 10: THE LIST DATA STRUCTURE
+  { text: "What is a List, in terms of its principle of operation?", options: ["An ordered collection of elements, stored in a sequential manner", "An unordered, random collection with no structure", "A single value with no elements", "A type of network protocol"], answer: 0, explanation: "A List is an ordered collection stored sequentially." },
+  { text: "What does 'Ordered' mean as a List attribute?", options: ["Elements are stored in the order they are added", "Elements are always sorted numerically", "Elements have no defined order at all", "Only the first element is retained"], answer: 0, explanation: "'Ordered' means elements are stored in the order they were added." },
+  { text: "What does 'Indexed' mean as a List attribute?", options: ["Elements can be accessed by their position, starting from zero", "Elements cannot be accessed at all", "Elements are indexed starting from one only", "Only the last element has an index"], answer: 0, explanation: "'Indexed' means elements can be accessed by position, starting from zero." },
+  { text: "Does a List typically allow duplicate elements?", options: ["Yes, a list can contain duplicate elements", "No, duplicates are always forbidden", "Only the first duplicate is kept", "Lists cannot contain more than one element"], answer: 0, explanation: "Lists can contain duplicate elements and grow/shrink as needed." },
+  { text: "What does 'Mutable' mean as a List attribute?", options: ["Elements can be added, removed, or modified after the list is created", "The list can never be changed once created", "Only new lists can be created, never modified", "Mutability refers only to the list's name"], answer: 0, explanation: "'Mutable' means elements can be added, removed, or modified after creation." },
+  { text: "What advantage does a LinkedList provide over an ArrayList?", options: ["Dynamic memory allocation and efficient addition/deletion", "Guaranteed faster indexed access always", "The inability to grow in size", "No memory usage at all"], answer: 0, explanation: "LinkedList provides dynamic memory allocation and efficient addition/deletion." },
+  { text: "Why can an ArrayList be slower than a LinkedList for insertions/deletions in the middle?", options: ["Because remaining elements must be shifted to make room, unlike a LinkedList which can simply relink neighboring nodes", "Because ArrayLists cannot hold more than 10 elements", "Because ArrayLists don't support indexing at all", "Because LinkedLists cannot be traversed"], answer: 0, explanation: "ArrayList requires shifting elements; LinkedList just relinks neighboring nodes." },
+  { text: "Which List attribute directly relates to a list being able to grow or shrink in size as needed?", options: ["Allows Duplicate (and dynamic sizing)", "Ordered only", "Indexed only", "None of these attributes relate to sizing"], answer: 0, explanation: "The notes tie dynamic growing/shrinking to the 'allows duplicate' / flexible-size attribute grouping." },
+  { text: "What starting index does a typical List use for its first element?", options: ["Zero", "One", "Negative one", "There is no starting index"], answer: 0, explanation: "List indexing typically starts at zero." },
+  { text: "Which best describes the overall principle of operation for a List?", options: ["An ordered, indexed, sequential collection of elements that can be modified after creation", "A single unchangeable value", "An unordered set with no access by position", "A file storage format only"], answer: 0, explanation: "A List is an ordered, indexed, sequential, mutable collection of elements." },
+  { text: "If you need frequent insertions and deletions in the middle of a large collection, which structure is generally preferable?", options: ["LinkedList", "ArrayList", "Neither is ever preferable", "A List cannot support insertions at all"], answer: 0, explanation: "LinkedList is generally preferable for frequent middle insertions/deletions due to efficient relinking." },
+  { text: "Which of these best explains why Lists are described as 'mutable'?", options: ["Because their contents can change (add/remove/modify) after the list object is first created", "Because their name can be changed at runtime", "Because they cannot be created at all", "Because mutability refers only to their memory address"], answer: 0, explanation: "Mutability refers to the list's contents being changeable after creation." },
+
+  // SECTION 11: STACK
+  { text: "What principle does a Stack data structure follow?", options: ["Last In, First Out (LIFO)", "First In, First Out (FIFO)", "Random access with no order", "Last In, Last Out"], answer: 0, explanation: "A Stack follows the Last In, First Out (LIFO) principle." },
+  { text: "In a Stack, which element is removed first?", options: ["The most recently added element", "The very first element ever added", "A randomly chosen element", "The element in the middle"], answer: 0, explanation: "In LIFO, the most recently added element is removed first." },
+  { text: "What does the push() operation do in a Stack?", options: ["Insert an element at/onto the top of the stack", "Remove the bottom element", "Sort the entire stack", "Delete the whole stack"], answer: 0, explanation: "push() inserts an element onto the top of the stack." },
+  { text: "What does the pop() operation do in a Stack?", options: ["Remove the element currently at the top of the stack", "Add a new element to the bottom", "Sort the stack in ascending order", "Return the size of the stack only"], answer: 0, explanation: "pop() removes the element at the top of the stack." },
+  { text: "Is a Stack described as a linear or non-linear collection data structure in this course?", options: ["Linear", "Non-linear", "Circular only", "Tree-based only"], answer: 0, explanation: "A Stack is described as a linear collection data structure." },
+  { text: "Which everyday analogy best matches the LIFO principle of a Stack?", options: ["A stack of plates, where you take the top plate off first", "A queue at a ticket counter, first come first served", "A random lottery draw", "A library sorted alphabetically"], answer: 0, explanation: "A stack of plates (top removed first) matches the LIFO principle." },
+  { text: "If you push A, then B, then C onto a stack, what does pop() return first?", options: ["C", "A", "B", "All three at once"], answer: 0, explanation: "C was pushed last, so under LIFO it is popped first." },
+  { text: "What happens to the 'top' of a stack after a successful push() operation?", options: ["It now points to (or is) the newly pushed element", "It becomes permanently undefined", "It moves to the bottom of the stack", "It is deleted"], answer: 0, explanation: "After a push, the top of the stack is the newly added element." },
+  { text: "Which of the two basic stack operations is used to view/remove the most recently added item?", options: ["pop()", "push()", "enqueue()", "dequeue()"], answer: 0, explanation: "pop() removes the most recently added item, consistent with LIFO." },
+  { text: "Which graph traversal algorithm (covered later in this course) relies on the Stack's LIFO principle?", options: ["Depth-First Search (DFS)", "Breadth-First Search (BFS)", "Linear Search", "Binary Search"], answer: 0, explanation: "DFS relies on the Stack's LIFO principle (explicitly or via recursion)." },
+
+  // SECTION 12: QUEUE
+  { text: "What principle does a Queue data structure follow?", options: ["First In, First Out (FIFO)", "Last In, First Out (LIFO)", "Random access with no order", "Last In, Last Out"], answer: 0, explanation: "A Queue follows the First In, First Out (FIFO) principle." },
+  { text: "In a Queue, which element is removed first?", options: ["The earliest added element", "The most recently added element", "A randomly chosen element", "The element in the middle"], answer: 0, explanation: "In FIFO, the earliest added element is removed first." },
+  { text: "What does the enqueue() operation do in a Queue?", options: ["Add an element at the rear of the queue", "Remove the front element", "Sort the queue", "Delete the whole queue"], answer: 0, explanation: "enqueue() adds an element at the rear of the queue." },
+  { text: "What does the dequeue() operation do in a Queue?", options: ["Remove the element at the front of the queue", "Add a new element to the rear", "Sort the queue in descending order", "Return the size only"], answer: 0, explanation: "dequeue() removes the element at the front of the queue." },
+  { text: "What does peek()/front() do in a Queue?", options: ["View the element at the front of the queue without removing it", "Remove the front element permanently", "Add a new element to the queue", "Delete the entire queue"], answer: 0, explanation: "peek()/front() views the front element without removing it." },
+  { text: "Which everyday analogy best matches the FIFO principle of a Queue?", options: ["People waiting in line, where the first person in line is served first", "A stack of plates, top removed first", "A random lottery draw", "A library sorted alphabetically"], answer: 0, explanation: "A line of people (first in, first served) matches FIFO." },
+  { text: "Which application is mentioned as an example use case for Queues?", options: ["Managing print jobs, processed in the order they were submitted", "Sorting a list alphabetically", "Compressing an image file", "Encrypting a password"], answer: 0, explanation: "Managing print jobs in submission order is a classic Queue application." },
+  { text: "Which fundamental graph traversal algorithm relies on the Queue's FIFO principle?", options: ["Breadth-First Search (BFS)", "Depth-First Search (DFS)", "Linear Search", "Binary Search"], answer: 0, explanation: "BFS relies on the Queue's FIFO principle." },
+  { text: "If you enqueue A, then B, then C, what does dequeue() return first?", options: ["A", "C", "B", "All three at once"], answer: 0, explanation: "A was added first, so under FIFO it is dequeued first." },
+  { text: "Why is a Queue well-suited to processing tasks in the exact order they arrive?", options: ["Because FIFO guarantees the earliest-arrived task is always processed before later ones", "Because Queues process tasks in a completely random order", "Because Queues always process the most recent task first", "Because Queues cannot hold more than one task"], answer: 0, explanation: "FIFO guarantees processing order matches arrival order." },
+
+  // SECTION 13: SEARCH ALGORITHMS
+  { text: "What does Linear Search do?", options: ["Searches a collection in sequential order, comparing the target against each element one at a time", "Immediately jumps to the middle of the array", "Requires the array to be sorted first", "Sorts the array before searching"], answer: 0, explanation: "Linear Search checks elements sequentially, one at a time." },
+  { text: "Does Linear Search require the data to be sorted beforehand?", options: ["No, it works on both sorted and unsorted arrays", "Yes, it always requires sorted data", "Only for arrays larger than 100 elements", "Only for arrays of strings"], answer: 0, explanation: "Linear Search works on both sorted and unsorted arrays, with no pre-processing required." },
+  { text: "What is a key downside of Linear Search on large datasets?", options: ["It can be slow, since it may need to check many (or all) elements before finding a match", "It always fails to find any element", "It requires the array to be sorted first", "It cannot be implemented in any programming language"], answer: 0, explanation: "Linear Search can be slow on large datasets since it may check many elements." },
+  { text: "What is Binary Search's core requirement before it can be used?", options: ["The array must be sorted", "The array must be unsorted", "The array must contain only numbers", "The array must have fewer than 10 elements"], answer: 0, explanation: "Binary Search requires the array to be sorted beforehand." },
+  { text: "How does Binary Search work?", options: ["By repeatedly dividing the search interval in half and comparing the target with the middle element", "By checking every single element sequentially", "By randomly guessing positions until found", "By sorting the array during every search"], answer: 0, explanation: "Binary Search repeatedly halves the search interval, comparing against the middle element." },
+  { text: "In Binary Search, what happens if the target is smaller than the middle element?", options: ["The search continues in the left half of the array", "The search continues in the right half of the array", "The search ends immediately with failure", "The entire array is re-sorted"], answer: 0, explanation: "If the target is smaller than the middle element, the search continues in the left half." },
+  { text: "In Binary Search, what happens if the target is larger than the middle element?", options: ["The search continues in the right half of the array", "The search continues in the left half of the array", "The search ends immediately with failure", "The array is reversed"], answer: 0, explanation: "If the target is larger than the middle element, the search continues in the right half." },
+  { text: "Why is Binary Search generally much faster than Linear Search on large datasets?", options: ["Because each comparison eliminates roughly half of the remaining elements", "Because it checks every element twice as fast", "Because it doesn't actually compare any elements", "Because it always finds the target on the first try"], answer: 0, explanation: "Binary Search eliminates about half the remaining elements with each comparison." },
+  { text: "In the example array [15, 8, 24, 10, 30], searching for 10 with Linear Search, how many comparisons are needed before finding a match (checking left to right)?", options: ["4 comparisons (15, 8, 24, then 10)", "1 comparison only", "10 comparisons", "It is never found"], answer: 0, explanation: "Checking 15, 8, 24, then 10 takes 4 comparisons before finding the match." },
+  { text: "Which search algorithm is simpler to implement, generally?", options: ["Linear Search", "Binary Search", "They are equally complex", "Neither can be implemented"], answer: 0, explanation: "Linear Search is simpler to implement than Binary Search." },
+  { text: "Which search algorithm requires no pre-processing of the data?", options: ["Linear Search", "Binary Search", "Both require identical pre-processing", "Neither can search any data"], answer: 0, explanation: "Linear Search requires no pre-processing (like sorting)." },
+  { text: "For the sorted array [9, 14, 18, 23, 27, 31, 45], if Binary Search compares the target to 23 (a middle-ish value) and finds a match, how many total comparisons might be needed?", options: ["Very few — potentially just one if 23 is chosen as the middle element to compare first", "Always exactly 7 comparisons", "It is impossible to find 23 with binary search", "It requires sorting the array again first"], answer: 0, explanation: "If 23 happens to be the middle element compared first, it could be found in just one comparison." },
+  { text: "What is a general trade-off between Linear Search and Binary Search?", options: ["Linear Search is simpler with no pre-processing needed, but slower on large data; Binary Search needs sorted data but is much faster on large data", "There is no meaningful trade-off between them", "Binary Search never requires sorted data", "Linear Search is always faster in every case"], answer: 0, explanation: "The trade-off is simplicity/no pre-processing (Linear) vs. speed with sorted data required (Binary)." },
+  { text: "Which search algorithm would be more appropriate for a small, frequently-changing, unsorted list?", options: ["Linear Search, since sorting the list every time would add unnecessary overhead", "Binary Search, since it never requires sorted data", "Neither algorithm can be used on any list", "Both are equally inappropriate for this scenario"], answer: 0, explanation: "Linear Search avoids the overhead of re-sorting an unsorted, frequently-changing list." },
+  { text: "Which search algorithm would be more appropriate for a large, static, sorted dataset that is searched frequently?", options: ["Binary Search, since it offers much faster lookups on sorted data", "Linear Search, since it never needs sorted data", "Neither algorithm applies to sorted data", "Both are equally slow regardless of data size"], answer: 0, explanation: "Binary Search is ideal for large, static, sorted datasets searched frequently." },
+
+  // SECTION 14: GRAPH TRAVERSAL ALGORITHMS - BFS AND DFS
+  { text: "What does BFS stand for?", options: ["Breadth-First Search", "Backward-First Search", "Binary-First Search", "Best-First Search"], answer: 0, explanation: "BFS stands for Breadth-First Search." },
+  { text: "What does DFS stand for?", options: ["Depth-First Search", "Direct-First Search", "Data-First Search", "Double-First Search"], answer: 0, explanation: "DFS stands for Depth-First Search." },
+  { text: "What underlying data structure does BFS use?", options: ["A Queue (FIFO)", "A Stack (LIFO)", "A sorted array", "A hash table only"], answer: 0, explanation: "BFS uses a Queue, following the FIFO principle." },
+  { text: "What underlying data structure does DFS use?", options: ["A Stack (LIFO), or recursion via the function call stack", "A Queue (FIFO)", "A sorted array", "A hash table only"], answer: 0, explanation: "DFS uses a Stack (explicitly, or via recursion)." },
+  { text: "How does BFS explore a graph?", options: ["Level by level, outward from the source node", "As deep as possible along one branch before backtracking", "In a completely random order", "Only along the shortest labeled edge"], answer: 0, explanation: "BFS explores level by level, outward from the source." },
+  { text: "How does DFS explore a graph?", options: ["As deep as possible along each branch before backtracking", "Level by level, outward from the source", "In a completely random order", "Only by visiting even-numbered nodes"], answer: 0, explanation: "DFS explores as deep as possible before backtracking." },
+  { text: "Does BFS guarantee finding the shortest path in an unweighted graph?", options: ["Yes, it guarantees the shortest path in an unweighted graph", "No, it never finds any path", "Only DFS can guarantee shortest paths", "Neither BFS nor DFS can find paths"], answer: 0, explanation: "BFS guarantees the shortest path in an unweighted graph." },
+  { text: "Does DFS guarantee finding the shortest path?", options: ["No, DFS does not guarantee the shortest path", "Yes, DFS always finds the shortest path", "DFS guarantees the shortest path only in weighted graphs", "DFS cannot find any path at all"], answer: 0, explanation: "DFS does not guarantee finding the shortest path." },
+  { text: "What is the first step of the BFS algorithm?", options: ["Start at a source node and add it to the queue, marking it visited", "Immediately visit every node in the graph simultaneously", "Sort all nodes by their names", "Delete the graph and rebuild it"], answer: 0, explanation: "BFS starts at a source node, adds it to the queue, and marks it visited." },
+  { text: "What is the first step of the DFS algorithm?", options: ["Start at a source node and mark it as visited", "Add every node to a queue immediately", "Sort all edges by weight", "Skip the source node entirely"], answer: 0, explanation: "DFS starts at a source node and marks it as visited." },
+  { text: "In BFS, what happens after a node's unvisited neighbours are found?", options: ["They are marked as visited and added to the queue", "They are immediately deleted from the graph", "They are ignored permanently", "They are sorted alphabetically before anything else happens"], answer: 0, explanation: "In BFS, unvisited neighbours are marked visited and added to the queue." },
+  { text: "In DFS, what happens when no unvisited neighbour remains at the current node?", options: ["The algorithm backtracks to the previous node", "The algorithm stops entirely with an error", "A new graph is created", "The current node is deleted"], answer: 0, explanation: "DFS backtracks to the previous node when no unvisited neighbour remains." },
+  { text: "Which of the following is listed as an application of BFS?", options: ["GPS navigation algorithms", "Topological sorting", "Cycle detection", "Maze-solving via backtracking"], answer: 0, explanation: "GPS navigation algorithms are listed as a BFS application." },
+  { text: "Which of the following is listed as an application of DFS?", options: ["Topological sorting", "GPS navigation algorithms", "Social network analysis for mutual friends", "Network broadcasting"], answer: 0, explanation: "Topological sorting is listed as a DFS application." },
+  { text: "Which algorithm is used for finding mutual friends in social network analysis?", options: ["BFS", "DFS", "Linear Search", "Binary Search"], answer: 0, explanation: "BFS is used for social network analysis, like finding mutual friends." },
+  { text: "Which algorithm is well-suited to solving maze puzzles using a backtracking approach?", options: ["DFS", "BFS", "Linear Search", "Binary Search"], answer: 0, explanation: "DFS, with its backtracking nature, is well-suited to maze-solving." },
+  { text: "Which algorithm is better suited to network broadcasting?", options: ["BFS", "DFS", "Linear Search", "Binary Search"], answer: 0, explanation: "Network broadcasting is listed as a BFS application." },
+  { text: "Which algorithm is better suited to cycle detection in a graph?", options: ["DFS", "BFS", "Linear Search", "Binary Search"], answer: 0, explanation: "Cycle detection is listed as a DFS application." },
+  { text: "Regarding memory usage, which statement is generally true?", options: ["BFS can use more memory on wide graphs (many nodes per level), while DFS often requires less memory on such graphs", "DFS always uses more memory than BFS in every case", "Both always use identical memory in every case", "Neither algorithm uses any memory"], answer: 0, explanation: "BFS can use more memory on wide graphs; DFS often uses less in that scenario." },
+  { text: "In a worked BFS example starting at node A connecting to B and C, what would the BFS queue contain after the first expansion step?", options: ["B, C", "Only A", "D, E, F, G immediately", "An empty queue"], answer: 0, explanation: "After expanding A's neighbours, the queue would contain B, C." },
+  { text: "Which of these best distinguishes BFS's use of a Queue from DFS's use of a Stack?", options: ["A Queue processes the oldest-added node first (FIFO), spreading outward; a Stack processes the newest-added node first (LIFO), diving deep", "They are functionally identical in every respect", "A Queue always uses less memory than a Stack in every possible case", "Neither structure affects the order nodes are explored"], answer: 0, explanation: "Queue (FIFO) spreads outward level-by-level; Stack (LIFO) dives deep along one branch." },
+  { text: "Why is BFS commonly used for solving simple puzzles that require the shortest sequence of moves?", options: ["Because BFS explores level by level and guarantees the shortest path is found first in an unweighted graph", "Because BFS always uses less memory than any other algorithm", "Because BFS never needs to visit every node", "Because BFS is identical to Binary Search"], answer: 0, explanation: "BFS's guarantee of shortest path in unweighted graphs makes it ideal for shortest-sequence puzzles." },
+];
+
+
+// --- CONFIG ---
+const QUIZ_SIZE = 50;
+const TIME_LIMIT = 30 * 60;
+const MARKS_PER_Q = 1.4;
+const TOTAL_MARKS = Math.round(QUIZ_SIZE * MARKS_PER_Q * 10) / 10;
+
+document.getElementById('bank-size-line').textContent =
+  QUIZ_SIZE + " random questions selected from a master bank of " + rawQuizData.length + ".";
+
+// --- STATE ---
+let quizQuestions = [];
+let currentIndex = 0;
+let userAnswers = [];
+let timerInterval = null;
+let secondsLeft = TIME_LIMIT;
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildQuiz() {
+  const pool = shuffle(rawQuizData);
+  const chosen = pool.slice(0, Math.min(QUIZ_SIZE, rawQuizData.length));
+  quizQuestions = chosen.map(q => {
+    const optIdx = q.options.map((opt, i) => ({ opt, isCorrect: i === q.answer }));
+    const shuffled = shuffle(optIdx);
+    return {
+      text: q.text,
+      explanation: q.explanation,
+      options: shuffled.map(o => o.opt),
+      answer: shuffled.findIndex(o => o.isCorrect)
+    };
+  });
+  userAnswers = new Array(quizQuestions.length).fill(null);
+  currentIndex = 0;
+  secondsLeft = TIME_LIMIT;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startQuiz() {
+  buildQuiz();
+  document.getElementById('q-total').textContent = '/ ' + quizQuestions.length;
+  showScreen('quiz');
+  startTimer();
+  renderQuestion();
+  renderMap();
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    updateTimerDisplay();
+    if (secondsLeft <= 0) {
+      clearInterval(timerInterval);
+      finishQuiz();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(secondsLeft / 60);
+  const s = secondsLeft % 60;
+  const disp = document.getElementById('timer-display');
+  disp.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  disp.classList.remove('warning', 'danger');
+  if (secondsLeft <= 60) disp.classList.add('danger');
+  else if (secondsLeft <= 300) disp.classList.add('warning');
+}
+
+function renderQuestion() {
+  const q = quizQuestions[currentIndex];
+  const n = quizQuestions.length;
+  document.getElementById('q-counter').textContent = 'Q' + (currentIndex + 1);
+  document.getElementById('progress-fill').style.width = (currentIndex / (n - 1)) * 100 + '%';
+  document.getElementById('q-badge').textContent = 'QUESTION ' + String(currentIndex + 1).padStart(2, '0');
+  document.getElementById('question-text').textContent = q.text;
+
+  const card = document.getElementById('question-card');
+  card.classList.remove('slide-in');
+  void card.offsetWidth;
+  card.classList.add('slide-in');
+
+  const list = document.getElementById('options-list');
+  list.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.options.forEach((optText, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn' + (userAnswers[currentIndex] === i ? ' selected' : '');
+    btn.innerHTML = '<span class="option-letter">' + letters[i] + '</span><span>' + optText + '</span>';
+    btn.onclick = () => {
+      userAnswers[currentIndex] = i;
+      renderQuestion();
+      renderMap();
+    };
+    list.appendChild(btn);
+  });
+
+  document.getElementById('btn-prev').disabled = currentIndex === 0;
+  document.getElementById('btn-next').disabled = currentIndex === n - 1;
+}
+
+function renderMap() {
+  const map = document.getElementById('q-map');
+  map.innerHTML = '';
+  quizQuestions.forEach((q, i) => {
+    const dot = document.createElement('div');
+    let cls = 'q-dot';
+    if (i === currentIndex) cls += ' current';
+    else if (userAnswers[i] !== null) cls += ' answered';
+    dot.className = cls;
+    dot.textContent = i + 1;
+    dot.onclick = () => { currentIndex = i; renderQuestion(); renderMap(); };
+    map.appendChild(dot);
+  });
+}
+
+function navigate(dir) {
+  const newIndex = currentIndex + dir;
+  if (newIndex >= 0 && newIndex < quizQuestions.length) {
+    currentIndex = newIndex;
+    renderQuestion();
+    renderMap();
+  }
+}
+
+function showConfirmModal(message, onConfirm) {
+  const overlay = document.getElementById('modal-overlay');
+  document.getElementById('modal-message').textContent = message;
+  overlay.style.display = 'flex';
+
+  const confirmBtn = document.getElementById('modal-confirm');
+  const cancelBtn = document.getElementById('modal-cancel');
+
+  // Clone buttons to strip any previously attached one-time listeners
+  const newConfirm = confirmBtn.cloneNode(true);
+  const newCancel = cancelBtn.cloneNode(true);
+  confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
+  cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+
+  newConfirm.addEventListener('click', () => {
+    overlay.style.display = 'none';
+    onConfirm();
+  });
+  newCancel.addEventListener('click', () => {
+    overlay.style.display = 'none';
+  });
+}
+
+function confirmSubmit() {
+  const unanswered = userAnswers.filter(a => a === null).length;
+  const msg = unanswered > 0
+    ? 'You have ' + unanswered + ' unanswered question(s). Submit anyway?'
+    : 'Submit the exam now?';
+  showConfirmModal(msg, finishQuiz);
+}
+
+function finishQuiz() {
+  clearInterval(timerInterval);
+
+  let correct = 0, wrong = 0, skipped = 0;
+  quizQuestions.forEach((q, i) => {
+    if (userAnswers[i] === null) skipped++;
+    else if (userAnswers[i] === q.answer) correct++;
+    else wrong++;
+  });
+
+  const marks = Math.round(correct * MARKS_PER_Q * 10) / 10;
+  const pct = Math.round((correct / quizQuestions.length) * 100);
+
+  const scoreEl = document.getElementById('result-score');
+  scoreEl.textContent = marks + '/' + TOTAL_MARKS;
+  scoreEl.className = 'result-score ' + (pct >= 50 ? 'pass' : 'fail');
+
+  document.getElementById('result-emoji').textContent =
+    pct >= 85 ? '🏆' : pct >= 70 ? '🎯' : pct >= 50 ? '📚' : '💪';
+  document.getElementById('result-label').textContent =
+    correct + ' / ' + quizQuestions.length + ' correct (' + pct + '%)';
+
+  document.getElementById('stat-correct').textContent = correct;
+  document.getElementById('stat-wrong').textContent = wrong;
+  document.getElementById('stat-skip').textContent = skipped;
+
+  showScreen('result');
+}
+
+function showReview() {
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+
+  quizQuestions.forEach((q, i) => {
+    const chosen = userAnswers[i];
+    const status = chosen === null ? 'skipped' : (chosen === q.answer ? 'correct' : 'wrong');
+
+    const card = document.createElement('div');
+    card.className = 'review-card ' + status;
+
+    let yourAnsHtml = '';
+    if (chosen === null) {
+      yourAnsHtml = '<div class="review-ans">Your answer: <span class="ans-wrong">Skipped</span></div>';
+    } else {
+      yourAnsHtml = '<div class="review-ans">Your answer: <span class="' + (status === 'correct' ? 'ans-correct' : 'ans-wrong') + '">' +
+        letters[chosen] + '. ' + q.options[chosen] + '</span></div>';
+    }
+
+    let correctAnsHtml = '';
+    if (status !== 'correct') {
+      correctAnsHtml = '<div class="review-ans">Correct answer: <span class="ans-correct">' +
+        letters[q.answer] + '. ' + q.options[q.answer] + '</span></div>';
+    }
+
+    card.innerHTML =
+      '<div class="review-q">' + (i + 1) + '. ' + q.text + '</div>' +
+      yourAnsHtml + correctAnsHtml +
+      '<div class="review-exp">' + q.explanation + '</div>';
+
+    list.appendChild(card);
+  });
+
+  showScreen('review');
+}
+
+function backToResults() {
+  showScreen('result');
+}
+</script>
+</body>
+</html>
